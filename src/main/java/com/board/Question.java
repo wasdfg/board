@@ -25,5 +25,5 @@ public class Question {
     @Column(columnDefinition = "TEXT")//해당 컬럼을 TEXT로 정의 하겠다
     private String content;
 
-    private LocalDateTime createdate;
+    private LocalDateTime createDate;
 }
