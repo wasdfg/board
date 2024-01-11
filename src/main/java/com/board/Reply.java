@@ -26,5 +26,4 @@ public class Reply {
 
     @ManyToOne //질문은 하나지만 답변은 여러개가 될수 있기에 N:1관계를 사용
     private Question question; //Question 엔티티를 참조하기 위해 선언
-
 }
