@@ -28,7 +28,7 @@ public class Question {
     @Column(columnDefinition = "TEXT")//해당 컬럼을 TEXT로 정의 하겠다
     private String content;
 
-    private LocalDateTime createDate;
+    private LocalDateTime now;
 
     @OneToMany(mappedBy = "question",cascade = CascadeType.REMOVE) //질문이 삭제되면 답변도 같이 삭제되게 cascade를 추가
     private List<Reply> replyList; //reply 객체를 list로 담아둔다.
