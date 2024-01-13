@@ -1,5 +1,6 @@
-package com.board;
+package com.board.reply;
 
+import com.board.question.Question;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
