@@ -1,6 +1,6 @@
 package com.board.reply;
 
-import com.board.question.Question;
+import com.board.question.Questions;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,16 +17,16 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Reply {
+public class Replys {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //id를 순차적으로 증가
-    private Integer UploadNumber;
+    private Integer uploadNumber;
 
     @Column(columnDefinition = "Text")
-    private String Content;
+    private String content;
 
-    private LocalDateTime NowTime;
+    private LocalDateTime nowTime;
 
     @ManyToOne //질문은 하나지만 답변은 여러개가 될수 있기에 N:1관계를 사용
-    private Question question; //Question 엔티티를 참조하기 위해 선언
+    private Questions questions; //Questions 엔티티를 참조하기 위해 선언
 }
