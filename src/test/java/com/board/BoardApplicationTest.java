@@ -1,51 +1,75 @@
 package com.board;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.AfterEach;
+import com.board.question.Questions;
+import com.board.question.QuestionsRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @SpringBootTest
 public class BoardApplicationTest {
     @Autowired
-    private QuestionRepository questionRepository;
+    private QuestionsRepository questionsRepository;
 
-    /*@AfterEach
-    public void cleanup(){
-        questionRepository.deleteAll(); //test 실행 후 db에 저장된 내용 삭제
-    }*/
-    @Test
-    @Transactional
-    void test(){
-        Question q1 = new Question();
-        //q1.setTitle("질문 있습니다.");//질문 제목
-        //q1.setContent("이거 뭐 만드는건가요?");//질문 내용
-        //q1.setNowTime(LocalDateTime.now());//질문을 올린 시간
-        questionRepository.save(Question.builder().Title("질문 있습니다.").Content("이거 뭐 만드는건가요?").NowTime(LocalDateTime.now()).build()); //질문을 builder를 사용하여 저장
+   @Test
+    void test(){ //테스트 데이터는 h2 인메모리에 저장되지 않는다. test시 test전용 db가 생기기 떄문이다.
+        /*Question q1 = new Question();
+        q1.setTitle("질문 있습니다.");//질문 제목
+        q1.setContent("이거 뭐 만드는건가요?");//질문 내용
+        q1.setNowTime(LocalDateTime.now());//질문을 올린 시간
+        this.questionRepository.save(q1);
+         */
+        questionsRepository.save(Questions.builder().Title("질문 있습니다.").Content("이거 뭐 만드는건가요?").NowTime(LocalDateTime.now()).build()); //질문을 builder를 사용하여 저장
 
-        Question q2 = new Question();
+        Questions q2 = new Questions();
         q2.setTitle("질문이요");
         q2.setContent("이거 만들때 id는 자동으로 생성되나요?");
         q2.setNowTime(LocalDateTime.now());
-        this.questionRepository.save(q2);
+        this.questionsRepository.save(q2);
 
-        List<Question> questionList = questionRepository.findAll(); //Question 테이블의 모든 자료를 가져온다
+        List<Questions> questionsList = questionsRepository.findAll(); //Question 테이블의 모든 자료를 가져온다
+        //assertEquals(2,questionList.size()); //현재 questionList의 크기가 2가 맞는지
+        Questions q = questionsList.get(0); //UploadNumber가 1인 것을 가져온다
+        assertEquals("질문 있습니다.",q.getTitle());  //uploadnumber가 1인 엔티티의 제목이 같은지 비교
 
-        Question question0 = questionList.get(0);
-        Question question1 = questionList.get(1);
-        assertThat(question0.getContent()).isEqualTo("이거 뭐 만드는건가요?");
-        assertThat(question1.getContent()).isEqualTo("이거 만들때 id는 자동으로 생성되나요?");
+        Questions questions0 = questionsList.get(0);
+        Questions questions1 = questionsList.get(1);
+        assertThat(questions0.getContent()).isEqualTo("이거 뭐 만드는건가요?");
+        assertThat(questions1.getContent()).isEqualTo("이거 만들때 id는 자동으로 생성되나요?");
     }
-    @GetMapping("/testing")
-    public void testing(){
-        questionRepository.findAll();
+
+    @Test
+    void test1(){
+        Optional<Questions> oq = this.questionsRepository.findById(1); //findbyid의 리턴 타입은 optional이다.
+        if(oq.isPresent()){ //값이 존재하면 true
+            Questions q = oq.get();
+            assertEquals("질문 있습니다.",q.getTitle());
+        }
+    }
+
+    @Test
+    void testTitle(){
+        Questions q = this.questionsRepository.findByTitle("질문 있습니다.");
+        //findby 사용자 정의 함수는 JPA에서 메서드 명을 분석하고 쿼리를 만들어 실행하기 때문에 직접 구현하지 않아도 된다.
+        assertEquals(1,q.getUploadNumber());
+    }
+
+    @Test
+    void testTitleandContent(){
+       Questions q = this.questionsRepository.findByTitleAndContent("질문이요","이거 만들때 id는 자동으로 생성되나요?");
+       assertEquals(2,q.getUploadNumber()); //이번엔 두번째 쿼리를 가져온다
+    }
+
+    @Test
+    void testFindTitle(){
+       List<Questions> q = this.questionsRepository.findByTitleLike("질문%"); //sql의 like '질문%' 구문과 같은 역할을 한다.
     }
 }
