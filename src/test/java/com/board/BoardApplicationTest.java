@@ -8,6 +8,7 @@ import com.board.question.Questions;
 import com.board.question.QuestionsRepository;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -121,13 +122,14 @@ public class BoardApplicationTest {
         assertEquals(1,r.getQuestions().getUploadnumber()); //answer의 question uploadnumber를 확인
     }
 
+    @Transactional
     @Test
     void testcheck(){
         Optional<Questions> oq = this.questionsRepository.findById(1);
         assertTrue(oq.isPresent());
         Questions q = oq.get();
 
-        List<Replys> replysList = q.getReplysList(); //질문에 대한 답변은 여러개일수도 있으므로 list사용 
+        List<Replys> replysList = q.getReplysList(); //질문에 대한 답변은 여러개일수도 있으므로 list사용
 
         assertEquals(1,replysList.size());
         assertEquals("이거 질답게시판 만드는겁니다.",replysList.get(0).getContent());
