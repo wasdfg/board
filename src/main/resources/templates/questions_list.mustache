@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+<table>
+    <thead>
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성일시</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#questionsList}} <!--questionsList에 있는 모든 tuple을 가져온다 -->
+        <tr>
+            <td>
+                <a href="/questions/detail/{{questions.uploadnumber}}">{{questions.title}}</a>
+            </td>
+            <td>{{uploadnumber}}</td>
+            <td>{{title}}</td>
+            <td>{{nowtime}}</td>
+        </tr>
+    {{/questionsList}}
+    </tbody>
+</table>
+</html>
