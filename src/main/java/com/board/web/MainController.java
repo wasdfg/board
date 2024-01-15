@@ -12,4 +12,9 @@ public class MainController {
         System.out.println("index"); //홈페이지에 뜨지 않는다
         return "welcome to my website";
     }
+
+    @GetMapping("/")
+    public String root(){
+        return "redirect:/questions/list"; // url을 localhost:8080/questions/list 로 유도해준다
+    }
 }
