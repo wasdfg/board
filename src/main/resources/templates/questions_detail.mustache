@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html lang="ko">
+<head>
+    <script src="path/to/formatDate.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .card {
+            margin-top: 20px;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-text {
+            white-space: pre-line;
+        }
+
+        .badge {
+            background-color: #f8f9fa;
+            color: #495057;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container my-3">
+    <!-- 질문 -->
+    <h2 class="border-bottom py-2">{{questions.title}}</h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text">{{questions.content}}</div>
+            <div class="d-flex justify-content-end">
+                <div class="badge p-2 text-start">
+                    <div>
+                        {{changedateformat}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 답변의 갯수 표시 -->
+    <h5 class="border-bottom my-3 py-2">{{replysListSize}}개의 답변이 있습니다.</h5>
+    <!-- 답변 반복 시작 -->
+    {{#questions.replysList}}
+        <div class="card my-3">
+            <div class="card-body">
+                <div class="card-text">{{content}}</div>
+                <div class="d-flex justify-content-end">
+                    <div class="badge p-2 text-start">
+                        <div>
+                            {{changedateformat}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/questions.replysList}}
+    <!-- 답변 반복 끝  -->
+    <!-- 답변 작성 -->
+    <form action="/replys/create/{{questions.uploadnumber}}" method="post" class="my-3">
+        <textarea name="content" id="content" rows="10" class="form-control"></textarea>
+        <input type="submit" value="답변등록" class="btn btn-primary my-2">
+    </form>
+</div>
+</body>
+</html>
