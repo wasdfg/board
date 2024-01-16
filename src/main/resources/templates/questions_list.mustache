@@ -1,5 +1,39 @@
 <!DOCTYPE HTML>
 <html>
+<head>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        td a:hover {
+            color: #0056b3;
+        }
+
+        .date {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
 <table>
     <thead>
     <tr>
@@ -9,16 +43,14 @@
     </tr>
     </thead>
     <tbody>
-    {{#questionsList}} <!--questionsList에 있는 모든 tuple을 가져온다 -->
+    {{#questionsList}}
         <tr>
-            <td>
-                <a href="/questions/detail/{{questions.uploadnumber}}">{{questions.title}}</a>
-            </td>
-            <td>{{uploadnumber}}</td>
+            <td><a href="/questions/detail/{{uploadnumber}}">{{uploadnumber}}</a></td>
             <td>{{title}}</td>
-            <td>{{nowtime}}</td>
+            <td class="date">{{nowtime}}</td>
         </tr>
     {{/questionsList}}
     </tbody>
 </table>
+</body>
 </html>
