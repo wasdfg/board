@@ -34,13 +34,7 @@ public class Questions {
 
     private LocalDateTime nowtime;
 
-    public LocalDateTime getNowtime() { //시간 형식 변경을 위한 getter코드
-        return nowtime;
-    }
 
-    public void setNowtime(LocalDateTime nowtime) {//시간 형식 변경을 위한 setter코드
-        this.nowtime = nowtime;
-    }
     
     @OneToMany(mappedBy = "questions",cascade = CascadeType.REMOVE) //질문이 삭제되면 답변도 같이 삭제되게 cascade를 추가
     private List<Replys> replysList; //reply 객체를 list로 담아둔다.

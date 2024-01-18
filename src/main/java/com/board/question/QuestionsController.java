@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/questions") // /questions로 시작하는 url의 앞부분을 prefix해준다.
 @RequiredArgsConstructor //final을 선언할때 사용
 @Controller
-public class QuestionController {
+public class QuestionsController {
 
     private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
@@ -28,10 +28,11 @@ public class QuestionController {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         model.addAttribute("questions",questions);
         model.addAttribute("replysListSize", questions.getReplysList().size());
-        
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //날짜 형식을 변환
         String formattedDateTime = questions.getNowtime().format(formatter);
-        model.addAttribute("changedateformat",formattedDateTime);
+        model.addAttribute("questionsdate",formattedDateTime);
+
         return "questions_detail";
     }
 }
