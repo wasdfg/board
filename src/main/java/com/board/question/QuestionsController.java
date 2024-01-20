@@ -1,8 +1,11 @@
 package com.board.question;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +42,11 @@ public class QuestionsController {
     @GetMapping("/create")
     public String questionsCreate(){
         return "questions_form";
+    }
+
+    @PostMapping("/create") //url처리
+    public String questionsCreate(@RequestParam(value="title") String title, @RequestParam(value="content") String content) {
+        this.questionsService.create(title, content);
+        return "redirect:/questions/list";
     }
 }

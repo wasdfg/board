@@ -5,6 +5,7 @@ import com.board.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +26,13 @@ public class QuestionsService {
         else{
             throw new DataNotFoundException("questions not found"); //없으면 DataNotFoundException클래스를 동작시킨다.
         }
+    }
+
+    public void create(String title,String content){
+        Questions q = new Questions();
+        q.setTitle(title);
+        q.setContent(content);
+        q.setNowtime(LocalDateTime.now());
+        this.questionsRepository.save(q);
     }
 }
