@@ -1,8 +1,9 @@
 package com.board.question;
 
-import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,8 +46,12 @@ public class QuestionsController {
     }
 
     @PostMapping("/create") //url처리
-    public String questionsCreate(@RequestParam(value="title") String title, @RequestParam(value="content") String content) {
-        this.questionsService.create(title, content);
+    public String questionsCreate(@Valid QuestionsForm questionsForm, BindingResult bindingResult,Model model){//질문 폼에 조건 추가
+        if(bindingResult.hasErrors()){ //에러가 있는지 검사
+            model.addAttribute("errors",bindingResult.getAllErrors()); //mustache는 에러를 직접 검사하는 기능이 없기에 모델로 추가
+            return "questions_form";
+        }
+        this.questionsService.create(questionsForm.getTitle(),questionsForm.getContent());
         return "redirect:/questions/list";
     }
 }

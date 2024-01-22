@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>게시판 - 질문등록</title>
-    <!-- 부트스트랩 CDN을 이용하거나 로컬로 추가하여 사용하세요 -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
         body {
@@ -53,7 +52,10 @@
 <body>
 <div class="container">
     <h5 class="my-3 border-bottom pb-2">질문등록</h5>
-    <form id="questionForm" action="/questions/create" method="post">
+    <form id="questionForm" action="/questions/create" object="questionsForm" method="post">
+        {{#errors}}
+        <div class="alert alert-danger" role="alert">{{defaultMessage}}</div>
+        {{/errors}}
         <div class="mb-3">
             <label for="title" class="form-label">제목</label>
             <input type="text" name="title" id="title" class="form-control">
@@ -65,5 +67,6 @@
         <input type="submit" value="저장하기" class="btn btn-primary my-2">
     </form>
 </div>
+<script src="/static/keep.js" type="application/javascript"></script>
 </body>
 </html>
