@@ -1,5 +1,6 @@
 package com.board.question;
 
+import com.board.reply.ReplysForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,7 @@ public class QuestionsController {
     }
 
     @GetMapping(value = "/detail/{uploadnumber}")
-    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber){
+    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         model.addAttribute("questions",questions);
         model.addAttribute("replysListSize", questions.getReplysList().size());

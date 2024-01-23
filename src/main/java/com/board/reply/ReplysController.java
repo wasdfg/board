@@ -2,9 +2,11 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.question.QuestionsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +23,18 @@ public class ReplysController {
     private final ReplysService replysService;
 
     @PostMapping("/create/{uploadnumber}") //post로 처리 대용량처리에 용이
-    public String createReply(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @RequestParam(value="content") String content){
+    public String replysCreate(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @Valid ReplysForm replysForm, BindingResult bindingResult){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        this.replysService.create(questions,content);
+        model.addAttribute("questions",questions);
+        model.addAttribute("replysListSize", questions.getReplysList().size());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //날짜 형식을 변환
+        String formattedDateTime = questions.getNowtime().format(formatter);
+        model.addAttribute("questionsdate",formattedDateTime);
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("errors",bindingResult.getAllErrors());
+            return "questions_detail";
+        }
+        this.replysService.create(questions, replysForm.getContent());
         return String.format("redirect:/questions/detail/%s",uploadnumber);
     }
 }

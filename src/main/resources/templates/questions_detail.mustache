@@ -1,7 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="ko">
 <head>
-    <script src="path/to/formatDate.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -85,7 +84,10 @@
     {{/questions.replysList}}
     <!-- 답변 반복 끝  -->
     <!-- 답변 작성 -->
-    <form action="/replys/create/{{questions.uploadnumber}}" method="post" class="my-3">
+    <form action="/replys/create/{{questions.uploadnumber}}" object="replysForm" method="post" class="my-3">
+        {{#errors}}
+            <div class="alert alert-danger" role="alert">{{defaultMessage}}</div>
+        {{/errors}}
         <textarea name="content" id="content" rows="10" class="form-control"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
