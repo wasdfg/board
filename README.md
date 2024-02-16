@@ -9,7 +9,7 @@
   
   ------
   ### 사용한 버전
-  spring boot 3.2.1 , java 17로 만들어보는 게시판
+  spring boot 3.2.1 , java 17
   -----
 
 
