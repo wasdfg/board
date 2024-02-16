@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.board.question.Questions;
 import com.board.question.QuestionsRepository;
+import com.board.question.QuestionsService;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,9 @@ public class BoardApplicationTest {
 
     @Autowired
     private ReplysRepository replysRepository;
+
+    @Autowired
+    private QuestionsService questionsService;
 
     @Test
     void test(){ //테스트 데이터는 h2 인메모리에 저장되지 않는다. test시 test전용 db가 생기기 떄문이다.
@@ -133,5 +137,14 @@ public class BoardApplicationTest {
 
         assertEquals(1,replysList.size());
         assertEquals("이거 질답게시판 만드는겁니다.",replysList.get(0).getContent());
+    }
+
+    @Test
+    void testJpa() {
+        for (int i = 1; i <= 300; i++) {
+            String title = String.format("테스트 데이터입니다:[%03d]", i);
+            String content = "내용무";
+            this.questionsService.create(title, content);
+        }
     }
 }
