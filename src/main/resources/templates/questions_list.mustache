@@ -46,15 +46,40 @@
     </tr>
     </thead>
     <tbody>
-    {{#questionsList}}
+    {{#paging.content}}
         <tr>
             <td><a href="/questions/detail/{{uploadnumber}}">{{uploadnumber}}</a></td>
             <td>{{title}}</td>
             <td class="date">{{nowtime}}</td>
         </tr>
-    {{/questionsList}}
+    {{/paging.content}}
     </tbody>
 </table>
+    <ul class="pagination justify-content-center">
+        {{#hasPrevious}}
+            <li class="page-item">
+                <a class="page-link" href="?page={{numberminus}}">
+                <span>이전</span>
+                </a>
+            </li>
+        {{/hasPrevious}}
+
+        {{#numbers}}
+            <li class="page-item {{#current}}active{{/current}}">
+                <a class="page-link" href="?page={{.}}">
+                <span>{{.}}</span>
+                </a>
+            </li>
+        {{/numbers}}
+
+        {{#hasNext}}
+            <li class="page-item">
+                <a class="page-link" href="?page={{numberplus}}">
+                <span>다음</span>
+                </a>
+            </li>
+        {{/hasNext}}
+    </ul>
 <a href="/questions/create" class="btn btn-primary">질문 등록하기</a>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

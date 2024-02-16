@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -22,9 +24,23 @@ public class QuestionsController {
 
     private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
-    public String list(Model model){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
-        List<Questions> questionsList = this.questionsService.getList(); //dto에서 선언한 함수 getlist를 사용
-        model.addAttribute("questionsList",questionsList);
+    public String list(Model model, @RequestParam(value="page", defaultValue="0") int page){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
+        Page<Questions> paging = this.questionsService.getList(page);
+        System.out.println(paging.getNumber());
+        System.out.println(paging.getNumber());
+        model.addAttribute("paging", paging);
+        if(paging.isEmpty() != true){
+            if(paging.hasPrevious()){
+                model.addAttribute("hasPrevious",paging.hasPrevious());
+                model.addAttribute("numberminus",paging.getNumber()-1);
+            }
+            if(paging.hasNext()){
+                model.addAttribute("hasNext",paging.hasNext());
+                model.addAttribute("numberplus",paging.getNumber()+1);
+            }
+            model.addAttribute("numbers",paging.getNumber()+1);
+            model.addAttribute("current",paging.getNumber()+1);
+        }
         return "questions_list";
     }
 

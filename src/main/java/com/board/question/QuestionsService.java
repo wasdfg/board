@@ -4,6 +4,9 @@ import com.board.DataNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,5 +37,10 @@ public class QuestionsService {
         q.setContent(content);
         q.setNowtime(LocalDateTime.now());
         this.questionsRepository.save(q);
+    }
+
+    public Page<Questions> getList(int page) {
+        Pageable pageable = PageRequest.of(page, 10); //페이지에 10개씩 출력되도록 조절 나중에 버튼이나 박스를 만들어 출력페이지를 바꾸면 됨
+        return this.questionsRepository.findAll(pageable);
     }
 }
