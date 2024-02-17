@@ -32,26 +32,13 @@ public class QuestionsController {
     public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         Page<Questions> paging = this.questionsService.getList(pageable);
         model.addAttribute("paging", paging);
-        model.addAttribute("previous", pageable.previousOrFirst().getPageNumber());
+        if(paging.hasPrevious()) {
+            model.addAttribute("previous", pageable.previousOrFirst().getPageNumber());
+        }
         if(paging.hasNext()) {
             model.addAttribute("next", pageable.next().getPageNumber());
         }
         return "questions_list";
-    }
-
-    private List<Integer> calculatePageNumbers(int currentPage, int totalPages) {
-        int start = 0;
-        int end = totalPages-1;
-
-        if (totalPages > 10) { //10페이지 이상이면 10단위로 출력되게 최대값 설정
-            int offset = (currentPage / 10) * 10;
-            start = offset;
-            end = Math.min(totalPages-1, start + 9);
-        }
-
-        return IntStream.rangeClosed(start+1, end+1)//실제 page는 0부터 시작하지만 버튼은 1번부터시작하게
-                .boxed()
-                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/detail/{uploadnumber}")
