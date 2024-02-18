@@ -32,7 +32,6 @@ public class QuestionsController {
     public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         Page<Questions> paging = this.questionsService.getList(pageable);
         model.addAttribute("paging", paging);
-        System.out.println(paging.getNumber());
         model.addAttribute("num", (paging.getNumber()+1));
         model.addAttribute("hasPrev", paging.hasPrevious()); //이전 페이지가 있는지 확인
         model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()); //이전 페이지를 가져옴
