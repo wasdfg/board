@@ -46,34 +46,66 @@
     </tr>
     </thead>
     <tbody>
-    {{#paging.content}}
+    {{#paging}}
         <tr>
             <td><a href="/questions/detail/{{uploadnumber}}">{{uploadnumber}}</a></td>
             <td>{{title}}</td>
             <td class="date">{{nowtime}}</td>
         </tr>
-    {{/paging.content}}
+    {{/paging}}
     </tbody>
 </table>
     <ul class="pagination justify-content-center">
+        <!--이전이 있으면-->
+        {{#hasPrev}}
             <li class="page-item">
                 <a class="page-link" href="?page={{previous}}">
                 <span>이전</span>
                 </a>
             </li>
-        {{#numbers}}
-            <li class="page-item {{^current}}active{{/current}}">
-                <a class="page-link" href="?page={{.}}">
-                <span>{{.}}</span>
+        {{/hasPrev}}
+        <!--이전이 없으면-->
+        {{^hasPrev}}
+            <li class="page-item disabled">
+                <a class="page-link" href="?page={{previous}}">
+                <span>이전</span>
                 </a>
             </li>
-        {{/numbers}}
+        {{/hasPrev}}
 
+        {{#current}}
+            <li class="page-item {{#current}}active{{/current}}">
+                <a class="page-link" href="?page={{notcur}}">
+                <span>{{current}}</span>
+                </a>
+            </li>
+        {{/current}}
+
+        {{^current}}
+            <li class="page-item {{^current}}active{{/current}}">
+                <a class="page-link" href="?page={{notcur}}">
+                <span>{{current}}</span>
+                </a>
+            </li>
+        {{/current}}
+
+        <!--다음이 있으면-->
+        {{#hasNext}}
             <li class="page-item">
                 <a class="page-link" href="?page={{next}}">
                 <span>다음</span>
                 </a>
             </li>
+        {{/hasNext}}
+        <!--다음이 없으면-->
+        {{^hasNext}}
+            <li class="page-item disabled">
+                <a class="page-link" href="?page={{next}}">
+                <span>다음</span>
+                </a>
+            </li>
+        {{/hasNext}}
+
     </ul>
 <a href="/questions/create" class="btn btn-primary">질문 등록하기</a>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
