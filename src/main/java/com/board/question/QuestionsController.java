@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -31,14 +32,20 @@ public class QuestionsController {
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         Page<Questions> paging = this.questionsService.getList(pageable);
+        System.out.println(paging.getNumber());
+        ArrayList pageIndex = new ArrayList();
+        for(int i = (paging.getNumber() / 10 * 10 +1);i <= (paging.getNumber() / 10 * 10 +10);i++){
+            pageIndex.add(i);
+        }
+
         model.addAttribute("paging", paging);
-        model.addAttribute("num", (paging.getNumber()+1));
+        model.addAttribute("num", pageIndex);
         model.addAttribute("hasPrev", paging.hasPrevious()); //이전 페이지가 있는지 확인
-        model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()); //이전 페이지를 가져옴
+        model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()-9); //이전 페이지를 가져옴
         model.addAttribute("current", pageable.getPageNumber()+1); //현재 페이지
         model.addAttribute("notcur", pageable.getPageNumber()); //페이지는 0부터 시작하므로 버튼은 1부터 출력하게
         model.addAttribute("hasNext", paging.hasNext()); //다음 페이지가 있는지 확인
-        model.addAttribute("next", pageable.next().getPageNumber()); //다음 페이지를 가져옴
+        model.addAttribute("next", pageable.next().getPageNumber()+9); //다음 페이지를 가져옴
 
         return "questions_list";
     }
