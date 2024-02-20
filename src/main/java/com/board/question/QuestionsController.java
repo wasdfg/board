@@ -32,12 +32,11 @@ public class QuestionsController {
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         Page<Questions> paging = this.questionsService.getList(pageable);
-        System.out.println(paging.getNumber());
         ArrayList pageIndex = new ArrayList();
-        for(int i = (paging.getNumber() / 10 * 10 +1);i <= (paging.getNumber() / 10 * 10 +10);i++){
-            pageIndex.add(i);
+        for(int i = (paging.getNumber() / 10 * 10);i < (paging.getNumber() / 10 * 10) +10;i++){
+            pageIndex.add(i+1);
         }
-
+        System.out.println(pageable.getPageNumber());
         model.addAttribute("paging", paging);
         model.addAttribute("num", pageIndex);
         model.addAttribute("hasPrev", paging.hasPrevious()); //이전 페이지가 있는지 확인

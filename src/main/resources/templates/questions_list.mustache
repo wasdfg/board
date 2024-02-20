@@ -73,26 +73,13 @@
             </li>
         {{/hasPrev}}
 
-
-        {{#current}}
+        {{#num}}
             <li class="page-item {{#current}}active{{/current}}">
-                <a class="page-link" href="?page={{notcur}}">
-                {{#num}}
-                    <span>{{.}}</span>
-                {{/num}}
+                <a class="page-link" href="?page={{.}}">
+                <span>{{.}}</span>
                 </a>
             </li>
-        {{/current}}
-
-        {{^current}}
-            <li class="page-item {{^current}}active{{/current}}">
-                <a class="page-link" href="?page={{notcur}}">
-                {{#num}}
-                    <span>{{.}}</span>
-                {{/num}}
-                </a>
-            </li>
-        {{/current}}
+        {{/num}}
 
         <!--다음이 있으면-->
         {{#hasNext}}
