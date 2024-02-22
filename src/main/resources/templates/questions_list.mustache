@@ -73,13 +73,18 @@
             </li>
         {{/hasPrev}}
 
-        {{#paging.getNumber}}
-            <li class="page-item {{#current}}active{{/current}}">
+        {{#num}}
+            {{#current}}
+                <li class="page-item active">
+            {{/current}}
+            {{^current}}
+                <li class="page-item not-active">
+            {{/current}}
                 <a class="page-link" href="?page={{.}}">
                 <span>{{.}}</span>
                 </a>
             </li>
-        {{/paging.getNumber}}
+        {{/num}}
 
         <!--다음이 있으면-->
         {{#hasNext}}

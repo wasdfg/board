@@ -33,16 +33,16 @@ public class QuestionsController {
     public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         Page<Questions> paging = this.questionsService.getList(pageable);
         ArrayList pageIndex = new ArrayList();
-        for(int i = (paging.getNumber() / 10 * 10);i < (paging.getNumber() / 10 * 10) +10;i++){
-            pageIndex.add(i+1);
+        for(int i = (paging.getNumber() / 10 * 10);i < Math.min((paging.getNumber() / 10 * 10) + 10, paging.getTotalPages()-1) + 1;i++){
+            pageIndex.add(i);
         }
         System.out.println(pageable.getPageNumber());
+        System.out.println(paging.getTotalPages());
         model.addAttribute("paging", paging);
         model.addAttribute("num", pageIndex);
         model.addAttribute("hasPrev", paging.hasPrevious()); //이전 페이지가 있는지 확인
         model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()); //이전 페이지를 가져옴
-        model.addAttribute("current", pageable.getPageNumber()); //현재 페이지
-        model.addAttribute("notcur", pageable.getPageNumber()); //페이지는 0부터 시작하므로 버튼은 1부터 출력하게
+        model.addAttribute("current", paging.getNumber()); //현재 페이지
         model.addAttribute("hasNext", paging.hasNext()); //다음 페이지가 있는지 확인
         model.addAttribute("next", pageable.next().getPageNumber()); //다음 페이지를 가져옴
 
