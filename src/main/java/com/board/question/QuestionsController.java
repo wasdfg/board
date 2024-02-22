@@ -40,11 +40,11 @@ public class QuestionsController {
         model.addAttribute("paging", paging);
         model.addAttribute("num", pageIndex);
         model.addAttribute("hasPrev", paging.hasPrevious()); //이전 페이지가 있는지 확인
-        model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()-9); //이전 페이지를 가져옴
-        model.addAttribute("current", pageable.getPageNumber()+1); //현재 페이지
+        model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()); //이전 페이지를 가져옴
+        model.addAttribute("current", pageable.getPageNumber()); //현재 페이지
         model.addAttribute("notcur", pageable.getPageNumber()); //페이지는 0부터 시작하므로 버튼은 1부터 출력하게
         model.addAttribute("hasNext", paging.hasNext()); //다음 페이지가 있는지 확인
-        model.addAttribute("next", pageable.next().getPageNumber()+9); //다음 페이지를 가져옴
+        model.addAttribute("next", pageable.next().getPageNumber()); //다음 페이지를 가져옴
 
         return "questions_list";
     }
