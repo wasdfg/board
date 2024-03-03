@@ -35,6 +35,7 @@
     </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="/static/js/app/dateFormatter.js" defer></script>
 </head>
 <body>
 <table>
@@ -50,7 +51,7 @@
         <tr>
             <td><a href="/questions/detail/{{uploadnumber}}">{{uploadnumber}}</a></td>
             <td>{{title}}</td>
-            <td class="date">{{nowtime}}</td>
+            <td class="date">{{nowtime.format('YYYY-MM-DD HH:mm:ss')}}</td>
         </tr>
     {{/paging}}
     </tbody>
@@ -74,12 +75,7 @@
         {{/hasPrev}}
 
         {{#num}}
-            {{#current}}
-                <li class="page-item active">
-            {{/current}}
-            {{^current}}
-                <li class="page-item not-active">
-            {{/current}}
+            <li class="page-item {{#current}}active{{/current}}{{^current}}not-active{{/current}}">
                 <a class="page-link" href="?page={{.}}">
                 <span>{{.}}</span>
                 </a>

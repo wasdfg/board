@@ -32,19 +32,31 @@ public class QuestionsController {
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         Page<Questions> paging = this.questionsService.getList(pageable);
+        int pageSize = 10;
         ArrayList pageIndex = new ArrayList();
-        for(int i = (paging.getNumber() / 10 * 10);i < Math.min((paging.getNumber() / 10 * 10) + 10, paging.getTotalPages()-1) + 1;i++){
+        int currentGroup = paging.getNumber() / pageSize;
+        for(int i = (currentGroup* 10);i < Math.min((currentGroup * 10) + 9, paging.getTotalPages()-1) + 1;i++){
             pageIndex.add(i);
         }
+        int PreviousGroup = Math.max(0, (currentGroup - 1) * pageSize);
+
+        int NextGroup = Math.min((currentGroup + 1) * pageSize, paging.getTotalPages() - 1);
+
+
+        System.out.println(questionsService.getList().size());//현재 글 개수
         System.out.println(pageable.getPageNumber());
         System.out.println(paging.getTotalPages());
-        model.addAttribute("paging", paging);
+        System.out.println(paging.getNumberOfElements());
+        System.out.println(pageIndex);
+        model.addAttribute("paging", paging.getContent());
         model.addAttribute("num", pageIndex);
         model.addAttribute("hasPrev", paging.hasPrevious()); //이전 페이지가 있는지 확인
-        model.addAttribute("previous", pageable.previousOrFirst().getPageNumber()); //이전 페이지를 가져옴
-        model.addAttribute("current", paging.getNumber()); //현재 페이지
+        model.addAttribute("previous", PreviousGroup); //이전 페이지 10개를 가져옴
+        if(paging.getNumber() == pageable.getPageNumber()) {
+            model.addAttribute("current", paging.getNumber()); //현재 페이지
+        }
         model.addAttribute("hasNext", paging.hasNext()); //다음 페이지가 있는지 확인
-        model.addAttribute("next", pageable.next().getPageNumber()); //다음 페이지를 가져옴
+        model.addAttribute("next", NextGroup); //다음 페이지 10개를 가져옴
 
         return "questions_list";
     }
