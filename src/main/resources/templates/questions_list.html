@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html layout:decorate="~{layout}"> <!--공용 레이아웃 추가-->
+<div layout:fragment="content" class="container my-3">
+    <table class="table">
+        <thead class="table-dark">
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성일시</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="questions, loop : ${questionList}"> <!--th:each 는 반복문을 의미한다-->
+        <td th:text="${loop.count}"></td> <!--loop.count로 번호를 표시-->
+        <td>
+            <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>  <!--자바 객체의 값을 더할때는 ||를 덮어야한다 -->
+        </td>
+        <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td> <!--시간 출력형식을 변경해줌-->
+    </tr>
+    </tbody>
+</table>
+</div>
+<a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
+</html>
