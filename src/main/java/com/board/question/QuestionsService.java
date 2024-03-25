@@ -41,7 +41,8 @@ public class QuestionsService {
         this.questionsRepository.save(q);
     }
 
-    public Page<Questions> getList(Pageable pageable) {
+    public Page<Questions> getList(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
         return this.questionsRepository.findAll(pageable);
     }
 }

@@ -30,9 +30,9 @@ public class QuestionsController {
     private final QuestionsRepository questionsRepository;
     private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
-    public String list(Model model){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
-        List<Questions> questionList = this.questionsRepository.findAll();
-        model.addAttribute("questionList", questionList);
+    public String list(Model model,@RequestParam(value="page", defaultValue="0") int page){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
+        Page<Questions> paging = this.questionsService.getList(page);
+        model.addAttribute("paging", paging);
         return "questions_list";
     }
 

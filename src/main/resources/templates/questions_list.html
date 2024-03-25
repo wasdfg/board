@@ -10,7 +10,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="questions, loop : ${questionList}"> <!--th:each 는 반복문을 의미한다-->
+    <tr th:each="questions, loop : ${paging}"> <!--th:each 는 반복문을 의미한다-->
         <td th:text="${loop.count}"></td> <!--loop.count로 번호를 표시-->
         <td>
             <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>  <!--자바 객체의 값을 더할때는 ||를 덮어야한다 -->
