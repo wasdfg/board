@@ -27,12 +27,12 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor //final을 선언할때 사용
 @Controller
 public class QuestionsController {
-
+    private final QuestionsRepository questionsRepository;
     private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
-    public String list(Model model, @PageableDefault(size = 10, sort = "uploadnumber", direction = Sort.Direction.DESC) Pageable pageable){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
-        Page<Questions> paging = this.questionsService.getList(pageable);
-        model.addAttribute("paging", paging);
+    public String list(Model model){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
+        List<Questions> questionList = this.questionsRepository.findAll();
+        model.addAttribute("questionList", questionList);
         return "questions_list";
     }
 
@@ -45,14 +45,13 @@ public class QuestionsController {
     }
 
     @GetMapping("/create")
-    public String questionsCreate(){
+    public String questionsCreate(QuestionsForm questionsForm){
         return "questions_form";
     }
 
     @PostMapping("/create") //url처리
-    public String questionsCreate(@Valid QuestionsForm questionsForm, BindingResult bindingResult,Model model){//질문 폼에 조건 추가
+    public String questionsCreate(@Valid QuestionsForm questionsForm, BindingResult bindingResult){//질문 폼에 조건 추가
         if(bindingResult.hasErrors()){ //에러가 있는지 검사
-            model.addAttribute("errors",bindingResult.getAllErrors()); //mustache는 에러를 직접 검사하는 기능이 없기에 모델로 추가
             return "questions_form";
         }
         this.questionsService.create(questionsForm.getTitle(),questionsForm.getContent());

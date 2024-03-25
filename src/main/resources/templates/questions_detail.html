@@ -1,6 +1,4 @@
 <!DOCTYPE HTML>
-<html lang="kr" xmlns:th="http://www.thymeleaf.org">
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
@@ -23,7 +21,7 @@
             <div class="card-text" style="white-space: pre-line;" th:text="${replys.content}"></div>
             <div class="d-flex justify-content-end">
                 <div class="badge bg-light text-dark p-2 text-start">
-                    <div th:text="${#temporals.format(replys.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></div>
+                    <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
             </div>
         </div>
@@ -31,8 +29,11 @@
     <!-- 답변 반복 끝  -->
 
     <!-- 답변 작성 -->
-    <form th:action="@{|/reply/create/${questions.uploadnumber}|}" method="post" class="my-3">
-        <textarea name="content" id="content" rows="10" class="form-control"></textarea>
+    <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post" class="my-3">
+        <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
+            <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
+        </div>
+        <textarea th:field="*{content}" rows="10" class="form-control"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 </div>

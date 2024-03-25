@@ -27,7 +27,7 @@ public class ReplysController {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
 
         if(bindingResult.hasErrors()) {
-            model.addAttribute("errors",bindingResult.getAllErrors());
+            model.addAttribute("questions", questions);
             return "questions_detail";
         }
         this.replysService.create(questions, replysForm.getContent());

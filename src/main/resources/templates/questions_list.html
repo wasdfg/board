@@ -1,7 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="kr" xmlns:th="http://www.thymeleaf.org">
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-<html layout:decorate="~{layout}"> <!--공용 레이아웃 추가-->
+<html layout:decorate="~{layout}"><!--공용 레이아웃 추가-->
 <div layout:fragment="content" class="container my-3">
     <table class="table">
         <thead class="table-dark">
@@ -21,6 +19,6 @@
     </tr>
     </tbody>
 </table>
+    <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
 </div>
-<a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
 </html>
