@@ -25,11 +25,7 @@ public class ReplysController {
     @PostMapping("/create/{uploadnumber}") //post로 처리 대용량처리에 용이
     public String replysCreate(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @Valid ReplysForm replysForm, BindingResult bindingResult){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        model.addAttribute("questions",questions);
-        model.addAttribute("replysListSize", questions.getReplysList().size());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //날짜 형식을 변환
-        String formattedDateTime = questions.getNowtime().format(formatter);
-        model.addAttribute("questionsdate",formattedDateTime);
+
         if(bindingResult.hasErrors()) {
             model.addAttribute("errors",bindingResult.getAllErrors());
             return "questions_detail";
