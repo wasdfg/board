@@ -42,7 +42,9 @@ public class QuestionsService {
     }
 
     public Page<Questions> getList(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("nowtime")); //날짜 기준으로 오름차순으로 정렬
+        Pageable pageable = PageRequest.of(page, 10,Sort.by(sorts));
         return this.questionsRepository.findAll(pageable);
     }
 }
