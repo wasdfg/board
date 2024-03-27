@@ -14,6 +14,10 @@
         <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td> <!--번호를 역순으로 출력하게 설정-->
         <td>
             <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>  <!--자바 객체의 값을 더할때는 ||를 덮어야한다 -->
+            <span class="text-danger small ms-2"
+                  th:if="${#lists.size(questions.replysList) > 0}"
+                  th:text="${#lists.size(questions.replysList)}"> <!--답변 개수를 출력-->
+                    </span>
         </td>
         <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td> <!--시간 출력형식을 변경해줌-->
     </tr>
