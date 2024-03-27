@@ -11,7 +11,7 @@
     </thead>
     <tbody>
     <tr th:each="questions, loop : ${paging}"> <!--th:each 는 반복문을 의미한다-->
-        <td th:text="${loop.count}"></td> <!--loop.count로 번호를 표시-->
+        <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td> <!--번호를 역순으로 출력하게 설정-->
         <td>
             <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>  <!--자바 객체의 값을 더할때는 ||를 덮어야한다 -->
         </td>
@@ -19,6 +19,28 @@
     </tr>
     </tbody>
 </table>
+    <!-- 페이징처리 시작 -->
+    <div th:if="${!paging.isEmpty()}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'"> <!--이전 페이지가 없으면 이전 링크를 비활성화-->
+                <a class="page-link"
+                   th:href="@{|?page=${(paging.number/10-1)*10}|}">
+                    <span>이전</span>
+                </a>
+            </li>                                                                               <!--출력할 페이지를 표시해준다-->
+            <li th:each="page: ${#numbers.sequence(1, paging.totalPages)}"
+                th:if="${page > paging.number/10*10 and page <= paging.number/10*10+10}"
+                th:classappend="${page == paging.number+1} ? 'active'" class="page-item">
+                <a th:text="${page}" class="page-link" th:href="@{|?page=${page-1}|}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'"> <!--다음 페이지가 없으면 다음 링크를 비활성화-->
+                <a class="page-link" th:href="@{|?page=${(paging.number/10+1)*10}|}">
+                    <span>다음</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- 페이징처리 끝 -->
     <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
 </div>
 </html>
