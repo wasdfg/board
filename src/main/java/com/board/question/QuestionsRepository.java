@@ -3,9 +3,11 @@ package com.board.question;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 //JpaRepository를 상속 Question 엔티티와 기본키인 id의 자료형
 public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     //Questions findByUploadNumber(int num);
