@@ -1,13 +1,8 @@
 package com.board.question;
 
 import com.board.reply.Replys;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
+import com.board.user.SignUpUser;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,12 +29,13 @@ public class Questions {
 
     private LocalDateTime nowtime;
 
-
-    
     @OneToMany(mappedBy = "questions",cascade = CascadeType.REMOVE) //질문이 삭제되면 답변도 같이 삭제되게 cascade를 추가
     private List<Replys> replysList; //reply 객체를 list로 담아둔다.
     //참조하기 위해 questions.getReplysList()를 호출한다.
     //mappedBy는 참조하는 엔티티를 선언해준다.
+
+    @ManyToOne //글쓴이 1명당 여러 질문을 할 수 있어 다대1로 설정
+    private SignUpUser author; 
     
     @Builder
     public Questions(String title, String content, LocalDateTime nowtime) {

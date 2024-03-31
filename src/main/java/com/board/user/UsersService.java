@@ -1,8 +1,11 @@
 package com.board.user;
 
+import com.board.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -18,5 +21,14 @@ public class UsersService {
         users.setUsername(username);
         this.usersRepository.save(users);
         return users;
+    }
+
+    public SignUpUser getUser(String username) {
+        Optional<SignUpUser> signUpUser = this.usersRepository.findByUsername(username);
+        if (signUpUser.isPresent()) {
+            return signUpUser.get();
+        } else {
+            throw new DataNotFoundException("SignUpUser not found");
+        }
     }
 }

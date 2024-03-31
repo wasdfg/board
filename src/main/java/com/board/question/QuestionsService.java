@@ -2,6 +2,7 @@ package com.board.question;
 
 import com.board.DataNotFoundException;
 
+import com.board.user.SignUpUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,12 @@ public class QuestionsService {
         }
     }
 
-    public void create(String title,String content){
+    public void create(String title, String content, SignUpUser user){
         Questions q = new Questions();
         q.setTitle(title);
         q.setContent(content);
         q.setNowtime(LocalDateTime.now());
+        q.setAuthor(user);
         this.questionsRepository.save(q);
     }
 

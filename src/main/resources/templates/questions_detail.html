@@ -1,4 +1,3 @@
-<!DOCTYPE HTML>
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
@@ -8,6 +7,9 @@
             <div class="card-text" style="white-space: pre-line;" th:text="${questions.content}"></div>
             <div class="d-flex justify-content-end">
                 <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">
+                        <span th:if="${questions.author != null}" th:text="${questions.author.username}"></span>
+                    </div>
                     <div th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
             </div>
@@ -21,6 +23,9 @@
             <div class="card-text" style="white-space: pre-line;" th:text="${replys.content}"></div>
             <div class="d-flex justify-content-end">
                 <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">
+                        <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
+                    </div>
                     <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
             </div>
@@ -30,10 +35,9 @@
 
     <!-- 답변 작성 -->
     <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post" class="my-3">
-        <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
-            <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
-        </div>
-        <textarea th:field="*{content}" rows="10" class="form-control"></textarea>
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
+        <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea> <!--비로그인 비활성화-->
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea> <!--로그인 활성화-->
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 </div>
