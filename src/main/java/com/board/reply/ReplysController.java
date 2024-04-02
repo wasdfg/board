@@ -9,14 +9,13 @@ import lombok.RequiredArgsConstructor;
 
 import java.security.Principal;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.format.DateTimeFormatter;
 
@@ -41,6 +40,32 @@ public class ReplysController {
         }
         this.replysService.create(questions, replysForm.getContent(),signUpUser);
         return String.format("redirect:/questions/detail/%s",uploadnumber);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/modify/{uploadnumber}")
+    public String replysModify(ReplysForm replysForm, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
+        Replys replys = this.replysService.getReplys(uploadnumber);
+        if (!replys.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+        replysForm.setContent(replys.getContent());
+        return "replys_form";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/modify/{uploadnumber}")
+    public String replysModify(@Valid ReplysForm replysForm, BindingResult bindingResult,
+                               @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
+        if (bindingResult.hasErrors()) {
+            return "replys_form";
+        }
+        Replys replys = this.replysService.getReplys(uploadnumber);
+        if (!replys.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+        this.replysService.modify(replys, replysForm.getContent());
+        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
     }
 }
 

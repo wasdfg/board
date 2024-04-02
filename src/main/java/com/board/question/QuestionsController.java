@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -19,13 +20,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 
 @RequestMapping("/questions") // /questions로 시작하는 url의 앞부분을 prefix해준다.
 @RequiredArgsConstructor //final을 선언할때 사용
 @Controller
-public class QuestionsController {
+public class QuestionsController { //controller에서 요청을 받아와서
     private final QuestionsRepository questionsRepository;
     private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
 
@@ -61,5 +63,42 @@ public class QuestionsController {
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
         this.questionsService.create(questionsForm.getTitle(),questionsForm.getContent(),signUpUser);
         return "redirect:/questions/list";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/modify/{uploadnumber}")
+    public String questionModify(QuestionsForm questionsForm, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
+        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        if(!questions.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+        questionsForm.setTitle(questions.getTitle());
+        questionsForm.setContent(questions.getContent());
+        return "questions_form";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/modify/{uploadnumber}")
+    public String questionsModify(@Valid QuestionsForm questionsForm,BindingResult bindingResult,@PathVariable("uploadnumber") Integer uploadnumber, Principal principal) { //글 수정
+        if (bindingResult.hasErrors()) {
+            return "questions_form";
+        }
+        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        if(!questions.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+        this.questionsService.modify(questions,questionsForm.getTitle(),questionsForm.getContent());
+        return String.format("redirect:/questions/detail/%s", uploadnumber);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/delete/{id}")
+    public String questionDelete(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
+        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        if (!questions.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+        }
+        this.questionsService.delete(questions);
+        return "redirect:/";
     }
 }

@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class QuestionsService {
+public class QuestionsService { //service에서 처리
     private final QuestionsRepository questionsRepository;
 
     public List<Questions> getList(){
@@ -43,10 +43,22 @@ public class QuestionsService {
         this.questionsRepository.save(q);
     }
 
+    public void modify(Questions questions,String title,String content){ //수정할 내용 저장
+        questions.setTitle(title);
+        questions.setContent(content);
+        questions.setModifyDate(LocalDateTime.now());
+        this.questionsRepository.save(questions);
+    }
+
+    public void delete(Questions questions){
+        this.questionsRepository.delete(questions);
+    }
+
     public Page<Questions> getList(int page) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("nowtime")); //날짜 기준으로 오름차순으로 정렬
         Pageable pageable = PageRequest.of(page, 10,Sort.by(sorts));
         return this.questionsRepository.findAll(pageable);
     }
+
 }

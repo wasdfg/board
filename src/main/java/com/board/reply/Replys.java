@@ -29,6 +29,8 @@ public class Replys {
 
     private LocalDateTime nowtime;
 
+    private LocalDateTime modifyDate; //수정된 글의 시간
+
     @ManyToOne //질문은 하나지만 답변은 여러개가 될수 있기에 N:1관계를 사용
     private Questions questions; //Questions 엔티티를 참조하기 위해 선언
 

@@ -13,6 +13,16 @@
                     <div th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
             </div>
+            <div class="my-3">
+                <a th:href="@{|/questions/modify/${questions.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${questions.author != null and #authentication.getPrincipal().getUsername() == questions.author.username}"
+                   th:text="수정"></a>
+                <a href="javascript:void(0);" th:data-uri="@{|/questions/delete/${questions.uploadnumber}|}"
+                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                   th:if="${questions.author != null and #authentication.getPrincipal().getUsername() == questions.author.username}"
+                   th:text="삭제"></a> <!--href를 url로 사용하지 않는 이유는 사용하게 되면 바로 삭제되기 때문에 물어보고 삭제하기 위해서-->
+            </div>
         </div>
     </div>
     <!-- 답변의 갯수 표시 -->
@@ -29,6 +39,12 @@
                     <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
             </div>
+            <div class="my-3">
+                <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                   th:text="수정"></a>
+            </div>
         </div>
     </div>
     <!-- 답변 반복 끝  -->
@@ -41,4 +57,14 @@
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 </div>
+<script layout:fragment="script" type='text/javascript'>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+</script>
 </html>
