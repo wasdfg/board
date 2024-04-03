@@ -101,4 +101,13 @@ public class QuestionsController { //controller에서 요청을 받아와서
         this.questionsService.delete(questions);
         return "redirect:/";
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/vote/{id}")
+    public String questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
+        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        SignUpUser signUpUser = this.usersService.getUser(principal.getName()); //현재 로그인한 유저의 정보를 담는다
+        this.questionsService.vote(questions, signUpUser);
+        return String.format("redirect:/questions/detail/%s", uploadnumber);
+    }
 }

@@ -2,18 +2,14 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.user.SignUpUser;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -36,4 +32,8 @@ public class Replys {
 
     @ManyToOne //글쓴이 1명당 여러 답변을 할 수 있어 다대1로 설정
     private SignUpUser author;
+
+    @ManyToMany
+    Set<SignUpUser> voter;
+    //나중에 답변 추천기능 내림차순으로 출력할 예정
 }

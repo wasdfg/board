@@ -36,7 +36,11 @@ public class ReplysService {
 
     public void modify(Replys replys,String content){
         replys.setContent(content);
-        replys.setNowtime(LocalDateTime.now());
+        replys.setModifyDate(LocalDateTime.now());
         this.replysRepository.save(replys);
+    }
+
+    public void delete(Replys replys) {
+        this.replysRepository.delete(replys);
     }
 }

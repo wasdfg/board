@@ -6,6 +6,10 @@
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;" th:text="${questions.content}"></div>
             <div class="d-flex justify-content-end">
+                <div th:if="${questions.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">modified at</div>
+                    <div th:text="${#temporals.format(questions.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div class="mb-2">
                         <span th:if="${questions.author != null}" th:text="${questions.author.username}"></span>
@@ -14,6 +18,11 @@
                 </div>
             </div>
             <div class="my-3">
+                <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
+                   th:data-uri="@{|/questions/vote/${questions.uploadnumber}|}">
+                    추천
+                    <span class="badge rounded-pill bg-success" th:text="${#lists.size(questions.voter)}"></span>
+                </a>
                 <a th:href="@{|/questions/modify/${questions.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
                    th:if="${questions.author != null and #authentication.getPrincipal().getUsername() == questions.author.username}"
@@ -32,6 +41,10 @@
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;" th:text="${replys.content}"></div>
             <div class="d-flex justify-content-end">
+                <div th:if="${replys.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">modified at</div>
+                    <div th:text="${#temporals.format(replys.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div class="mb-2">
                         <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
@@ -44,6 +57,10 @@
                    sec:authorize="isAuthenticated()"
                    th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
                    th:text="수정"></a>
+                <a href="javascript:void(0);" th:data-uri="@{|/replys/delete/${replys.uploadnumber}|}"
+                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                   th:text="삭제"></a>
             </div>
         </div>
     </div>
@@ -62,6 +79,15 @@ const delete_elements = document.getElementsByClassName("delete");
 Array.from(delete_elements).forEach(function(element) {
     element.addEventListener('click', function() {
         if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+
+const recommend_elements = document.getElementsByClassName("recommend");
+Array.from(recommend_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 추천하시겠습니까?")) {
             location.href = this.dataset.uri;
         };
     });

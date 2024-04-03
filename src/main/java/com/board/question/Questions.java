@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor //기본 생성자 자동추가 public Question{}을 생성해준다
 @Getter
@@ -46,4 +47,6 @@ public class Questions {
         this.nowtime = nowtime;
     }
 
+    @ManyToMany
+    Set<SignUpUser> voter;
 }

@@ -67,5 +67,16 @@ public class ReplysController {
         this.replysService.modify(replys, replysForm.getContent());
         return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/delete/{uploadnumber}")
+    public String replysDelete(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
+        Replys replys = this.replysService.getReplys(uploadnumber);
+        if (!replys.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+        }
+        this.replysService.delete(replys);
+        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
+    }
 }
 
