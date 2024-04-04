@@ -53,6 +53,11 @@
                 </div>
             </div>
             <div class="my-3">
+                <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
+                   th:data-uri="@{|/replys/vote/${replys.uploadnumber}|}">
+                    추천
+                    <span class="badge rounded-pill bg-success" th:text="${#lists.size(replys.voter)}"></span>
+                </a>
                 <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
                    th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"

@@ -43,4 +43,9 @@ public class ReplysService {
     public void delete(Replys replys) {
         this.replysRepository.delete(replys);
     }
+
+    public void vote(Replys replys,SignUpUser signUpUser){
+        replys.getVoter().add(signUpUser);
+        this.replysRepository.save(replys);
+    }
 }

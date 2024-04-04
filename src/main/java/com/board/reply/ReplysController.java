@@ -78,5 +78,14 @@ public class ReplysController {
         this.replysService.delete(replys);
         return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/vote/{uploadnumber}")
+    public String replysVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
+        Replys replys = this.replysService.getReplys(uploadnumber);
+        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
+        this.replysService.vote(replys, signUpUser);
+        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
+    }
 }
 
