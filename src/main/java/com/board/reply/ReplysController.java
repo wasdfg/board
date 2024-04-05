@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.format.DateTimeFormatter;
 
 @RequestMapping("/replys")
 @RequiredArgsConstructor
@@ -38,8 +37,8 @@ public class ReplysController {
             model.addAttribute("questions", questions);
             return "questions_detail";
         }
-        this.replysService.create(questions, replysForm.getContent(),signUpUser);
-        return String.format("redirect:/questions/detail/%s",uploadnumber);
+        Replys replys = this.replysService.create(questions,replysForm.getContent(),signUpUser);
+        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -50,7 +49,7 @@ public class ReplysController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         replysForm.setContent(replys.getContent());
-        return "replys_form";
+        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -85,7 +84,7 @@ public class ReplysController {
         Replys replys = this.replysService.getReplys(uploadnumber);
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
         this.replysService.vote(replys, signUpUser);
-        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
+        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 }
 

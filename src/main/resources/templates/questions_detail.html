@@ -38,6 +38,7 @@
     <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(questions.replysList)}개의 답변이 있습니다.|"></h5>
     <!-- 답변 반복 시작 -->
     <div class="card my-3" th:each="replys : ${questions.replysList}">
+        <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;" th:text="${replys.content}"></div>
             <div class="d-flex justify-content-end">
