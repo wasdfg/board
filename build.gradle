@@ -36,6 +36,7 @@ dependencies {
     implementation ('org.springframework.boot:spring-boot-starter-thymeleaf')
     implementation ('nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.0.0')
     implementation('org.springframework.boot:spring-boot-starter-validation') //폼클래스 사용
+    implementation ('org.commonmark:commonmark:0.21.0') //마크다운 언어 사용
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('com.h2database:h2')
     testImplementation ('org.mockito:mockito-core:3.9.7')

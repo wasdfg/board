@@ -3,7 +3,6 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.user.SignUpUser;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
