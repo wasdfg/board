@@ -49,7 +49,7 @@ public class ReplysController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         replysForm.setContent(replys.getContent());
-        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
+        return "replys_form";
     }
 
     @PreAuthorize("isAuthenticated()")

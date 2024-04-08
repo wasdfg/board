@@ -1,5 +1,16 @@
 <html layout:decorate="~{layout}"><!--공용 레이아웃 추가-->
 <div layout:fragment="content" class="container my-3">
+    <div class="row my-3">
+        <div class="col-6">
+            <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
+        </div>
+        <div class="col-6">
+            <div class="input-group">
+                <input type="text" id="search_kw" class="form-control" th:value="${kw}">
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+            </div>
+        </div>
+    </div>
     <table class="table">
         <thead class="table-dark">
     <tr class="text-center">
@@ -27,25 +38,43 @@
     <!-- 페이징처리 시작 -->
     <div th:if="${!paging.isEmpty()}">
         <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'"> <!--이전 페이지가 없으면 이전 링크를 비활성화-->
-                <a class="page-link"
-                   th:href="@{|?page=${(paging.number/10-1)*10}|}">
+            <li class="page-item" th:classappend="${!paging.hasPrevious or paging.number <= 9} ? 'disabled'"> <!--이전 페이지가 없거나 페이지가 10아래인 경우 이전 링크를 비활성화-->
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${(paging.number/10-1)*10}">
                     <span>이전</span>
                 </a>
-            </li>                                                                               <!--출력할 페이지를 표시해준다-->
+            </li> <!--출력할 페이지를 표시해준다-->
             <li th:each="page: ${#numbers.sequence(1, paging.totalPages)}"
                 th:if="${page > paging.number/10*10 and page <= paging.number/10*10+10}"
                 th:classappend="${page == paging.number+1} ? 'active'" class="page-item">
-                <a th:text="${page}" class="page-link" th:href="@{|?page=${page-1}|}"></a>
+                <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page-1}"></a>
             </li>
-            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'"> <!--다음 페이지가 없으면 다음 링크를 비활성화-->
-                <a class="page-link" th:href="@{|?page=${(paging.number/10+1)*10}|}">
+            <li class="page-item" th:classappend="${((paging.totalPages-1)/10 - paging.number/10 == 0) or !paging.hasNext} ? 'disabled'"> <!--다음 페이지가 없거나 마지막 단위일 경우 다음 링크를 비활성화-->
+                <a class="page-link" href="javascript:void(0)" th:data-page="${(paging.number/10+1)*10}">
                     <span>다음</span>
                 </a>
             </li>
         </ul>
     </div>
     <!-- 페이징처리 끝 -->
-    <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
+    <form th:action="@{/questions/list}" method="get" id="searchForm">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+    </form>
 </div>
+<script layout:fragment="script" type='text/javascript'>
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+const btn_search = document.getElementById("btn_search");
+btn_search.addEventListener('click', function() {
+    document.getElementById('kw').value = document.getElementById('search_kw').value;
+    document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
+    document.getElementById('searchForm').submit();
+});
+</script>
 </html>
