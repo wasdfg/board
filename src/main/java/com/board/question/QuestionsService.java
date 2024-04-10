@@ -4,6 +4,7 @@ import com.board.DataNotFoundException;
 
 import com.board.reply.Replys;
 import com.board.user.SignUpUser;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -66,7 +67,14 @@ public class QuestionsService { //service에서 처리
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("nowtime")); //날짜 기준으로 오름차순으로 정렬
         Pageable pageable = PageRequest.of(page, 10,Sort.by(sorts));
-        Specification<Questions> spec = search(kw); //조회한 내용을 저장
+        Specification<Questions> spec; //조회한 내용을 저장
+        if (StringUtils.isEmpty(kw)) { //검색으로 찾는 경우가 아닐 때 불필요한 쿼리 조회를 없애기 위해 사용
+            // 검색 조건을 추가하지 않은 일반적인 Specification 객체 생성
+            spec = Specification.where(null);
+        } else {
+            // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
+            spec = search(kw);
+        }
         return this.questionsRepository.findAll(spec,pageable);
         //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
     }

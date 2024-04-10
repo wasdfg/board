@@ -9,6 +9,7 @@ import com.board.question.QuestionsRepository;
 import com.board.question.QuestionsService;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
+import com.board.user.SignUpUser;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @SpringBootTest
 public class BoardApplicationTest {
@@ -146,7 +148,7 @@ public class BoardApplicationTest {
     @Rollback(value = false)
     @Transactional //테스트 데이터를 인메모리db에 저장되는지 확인
     void testJpa() {
-        for (int i = 1; i <= 300; i++) {
+        for (int i = 1; i <= 1000000; i++) {
             String title = String.format("테스트 데이터입니다:[%03d]", i);
             String content = "내용무";
             this.questionsService.create(title, content,null);

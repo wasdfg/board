@@ -38,6 +38,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
         Page<Questions> paging = this.questionsService.getList(page,kw);
         model.addAttribute("paging", paging);
         model.addAttribute("kw",kw);
+        System.out.println("1");
         return "questions_list";
     }
 
