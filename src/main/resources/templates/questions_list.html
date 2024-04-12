@@ -20,6 +20,7 @@
         <th>작성일시</th>
     </tr>
     </thead>
+
     <tbody>
     <tr class="text-center" th:each="questions, loop : ${paging}"> <!--th:each 는 반복문을 의미한다-->
         <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td> <!--번호를 역순으로 출력하게 설정-->
@@ -34,6 +35,7 @@
         <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td> <!--시간 출력형식을 변경해줌-->
     </tr>
     </tbody>
+
 </table>
     <!-- 페이징처리 시작 -->
     <div th:if="${!paging.isEmpty()}">
