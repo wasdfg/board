@@ -38,15 +38,16 @@ public class QuestionsController { //controller에서 요청을 받아와서
         Page<Questions> paging = this.questionsService.getList(page,kw);
         model.addAttribute("paging", paging);
         model.addAttribute("kw",kw);
-        System.out.println("1");
         return "questions_list";
     }
 
     @GetMapping(value = "/detail/{uploadnumber}")
-    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
+    public String detail(Model model,@RequestParam(value="page", defaultValue="0")int page, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
+        Page<Questions> sortVoter = this.questionsService.getSortByVoter(uploadnumber,page);
         model.addAttribute("questions",questions);
-
+        model.addAttribute("sortVoter",sortVoter);
+        System.out.println(sortVoter.getTotalElements());
         return "questions_detail";
     }
 

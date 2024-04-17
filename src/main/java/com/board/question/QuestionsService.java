@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,32 @@ public class QuestionsService { //service에서 처리
         else{
             throw new DataNotFoundException("questions not found"); //없으면 DataNotFoundException클래스를 동작시킨다.
         }
+    }
+
+    public Page<Questions> getSortByVoter(Integer uploadnumber,int page) { //페이징으로 처리해서 투표수 기준으로 정렬
+        Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
+        List<Questions> sortedList = new ArrayList<>();
+        sortedList.add(questions.get());
+        Comparator<Questions> sortbyVoter = (q1, q2) -> {  //정렬 기준을 추천수로 정렬
+            int q1VoterCount = q1.getVoter().size();
+            int q2VoterCount = q2.getVoter().size();
+
+            // voter가 10 이상인 경우에는 q1을 q2보다 앞에 위치하도록 함
+            if (q1VoterCount >= 10 && q2VoterCount < 10) {
+                return -1;
+            }
+            // voter가 10 이상인 경우에는 q2를 q1보다 앞에 위치하도록 함
+            else if (q1VoterCount < 10 && q2VoterCount >= 10) {
+                return 1;
+            }
+            // voter가 둘 다 10 이상이거나 둘 다 10 미만인 경우에는 순차적으로 정렬
+            else {
+                return Integer.compare(q1VoterCount, q2VoterCount);
+            }
+        };
+        sortedList.sort(sortbyVoter);
+        Pageable pageable = PageRequest.of(page, 10,Sort.by((Sort.Order) sortedList));
+        return this.questionsRepository.findByVoter(pageable);
     }
 
     public void create(String title, String content, SignUpUser user){
