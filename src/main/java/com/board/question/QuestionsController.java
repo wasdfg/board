@@ -1,5 +1,6 @@
 package com.board.question;
 
+import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
 import com.board.user.SignUpUser;
 import com.board.user.UsersService;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequestMapping("/questions") // /questions로 시작하는 url의 앞부분을 prefix해준다.
 @RequiredArgsConstructor //final을 선언할때 사용
@@ -44,10 +46,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping(value = "/detail/{uploadnumber}")
     public String detail(Model model,@RequestParam(value="page", defaultValue="0")int page, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        Page<Questions> sortVoter = this.questionsService.getSortByVoter(uploadnumber,page);
+        List<Replys> sortVoter = this.questionsService.getSortByVoter(uploadnumber);
         model.addAttribute("questions",questions);
         model.addAttribute("sortVoter",sortVoter);
-        System.out.println(sortVoter.getTotalElements());
         return "questions_detail";
     }
 
