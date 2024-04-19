@@ -49,7 +49,7 @@ public class QuestionsService { //service에서 처리
                 } else {
                     return a.getNowtime().compareTo(b.getNowtime()); // 추천수가 같으면 날짜로 오름차순 정렬
                 }
-            });
+            }); //나중에는 특정 추천수 이상만 추천순으로 먼저 출력되게 수정할 예정
             return sortedReplys;
         }
         else{
