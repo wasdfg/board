@@ -49,6 +49,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
         List<Replys> sortVoter = this.questionsService.getSortByVoter(uploadnumber);
         model.addAttribute("questions",questions);
         model.addAttribute("sortVoter",sortVoter);
+        System.out.println(sortVoter.get(0).getVoter().size());
+        System.out.println(sortVoter.get(0).getQuestions().getUploadnumber());
+        System.out.println(sortVoter.get(0).getContent());
         return "questions_detail";
     }
 

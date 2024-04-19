@@ -41,15 +41,15 @@ public class QuestionsService { //service에서 처리
     public List<Replys> getSortByVoter(Integer uploadnumber) { //투표수 기준으로 정렬
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
         if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면
-            List<Replys> sortedReplys = questions.get().getReplysList().stream()
-                    .sorted(Comparator.comparingInt(reply -> {
-                        if (reply.getVoter() != null) {
-                            return reply.getVoter().size();
-                        } else {
-                            return 0;
-                        }
-                    }))
-                    .collect(Collectors.toList());
+            List<Replys> sortedReplys = questions.get().getReplysList();
+            Collections.sort(sortedReplys,(a,b)-> {
+                int sizeComparison = b.getVoter().size() - a.getVoter().size();
+                if (sizeComparison != 0) {
+                    return sizeComparison; // 추천수로 내림차순 정렬
+                } else {
+                    return a.getNowtime().compareTo(b.getNowtime()); // 추천수가 같으면 날짜로 오름차순 정렬
+                }
+            });
             return sortedReplys;
         }
         else{
