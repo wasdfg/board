@@ -18,6 +18,7 @@
         <th style="width:50%">제목</th>
         <th>글쓴이</th>
         <th>작성일시</th>
+        <th>조회수</th>
     </tr>
     </thead>
 
@@ -33,6 +34,7 @@
         </td>
         <td><span th:if="${questions.author != null}" th:text="${questions.author.username}"></span></td>
         <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td> <!--시간 출력형식을 변경해줌-->
+        <td th:text="${questions.view}"></td>
     </tr>
     </tbody>
 

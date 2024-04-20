@@ -46,13 +46,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping(value = "/detail/{uploadnumber}")
     public String detail(Model model,@PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        try {
-            List<Replys> sortVoter = this.questionsService.getSortByVoter(uploadnumber);
-            model.addAttribute("sortVoter",sortVoter);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        List<Replys> sortVoter = this.questionsService.getSortByVoter(uploadnumber);
+        model.addAttribute("sortVoter",sortVoter);
         model.addAttribute("questions",questions);
 
         return "questions_detail";

@@ -3,10 +3,7 @@ package com.board.question;
 import com.board.reply.Replys;
 import com.board.user.SignUpUser;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,4 +46,7 @@ public class Questions {
 
     @ManyToMany
     Set<SignUpUser> voter;
+
+    @Column(columnDefinition = "integer default 0", nullable = false) //0부터 시작하는 조회수
+    private int view;
 }
