@@ -40,17 +40,22 @@ public class QuestionsService { //service에서 처리
 
     public List<Replys> getSortByVoter(Integer uploadnumber) { //투표수 기준으로 정렬
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
-        if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면
-            List<Replys> sortedReplys = questions.get().getReplysList();
-            Collections.sort(sortedReplys,(a,b)-> {
-                int sizeComparison = b.getVoter().size() - a.getVoter().size();
-                if (sizeComparison != 0) {
-                    return sizeComparison; // 추천수로 내림차순 정렬
-                } else {
-                    return a.getNowtime().compareTo(b.getNowtime()); // 추천수가 같으면 날짜로 오름차순 정렬
-                }
-            }); //나중에는 특정 추천수 이상만 추천순으로 먼저 출력되게 수정할 예정
-            return sortedReplys;
+        if(questions.isPresent()) {
+            if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면
+                List<Replys> sortedReplys = questions.get().getReplysList();
+                Collections.sort(sortedReplys, (a, b) -> {
+                    int sizeComparison = b.getVoter().size() - a.getVoter().size();
+                    if (sizeComparison != 0) {
+                        return sizeComparison; // 추천수로 내림차순 정렬
+                    } else {
+                        return a.getNowtime().compareTo(b.getNowtime()); // 추천수가 같으면 날짜로 오름차순 정렬
+                    }
+                }); //나중에는 특정 추천수 이상만 추천순으로 먼저 출력되게 수정할 예정
+                return sortedReplys;
+            }
+            else{
+                return new ArrayList<>(); //답변이 없으면 빈 배열을 전달
+            }
         }
         else{
             throw new DataNotFoundException("questions not found"); //없으면 DataNotFoundException클래스를 동작시킨다.
@@ -84,8 +89,11 @@ public class QuestionsService { //service에서 처리
 
     public Page<Questions> getList(int page,String kw) {
         List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(Sort.Order.desc("nowtime")); //날짜 기준으로 오름차순으로 정렬
-        Pageable pageable = PageRequest.of(page, 10,Sort.by(sorts));
+        Sort multiSort = Sort.by(
+                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
+                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
+        );
+        Pageable pageable = PageRequest.of(page, 10,multiSort);
         Specification<Questions> spec; //조회한 내용을 저장 // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
         if (StringUtils.isEmpty(kw)) { // 검색으로 찾는 경우가 아닐 때 불필요한 쿼리 조회를 없애기 위해 사용
             // 검색 조건을 추가하지 않은 일반적인 Specification 객체 생성
@@ -112,7 +120,7 @@ public class QuestionsService { //service에서 처리
                         cb.like(u1.get("username"),"%"+kw+"%"), //글 작성자
                         cb.like(a.get("content"),"%"+kw+"%"), //답변 내용
                         cb.like(u2.get("username"),"%"+kw+"%") //답변 작성자
-                        );
+                );
             }
         };
     }
