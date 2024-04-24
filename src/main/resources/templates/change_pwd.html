@@ -1,0 +1,20 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+    <form th:action="@{/user/chginfo}" method="post">
+        <div th:if="${param.error}">
+            <div class="alert alert-danger">
+                입력한 비밀번호가 다릅니다.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="inputpswd" class="form-label">변경할 비밀번호를 입력하세요</label>
+            <input type="text" name="inputpswd" id="inputpswd" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="checkpswd" class="form-label">비밀번호를 다시 한번 입력하세요</label>
+            <input type="text" name="checkpswd" id="checkpswd" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">변경하기</button>
+    </form>
+</div>
+</html>
