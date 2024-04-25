@@ -14,7 +14,7 @@ public class UsersService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public SignUpUser create( String username, String password,String email){
+    public SignUpUser create(String username, String password,String email){
         SignUpUser users = new SignUpUser();
         users.setEmail(email);
         users.setPassword(passwordEncoder.encode(password)); //해시함수로 암호화를 해줌
