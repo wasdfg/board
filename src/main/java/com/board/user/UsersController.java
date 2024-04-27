@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
@@ -65,17 +66,22 @@ public class UsersController {
     }
 
     @GetMapping("/chkinfo")
-    public String checkPw(){
-        return "check_pwd";
+    public String checkPw(Principal principal){
+        if(principal == null){
+            return login();
+        }
+        else {
+            return "check_pwd";
+        }
     }
 
     @PostMapping("/chkinfo")
     public String checkPw(@RequestParam("password") String password, Principal principal, Model model){
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        if(passwordEncoder.matches(password, signUpUser.getPassword())){
+        if(passwordEncoder.matches(password, signUpUser.getPassword())) {
             return changePw();
         }
-        else {
+        else{
             System.out.println("wrong");
             model.addAttribute("error", true);
             return "check_pwd";
