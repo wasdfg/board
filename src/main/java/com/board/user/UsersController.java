@@ -65,6 +65,25 @@ public class UsersController {
         return "change_pwd";
     }
 
+    @PostMapping("/chginfo")
+    public String changePw(@RequestParam("inputpw") String inputpw,@RequestParam("checkpw") String checkpw,Principal principal,Model model){
+        if(principal == null){
+            return login();
+        }
+        else{
+            SignUpUser signUpUser = this.usersService.getUser(principal.getName());
+            if (inputpw.equals(checkpw)) {
+                this.usersService.updatePw(signUpUser,checkpw);
+                return "redirect:/";
+            }
+            else{
+                System.out.println("wrong");
+                model.addAttribute("error",true);
+                return "/chginfo";
+            }
+        }
+    }
+
     @GetMapping("/chkinfo")
     public String checkPw(Principal principal){
         if(principal == null){

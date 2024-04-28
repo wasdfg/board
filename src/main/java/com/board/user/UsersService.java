@@ -1,10 +1,12 @@
 package com.board.user;
 
 import com.board.DataNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -30,5 +32,13 @@ public class UsersService {
         } else {
             throw new DataNotFoundException("SignUpUser not found");
         }
+    }
+
+    @Transactional
+    public SignUpUser updatePw(SignUpUser signUpUser,String password){
+        SignUpUser signUpUser1 = signUpUser;
+        System.out.println(signUpUser1);
+        signUpUser1.setPassword(passwordEncoder.encode(password));
+        return this.usersRepository.save(signUpUser1);
     }
 }
