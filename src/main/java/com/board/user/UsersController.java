@@ -106,4 +106,33 @@ public class UsersController {
             return "check_pwd";
         }
     }
+
+    @GetMapping("/findAccount")
+    public String findAccount(){
+        return "find_account";
+    }
+
+    @GetMapping("/chkEmail")
+    public String checkEmail(){
+        return "send_Email";
+    }
+
+    @GetMapping("/findId")
+    public String findId(){
+        return "find_id";
+    }
+
+    @PostMapping("/findId")
+    public String findId(@RequestParam("inputEmail") String email,Model model){
+        Optional<SignUpUser> signUpUser = this.usersService.getUserByEmail(email);
+        if(signUpUser.isPresent()){
+            SignUpUser signUpUser1 = signUpUser.get();
+            model.addAttribute("account",signUpUser1);
+            return "find_id :: resultFragment";
+        }
+        else{
+            model.addAttribute("error", true);
+            return "find_id :: errorFragment";
+        }
+    }
 }

@@ -41,4 +41,9 @@ public class UsersService {
         signUpUser1.setPassword(passwordEncoder.encode(password));
         return this.usersRepository.save(signUpUser1);
     }
+
+    public Optional<SignUpUser> getUserByEmail(String email){
+        Optional<SignUpUser> signUpUser = this.usersRepository.findByEmail(email);
+        return signUpUser;
+    }
 }
