@@ -1,0 +1,14 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+  <div th:if="${username != null}">
+    <div class="mb-3">
+      <p>아이디: <span th:text="${username}"></span></p>
+    </div>
+  </div>
+  <div th:if="${username == null}">
+    <div class="mb-3">
+      <p>가입하신 계정이 없습니다.</p>
+    </div>
+  </div>
+</div>
+</html>

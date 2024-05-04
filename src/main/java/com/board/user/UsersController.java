@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -123,16 +124,16 @@ public class UsersController {
     }
 
     @PostMapping("/findId")
-    public String findId(@RequestParam("inputEmail") String email,Model model){
+    public String findId(@RequestParam("inputEmail") String email, Model model){
         Optional<SignUpUser> signUpUser = this.usersService.getUserByEmail(email);
-        if(signUpUser.isPresent()){
+        if (signUpUser.isPresent()) {
             SignUpUser signUpUser1 = signUpUser.get();
-            model.addAttribute("account",signUpUser1);
-            return "find_id :: resultFragment";
+            model.addAttribute("username", signUpUser1.getUsername());
+        } else {
+            model.addAttribute("username", null);
         }
-        else{
-            model.addAttribute("error", true);
-            return "find_id :: errorFragment";
-        }
+        return "show_Account";
     }
+
+
 }
