@@ -80,10 +80,15 @@ public class ReplysController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{uploadnumber}")
-    public String replysVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
+    public String replysVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber,Model model) {
         Replys replys = this.replysService.getReplys(uploadnumber);
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        this.replysService.vote(replys, signUpUser);
+        if(replys.getVoter().contains(signUpUser) == true){ //이미 투표를 했는지 확인
+            model.addAttribute("voted",true);
+        }
+        else{
+            this.replysService.vote(replys, signUpUser);
+        }
         return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 }

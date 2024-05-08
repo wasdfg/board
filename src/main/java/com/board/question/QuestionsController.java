@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.util.List;
@@ -109,10 +110,18 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{uploadnumber}")
-    public String questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
+    public ModelAndView questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber,Model model) {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         SignUpUser signUpUser = this.usersService.getUser(principal.getName()); //현재 로그인한 유저의 정보를 담는다
-        this.questionsService.vote(questions, signUpUser);
-        return String.format("redirect:/questions/detail/%s", uploadnumber);
+
+        ModelAndView mav = new ModelAndView();
+        if(questions.getVoter().contains(signUpUser) == true){ //이미 투표를 했는지 확인
+            model.addAttribute("voted",true);
+        }
+        else {
+            this.questionsService.vote(questions, signUpUser);
+        }
+        mav.setViewName("redirect:/questions/detail/" + uploadnumber);
+        return mav;
     }
 }
