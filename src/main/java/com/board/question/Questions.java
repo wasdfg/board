@@ -49,4 +49,7 @@ public class Questions {
 
     @Column(columnDefinition = "integer default 0", nullable = false) //0부터 시작하는 조회수
     private int view;
+
+    @Column(nullable = false)
+    private String category;
 }

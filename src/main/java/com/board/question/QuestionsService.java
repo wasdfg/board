@@ -65,12 +65,13 @@ public class QuestionsService { //service에서 처리
         }
     }
 
-    public void create(String title, String content, SignUpUser user){
+    public void create(String title, String content, SignUpUser user,String category){
         Questions q = new Questions();
         q.setTitle(title);
         q.setContent(content);
         q.setNowtime(LocalDateTime.now());
         q.setAuthor(user);
+        q.setCategory(category);
         this.questionsRepository.save(q);
     }
 
