@@ -57,7 +57,13 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @PreAuthorize("isAuthenticated()") //로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
     @GetMapping("/create")
-    public String questionsCreate(QuestionsForm questionsForm){
+    public String questionsCreate(QuestionsForm questionsForm,Model model){
+        List<Category> categories = Arrays.asList(
+                new Category("common", "자유"),
+                new Category("ask", "질문"),
+                new Category("notice", "공지")
+        );
+        model.addAttribute("categories", categories);
         return "questions_form";
     }
 
