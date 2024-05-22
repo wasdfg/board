@@ -2,6 +2,11 @@
 <div layout:fragment="content" class="container my-3">
     <div class="row my-3">
         <div class="col-6">
+            <button class="categoryButton" onclick="updateCategory('free')">자유 게시글</button>
+            <button class="categoryButton" onclick="updateCategory('ask')">질문 게시글</button>
+            <button class="categoryButton" onclick="updateCategory('notice')">공지 게시글</button>
+        </div>
+        <div class="col-6">
             <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
         </div>
         <div class="col-6">
@@ -80,5 +85,24 @@ btn_search.addEventListener('click', function() {
     document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
     document.getElementById('searchForm').submit();
 });
+function updateCategory(category) {
+            // 현재 URL에서 정적 부분을 추출
+            const baseUrl = window.location.origin + window.location.pathname;
+
+            // 새로운 URLSearchParams 객체를 생성
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // 모든 기존 파라미터를 삭제
+            urlParams.delete('kw');
+            urlParams.delete('page');
+             urlParams.set('category', category);
+
+            // 새 URL을 설정
+            const newUrl = baseUrl + '?' + urlParams.toString();
+
+            // URL을 변경하고 페이지를 리로드
+            window.history.replaceState(null, null, newUrl);
+            window.location.reload();
+}
 </script>
 </html>

@@ -91,7 +91,7 @@ public class QuestionsService { //service에서 처리
         this.questionsRepository.save(questions);
     }
 
-    public Page<Questions> getList(int page,String kw) {
+    public Page<Questions> getList(int page,String kw,String category) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
@@ -106,7 +106,12 @@ public class QuestionsService { //service에서 처리
             // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
             spec = search(kw);
         }
-        return this.questionsRepository.findAll(spec,pageable);
+        if(category.isEmpty()) {
+            return this.questionsRepository.findAll(spec, pageable);
+        }
+        else{
+            return this.questionsRepository.findByCategory(pageable,category);
+        }
         //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
     }
 
