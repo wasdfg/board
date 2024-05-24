@@ -124,16 +124,12 @@ public class UsersController {
     }
 
     @PostMapping("/findId")
-    public String findId(@RequestParam("inputEmail") String email, Model model){
-        Optional<SignUpUser> signUpUser = this.usersService.getUserByEmail(email);
+    public ResponseEntity<?> findId(@RequestParam("inputEmail") String email) {
+        Optional<SignUpUser> signUpUser = usersService.getUserByEmail(email);
         if (signUpUser.isPresent()) {
-            SignUpUser signUpUser1 = signUpUser.get();
-            model.addAttribute("username", signUpUser1.getUsername());
+            return ResponseEntity.ok(signUpUser.get().getUsername());
         } else {
-            model.addAttribute("username", null);
+            return ResponseEntity.notFound().build();
         }
-        return "show_Account";
     }
-
-
 }

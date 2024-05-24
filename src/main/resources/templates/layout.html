@@ -22,7 +22,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <!-- 자바스크립트 Start -->
+<!--find_id.html에서 작동하는 js-->
+<script>
+document.getElementById('formContainer').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
 
+    fetch('/user/findId', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        if (data.trim() !== '') {
+            document.getElementById('notification').innerHTML = '아이디는 ' + data + '입니다.';
+            document.getElementById('notification').style.display = 'block';
+        } else {
+            document.getElementById('notification').style.display = 'none';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
 <th:block layout:fragment="script"></th:block>
 <!-- 자바스크립트 End -->
 </body>

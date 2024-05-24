@@ -1,11 +1,14 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
-    <form th:action="@{/user/findId}" method="post">
+    <form th:id = formContainer th:action="@{/user/findId}" method="post">
         <div class="mb-3">
             <label for="inputEmail" class="form-label">가입하신 계정의 이메일을 입력하세요</label>
             <input type="text" name="inputEmail" id="inputEmail" class="form-control">
             <button type="submit" class="btn btn-primary">확인</button>
         </div>
     </form>
+    <div id="notification" class="alert alert-danger" role="alert" style="display: none;">
+        가입하신 계정이 없습니다.
+    </div>
 </div>
 </html>
