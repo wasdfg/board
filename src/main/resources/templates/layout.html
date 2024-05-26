@@ -34,11 +34,17 @@ document.getElementById('formContainer').addEventListener('submit', function(eve
     })
     .then(response => response.text())
     .then(data => {
+        var notification = document.getElementById('notification');
         if (data.trim() !== '') {
-            document.getElementById('notification').innerHTML = '아이디는 ' + data + '입니다.';
-            document.getElementById('notification').style.display = 'block';
+            notification.innerHTML = '아이디는 ' + data + '입니다.';
+            notification.classList.remove('alert-danger');
+            notification.classList.add('alert-success');
+            notification.style.display = 'block';
         } else {
-            document.getElementById('notification').style.display = 'none';
+            notification.innerHTML = '가입하신 계정이 없습니다.';
+            notification.classList.remove('alert-success');
+            notification.classList.add('alert-danger');
+            notification.style.display = 'block';
         }
     })
     .catch(error => console.error('Error:', error));
