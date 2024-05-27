@@ -1,6 +1,6 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
-  <form th:action="@{/user/login}" method="post">
+  <form th:action="@{/user/login}" method="post" target="_self">
     <div th:if="${param.error}">
       <div class="alert alert-danger">
         사용자ID 또는 비밀번호를 확인해 주세요.
