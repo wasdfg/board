@@ -90,12 +90,18 @@ Array.from(delete_elements).forEach(function(element) {
     });
 });
 
+const urlParams = new URLSearchParams(window.location.search);
+const voted = urlParams.get('voted');
+
+if (voted === 'true') {
+    alert("이미 추천하셨습니다.");
+}
+
+
 const recommend_elements = document.getElementsByClassName("recommend");
 Array.from(recommend_elements).forEach(function(element) {
     element.addEventListener('click', function() {
-        if (this.classList.contains('disabled')) {
-            alert("이미 추천하셨습니다.");
-        } else if (confirm("정말로 추천하시겠습니까?")) {
+        if (confirm("정말로 추천하시겠습니까?")) {
             location.href = this.dataset.uri;
         }
     });

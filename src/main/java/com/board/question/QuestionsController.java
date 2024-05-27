@@ -118,18 +118,16 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{uploadnumber}")
-    public ModelAndView questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber,Model model) {
+    public String questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber, Model model) {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName()); //현재 로그인한 유저의 정보를 담는다
+        SignUpUser signUpUser = this.usersService.getUser(principal.getName()); // 현재 로그인한 유저의 정보를 담는다
 
-        ModelAndView mav = new ModelAndView();
-        if(questions.getVoter().contains(signUpUser) == true){ //이미 투표를 했는지 확인
-            model.addAttribute("voted",true);
-        }
-        else {
+        boolean alreadyVoted = questions.getVoter().contains(signUpUser); // 이미 투표를 했는지 확인
+        if (!alreadyVoted) {
             this.questionsService.vote(questions, signUpUser);
         }
-        mav.setViewName("redirect:/questions/detail/" + uploadnumber);
-        return mav;
+
+        model.addAttribute("voted", alreadyVoted);
+        return "redirect:/questions/detail/" + uploadnumber + "?voted=" + alreadyVoted;
     }
 }
