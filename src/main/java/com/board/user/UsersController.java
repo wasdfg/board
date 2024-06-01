@@ -1,9 +1,16 @@
 package com.board.user;
 
+import com.board.question.Questions;
+import com.board.question.QuestionsRepository;
+import com.board.question.QuestionsService;
+import com.board.reply.Replys;
+import com.board.reply.ReplysRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -23,6 +30,8 @@ import java.util.Optional;
 public class UsersController {
     private final UsersService usersService;
 
+    private final ReplysRepository replysRepository;
+    private final QuestionsService questionsService;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signup")
@@ -131,5 +140,12 @@ public class UsersController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/showQNA")
+    public String showQNA(Principal principal,Model model,@RequestParam(defaultValue = "0") int page,@RequestParam(value = "kw", defaultValue = "") String kw,@RequestParam(value = "category", defaultValue = "") String category){
+        Page<Questions> paging = this.questionsService.getList(page,principal.getName());
+        model.addAttribute("paging", paging);
+        return "show_info";
     }
 }

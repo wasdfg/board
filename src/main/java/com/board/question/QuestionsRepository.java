@@ -5,9 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 //JpaRepository를 상속 Question 엔티티와 기본키인 id의 자료형
@@ -18,14 +20,17 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     Questions findByTitleAndContent(String title, String content);
     List<Questions> findByTitleLike(String title); //title 조회해서 찾기 값이 여러개 일 수 있으므로 list에 저장
 
+    //@Query("select q.title,q.view,q.author,q.uploadnumber from Questions q")
     Page<Questions> findAll(Specification<Questions> spec,Pageable pageable); //검색으로 db에서 조회한 내용을 paging해서 저장
 
+    @Query("select q.title,q.uploadnumber from Questions q where q.author = :username")
+    Page<Questions> findByUser(@Param("username")String username, Pageable pageable);
     Page<Questions> findByCategory(Pageable pageable,String category);
-    //@Query("select title, author, nowtime from questions")
+    //@Query("select title, author, nowtime from Questions")
     //Page<Questions> getData(Pageable pageable);
     /*@Query("select "
             + "distinct q "
-            + "from Question q "
+            + "from Questions q "
             + "left outer join SignUpUser u1 on q.author=u1 "
             + "left outer join replys a on a.question=q "
             + "left outer join SignUpUser u2 on a.author=u2 "

@@ -114,6 +114,15 @@ public class QuestionsService { //service에서 처리
         }
         //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
     }
+    public Page<Questions> getList(int page,String username) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        Sort multiSort = Sort.by(
+                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
+                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
+        );
+        Pageable pageable = PageRequest.of(page, 10,multiSort);
+        return this.questionsRepository.findByUser(username,pageable);
+    }
 
     private Specification<Questions> search(String kw){ //kw로 검색할 문자열 받아온다
         return new Specification<>() {
