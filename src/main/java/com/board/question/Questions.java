@@ -29,7 +29,7 @@ public class Questions {
 
     private LocalDateTime modifyDate; //수정된 글의 시간
 
-    @OneToMany(mappedBy = "questions",cascade = CascadeType.REMOVE) //질문이 삭제되면 답변도 같이 삭제되게 cascade를 추가
+    @OneToMany(mappedBy = "questions",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY) //질문이 삭제되면 답변도 같이 삭제되게 cascade를 추가
     private List<Replys> replysList; //reply 객체를 list로 담아둔다.
     //참조하기 위해 questions.getReplysList()를 호출한다.
     //mappedBy는 참조하는 엔티티를 선언해준다.

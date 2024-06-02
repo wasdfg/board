@@ -21,6 +21,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     List<Questions> findByTitleLike(String title); //title 조회해서 찾기 값이 여러개 일 수 있으므로 list에 저장
 
     //@Query("select q.title,q.view,q.author,q.uploadnumber from Questions q")
+
     Page<Questions> findAll(Specification<Questions> spec,Pageable pageable); //검색으로 db에서 조회한 내용을 paging해서 저장
 
     @Query("select q.title,q.uploadnumber from Questions q where q.author = :username")
