@@ -1,5 +1,6 @@
 package com.board.question;
 
+import com.board.user.SignUpUser;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
@@ -19,13 +20,12 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     Questions findByTitle(String title); //findby형식의 사용자 정의 함수
     Questions findByTitleAndContent(String title, String content);
     List<Questions> findByTitleLike(String title); //title 조회해서 찾기 값이 여러개 일 수 있으므로 list에 저장
-
     //@Query("select q.title,q.view,q.author,q.uploadnumber from Questions q")
 
     Page<Questions> findAll(Specification<Questions> spec,Pageable pageable); //검색으로 db에서 조회한 내용을 paging해서 저장
 
     @Query("select q.title,q.uploadnumber from Questions q where q.author = :username")
-    Page<Questions> findByUser(@Param("username")String username, Pageable pageable);
+    Page<Questions> findByUser(@Param("username")SignUpUser signUpUser, Pageable pageable);
     Page<Questions> findByCategory(Pageable pageable,String category);
     //@Query("select title, author, nowtime from Questions")
     //Page<Questions> getData(Pageable pageable);
