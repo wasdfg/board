@@ -5,6 +5,7 @@ import com.board.question.QuestionsRepository;
 import com.board.question.QuestionsService;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
+import com.board.reply.ReplysService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,9 @@ public class UsersController {
     private final UsersService usersService;
 
     private final QuestionsService questionsService;
+
+    private final ReplysService replysService;
+
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signup")
@@ -142,10 +146,10 @@ public class UsersController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/showQNA")
     public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page){
-        System.out.println(principal.getName());
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        Page<Questions> paging = this.questionsService.getList(page,signUpUser);
-        model.addAttribute("paging", paging);
+        Page<Questions> Qpaging = this.questionsService.getList(page,signUpUser);
+        Page<Replys> Rpaging = this.replysService.getList(page,signUpUser);
+        model.addAttribute("Qpaging", Qpaging);
         return "show_info";
     }
 }
