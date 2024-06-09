@@ -1,4 +1,50 @@
 <html layout:decorate="~{layout}">
+<style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .left-section {
+            flex: 2;
+        }
+        .right-section {
+            flex: 8;
+        }
+</style>
 <div layout:fragment="content" class="container my-3">
+    <div class="left-section">
+        <button class="showmypost" data-type="question">내가 작성한 글</button>
+        <button class="showmypost" data-type="replys">내가 작성한 댓글</button>
+    </div>
+    <div class="right-section">
+
+    </div>
 </div>
+<script>
+    document.querySelectorAll('.showmypost').forEach(button => {
+    button.addEventListener('click', function() {
+        const type = this.getAttribute('data-type');
+
+        fetch(`/api/showQNA?type=${type}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updatePage(data.items);  // 데이터를 이용해 페이지를 업데이트하는 함수 호출
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+});
+</script>
 </html>
