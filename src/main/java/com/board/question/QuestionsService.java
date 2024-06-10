@@ -25,9 +25,6 @@ import java.util.stream.Collectors;
 public class QuestionsService { //service에서 처리
     private final QuestionsRepository questionsRepository;
 
-    @Autowired
-    private EntityManager entityManager;
-
     public Questions getQuestions(Integer uploadnumber){
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber); //uploadnumber로 찾는다.
         if(questions.isPresent()){ //있으면
@@ -121,7 +118,7 @@ public class QuestionsService { //service에서 처리
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.questionsRepository.findByUser(signUpUser,pageable);
+        return this.questionsRepository.findByUser(signUpUser.getUsername(),pageable);
     }
 
     private Specification<Questions> search(String kw){ //kw로 검색할 문자열 받아온다

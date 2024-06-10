@@ -148,6 +148,7 @@ public class UsersController {
     public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page){
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
         Page<Questions> Qpaging = this.questionsService.getList(page,signUpUser);
+        System.out.println(Qpaging.getTotalPages());
         Page<Replys> Rpaging = this.replysService.getList(page,signUpUser);
         model.addAttribute("Qpaging", Qpaging);
         return "show_info";

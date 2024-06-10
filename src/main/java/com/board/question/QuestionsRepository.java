@@ -24,8 +24,8 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
 
     Page<Questions> findAll(Specification<Questions> spec,Pageable pageable); //검색으로 db에서 조회한 내용을 paging해서 저장
 
-    @Query("select q.title,q.uploadnumber from Questions q where q.author = :username")
-    Page<Questions> findByUser(@Param("username")SignUpUser signUpUser, Pageable pageable);
+    @Query("select q.title,q.uploadnumber from Questions q where q.author.username = :username")
+    Page<Questions> findByUser(@Param("username")String username, Pageable pageable);
     Page<Questions> findByCategory(Pageable pageable,String category);
     //@Query("select title, author, nowtime from Questions")
     //Page<Questions> getData(Pageable pageable);

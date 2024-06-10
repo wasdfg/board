@@ -1,50 +1,46 @@
 <html layout:decorate="~{layout}">
-<style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-        }
-        .container {
-            display: flex;
-            height: 100%;
-        }
-        .left-section {
-            flex: 2;
-        }
-        .right-section {
-            flex: 8;
-        }
-</style>
 <div layout:fragment="content" class="container my-3">
-    <div class="left-section">
-        <button class="showmypost" data-type="question">내가 작성한 글</button>
-        <button class="showmypost" data-type="replys">내가 작성한 댓글</button>
-    </div>
-    <div class="right-section">
+        <div class="makeflex">
+            <button class="showmypost" data-type="question">내가 작성한 글</button>
+            <button class="showmypost" data-type="replys">내가 작성한 댓글</button>
+        </div>
+        <table class="table">
+            <thead class="table-dark">
+            <tr class="text-center">
+                <th style="width:50%">제목</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
 
+            <tbody>
+            <tr class="text-center" th:each="questions, loop : ${Qpaging}"> <!--th:each 는 반복문을 의미한다-->
+                <td th:text="${Qpaging.getTotalElements - (Qpaging.number * Qpaging.size) - loop.index}"></td> <!--번호를 역순으로 출력하게 설정-->
+                <td class="text-start">
+                    <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>  <!--자바 객체의 값을 더할때는 ||를 덮어야한다 -->
+                </td>
+                <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td> <!--시간 출력형식을 변경해줌-->
+            </tr>
+            </tbody>
+        </table>
+        <div th:if="${!Qpaging.isEmpty()}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!Qpaging.hasPrevious or Qpaging.number <= 9} ? 'disabled'"> <!--이전 페이지가 없거나 페이지가 10아래인 경우 이전 링크를 비활성화-->
+                    <a class="page-link" href="javascript:void(0)"
+                       th:data-page="${(Qpaging.number/10-1)*10}">
+                        <span>이전</span>
+                    </a>
+                </li> <!--출력할 페이지를 표시해준다-->
+                <li th:each="page: ${#numbers.sequence(1, Qpaging.totalPages)}"
+                    th:if="${page > Qpaging.number/10*10 and page <= Qpaging.number/10*10+10}"
+                    th:classappend="${page == Qpaging.number+1} ? 'active'" class="page-item">
+                    <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page-1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${((Qpaging.totalPages-1)/10 - Qpaging.number/10 == 0) or !Qpaging.hasNext} ? 'disabled'"> <!--다음 페이지가 없거나 마지막 단위일 경우 다음 링크를 비활성화-->
+                    <a class="page-link" href="javascript:void(0)" th:data-page="${(Qpaging.number/10+1)*10}">
+                        <span>다음</span>
+                    </a>
+                </li>
+            </ul>
     </div>
 </div>
-<script>
-    document.querySelectorAll('.showmypost').forEach(button => {
-    button.addEventListener('click', function() {
-        const type = this.getAttribute('data-type');
-
-        fetch(`/api/showQNA?type=${type}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            updatePage(data.items);  // 데이터를 이용해 페이지를 업데이트하는 함수 호출
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    });
-});
-</script>
 </html>
