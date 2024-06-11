@@ -1,17 +1,13 @@
 package com.board.user;
 
-import com.board.question.Questions;
-import com.board.question.QuestionsRepository;
+import com.board.question.dto.QuestionsBasicDTO;
 import com.board.question.QuestionsService;
-import com.board.reply.Replys;
-import com.board.reply.ReplysRepository;
 import com.board.reply.ReplysService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -147,9 +143,10 @@ public class UsersController {
     @GetMapping("/showQNA")
     public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page){
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        Page<Questions> Qpaging = this.questionsService.getList(page,signUpUser);
-        System.out.println(Qpaging.getTotalPages());
-        Page<Replys> Rpaging = this.replysService.getList(page,signUpUser);
+        Page<QuestionsBasicDTO> Qpaging = this.questionsService.getList(page,signUpUser);
+        System.out.println(Qpaging.getNumberOfElements());
+        System.out.println(Qpaging.getContent().get(0));
+        //Page<Replys> Rpaging = this.replysService.getList(page,signUpUser);
         model.addAttribute("Qpaging", Qpaging);
         return "show_info";
     }

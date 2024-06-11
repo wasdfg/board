@@ -2,13 +2,12 @@ package com.board.question;
 
 import com.board.DataNotFoundException;
 
+import com.board.question.dto.QuestionsBasicDTO;
 import com.board.reply.Replys;
 import com.board.user.SignUpUser;
 import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -111,7 +109,7 @@ public class QuestionsService { //service에서 처리
         }
         //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
     }
-    public Page<Questions> getList(int page,SignUpUser signUpUser) {
+    public Page<QuestionsBasicDTO> getList(int page, SignUpUser signUpUser) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬

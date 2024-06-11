@@ -1,6 +1,6 @@
 package com.board.question;
 
-import com.board.user.SignUpUser;
+import com.board.question.dto.QuestionsBasicDTO;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 //JpaRepository를 상속 Question 엔티티와 기본키인 id의 자료형
@@ -24,8 +23,8 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
 
     Page<Questions> findAll(Specification<Questions> spec,Pageable pageable); //검색으로 db에서 조회한 내용을 paging해서 저장
 
-    @Query("select q.title,q.uploadnumber from Questions q where q.author.username = :username")
-    Page<Questions> findByUser(@Param("username")String username, Pageable pageable);
+    @Query("select new com.board.question.dto.QuestionsBasicDTO(q.title,q.uploadnumber,q.nowtime) from Questions q where q.author.username = :username")
+    Page<QuestionsBasicDTO> findByUser(@Param("username")String username, Pageable pageable);
     Page<Questions> findByCategory(Pageable pageable,String category);
     //@Query("select title, author, nowtime from Questions")
     //Page<Questions> getData(Pageable pageable);
