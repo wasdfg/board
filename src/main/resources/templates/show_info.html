@@ -43,5 +43,17 @@
                 </li>
             </ul>
     </div>
+    <form th:action="@{/user/showQNA}" method="get" id="searchForm">
+        <input type="hidden" id="page" name="page" th:value="${Qpaging.number}">
+    </form>
 </div>
+<script layout:fragment="script" type='text/javascript'>
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+</script>
 </html>
