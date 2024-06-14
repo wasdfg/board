@@ -1,7 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
   <form th:action="@{/user/chkinfo}" method="post">
-    <div th:if="${param.error}">
+    <div th:if="${error}">
       <div class="alert alert-danger">
         비밀번호를 확인해 주세요.
       </div>

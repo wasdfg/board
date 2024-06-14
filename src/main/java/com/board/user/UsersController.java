@@ -68,47 +68,39 @@ public class UsersController {
     }
 
     @GetMapping("/chginfo")
+    @PreAuthorize("isAuthenticated()")
     public String changePw(){
         return "change_pwd";
     }
 
     @PostMapping("/chginfo")
+    @PreAuthorize("isAuthenticated()")
     public String changePw(@RequestParam("inputpw") String inputpw,@RequestParam("checkpw") String checkpw,Principal principal,Model model){
-        if(principal == null){
-            return login();
+        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
+        if (inputpw.equals(checkpw)) {
+            this.usersService.updatePw(signUpUser,checkpw);
+            return "redirect:/";
         }
         else{
-            SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-            if (inputpw.equals(checkpw)) {
-                this.usersService.updatePw(signUpUser,checkpw);
-                return "redirect:/";
-            }
-            else{
-                System.out.println("wrong");
-                model.addAttribute("error",true);
-                return "/chginfo";
-            }
+            model.addAttribute("error",true);
+            return "change_pwd";
         }
     }
 
     @GetMapping("/chkinfo")
-    public String checkPw(Principal principal){
-        if(principal == null){
-            return login();
-        }
-        else {
-            return "check_pwd";
-        }
+    @PreAuthorize("isAuthenticated()")
+    public String checkPw(){
+        return "check_pwd";
     }
 
     @PostMapping("/chkinfo")
+    @PreAuthorize("isAuthenticated()")
     public String checkPw(@RequestParam("password") String password, Principal principal, Model model){
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
         if(passwordEncoder.matches(password, signUpUser.getPassword())) {
             return changePw();
         }
         else{
-            System.out.println("wrong");
             model.addAttribute("error", true);
             return "check_pwd";
         }

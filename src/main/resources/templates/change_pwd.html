@@ -1,7 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
     <form th:action="@{/user/chginfo}" method="post">
-        <div th:if="${param.error}">
+        <div th:if="${error}">
             <div class="alert alert-danger">
                 입력한 비밀번호가 다릅니다.
             </div>
@@ -17,4 +17,7 @@
         <button type="submit" class="btn btn-primary">변경하기</button>
     </form>
 </div>
+<script layout:fragment="script" type='text/javascript'>
+
+</script>
 </html>
