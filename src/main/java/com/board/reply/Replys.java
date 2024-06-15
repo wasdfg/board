@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -35,4 +37,11 @@ public class Replys {
     @ManyToMany(fetch = FetchType.LAZY)
     Set<SignUpUser> voter;
     //나중에 답변 추천기능 내림차순으로 출력할 예정
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Replys parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Replys> children = new ArrayList<>();
 }
