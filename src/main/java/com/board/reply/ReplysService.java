@@ -3,6 +3,7 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.user.SignUpUser;
+import com.board.reply.dto.ReplysBasicDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -55,13 +56,13 @@ public class ReplysService {
         this.replysRepository.save(replys);
     }
 
-    public Page<Replys> getList(int page, SignUpUser signUpUser){
+    public Page<ReplysBasicDTO> getList(int page, SignUpUser signUpUser){
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.replysRepository.findByUser(signUpUser,pageable);
+        return this.replysRepository.findByUser(signUpUser.getUsername(),pageable);
     }
 }

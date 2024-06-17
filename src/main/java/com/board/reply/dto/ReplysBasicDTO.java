@@ -17,9 +17,10 @@ public class ReplysBasicDTO {
 
     private Integer uploadnumber;
 
-    public ReplysBasicDTO(String content,LocalDateTime nowtime,Integer uploadnumber){
+    public ReplysBasicDTO(String content,Integer uploadnumber,LocalDateTime nowtime){
         this.content = content;
-        this.nowtime = nowtime;
         this.uploadnumber = uploadnumber;
+        this.nowtime = nowtime;
+
     }
 }

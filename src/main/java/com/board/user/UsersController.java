@@ -3,6 +3,7 @@ package com.board.user;
 import com.board.question.dto.QuestionsBasicDTO;
 import com.board.question.QuestionsService;
 import com.board.reply.ReplysService;
+import com.board.reply.dto.ReplysBasicDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -133,11 +134,17 @@ public class UsersController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/showQNA")
-    public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page){
+    public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page,@RequestParam(value="type", defaultValue="question") String type){
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
         Page<QuestionsBasicDTO> Qpaging = this.questionsService.getList(page,signUpUser);
-        //Page<Replys> Rpaging = this.replysService.getList(page,signUpUser);
-        model.addAttribute("Qpaging", Qpaging);
+        Page<ReplysBasicDTO> Rpaging = this.replysService.getList(page,signUpUser);
+        model.addAttribute("type", type);
+        if(type.equals("question")) {
+            model.addAttribute("Qpaging", Qpaging);
+        }
+        else if (type.equals("replys")) {
+            model.addAttribute("Rpaging",Rpaging);
+        }
         return "show_info";
     }
 }
