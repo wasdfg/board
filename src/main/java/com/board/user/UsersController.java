@@ -147,4 +147,20 @@ public class UsersController {
         }
         return "show_info";
     }
+
+    @GetMapping("/findPwd")
+    public String findPassword(){
+        return "find_password";
+    }
+
+    @PostMapping("/findPwd")
+    public ResponseEntity<?> findPassword(@RequestParam(value="inputEmail")String email){
+        Optional<SignUpUser> user = this.usersService.getUserByEmail(email);
+        if(user.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        else{
+            return ResponseEntity.ok(email);
+        }
+    }
 }
