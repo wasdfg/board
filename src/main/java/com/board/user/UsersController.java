@@ -4,12 +4,14 @@ import com.board.question.dto.QuestionsBasicDTO;
 import com.board.question.QuestionsService;
 import com.board.reply.ReplysService;
 import com.board.reply.dto.ReplysBasicDTO;
+import com.board.user.dto.MailDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -124,9 +126,9 @@ public class UsersController {
 
     @PostMapping("/findId")
     public ResponseEntity<?> findId(@RequestParam("inputEmail") String email) {
-        Optional<SignUpUser> signUpUser = usersService.getUserByEmail(email);
-        if (signUpUser.isPresent()) {
-            return ResponseEntity.ok(signUpUser.get().getUsername());
+        SignUpUser signUpUser = usersService.getUserByEmail(email);
+        if (signUpUser != null) {
+            return ResponseEntity.ok(signUpUser.getUsername());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -155,11 +157,18 @@ public class UsersController {
 
     @PostMapping("/findPwd")
     public ResponseEntity<?> findPassword(@RequestParam(value="inputEmail")String email){
-        Optional<SignUpUser> user = this.usersService.getUserByEmail(email);
-        if(user.isEmpty()){
+        SignUpUser user = this.usersService.getUserByEmail(email);
+        if(user == null){
             return ResponseEntity.notFound().build();
         }
         else{
+            String tempPw = this.usersService.makeTempPw();
+            this.usersService.updatePw(user,tempPw);
+            MailDto mailDto = new MailDto();
+            mailDto.setEmail(email);
+            mailDto.setTitle("임시 비밀번호 안내 이메일입니다.");
+            mailDto.setMessage("안녕하세요. 임시비밀번호 안내 관련 메일 입니다." + "[" + user.getUsername() + "]" + "님의 임시 비밀번호는 " + tempPw + " 입니다.");
+            this.usersService.sendMail(mailDto);
             return ResponseEntity.ok(email);
         }
     }
