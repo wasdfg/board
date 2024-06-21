@@ -5,6 +5,7 @@ import com.board.question.QuestionsService;
 import com.board.reply.ReplysService;
 import com.board.reply.dto.ReplysBasicDTO;
 import com.board.user.dto.MailDto;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -168,7 +169,11 @@ public class UsersController {
             mailDto.setEmail(email);
             mailDto.setTitle("임시 비밀번호 안내 이메일입니다.");
             mailDto.setMessage("안녕하세요. 임시비밀번호 안내 관련 메일 입니다." + "[" + user.getUsername() + "]" + "님의 임시 비밀번호는 " + tempPw + " 입니다.");
-            this.usersService.sendMail(mailDto);
+            try {
+                this.usersService.sendMail(mailDto);
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            }
             return ResponseEntity.ok(email);
         }
     }

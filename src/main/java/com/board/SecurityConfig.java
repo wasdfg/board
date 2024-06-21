@@ -29,9 +29,9 @@ import java.io.IOException;
 public class SecurityConfig{
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.authorizeRequests(auth-> auth.requestMatchers("/**","/h2-console/**").permitAll())
+        http.authorizeRequests(auth-> auth.requestMatchers("/**","/h2-console/**","/user/findPwd/**").permitAll())
                 .csrf((csrf) -> csrf
-                        .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**","/user/findPwd/**")))
                 .headers((headers) -> headers
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))

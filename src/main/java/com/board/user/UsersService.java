@@ -2,14 +2,19 @@ package com.board.user;
 
 import com.board.DataNotFoundException;
 import com.board.user.dto.MailDto;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -65,12 +70,18 @@ public class UsersService {
         return a;
     }
 
-    public void sendMail(MailDto mailDto){
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(mailDto.getEmail());
-        message.setFrom(FromAddress);
-        message.setSubject(mailDto.getTitle());
-        message.setText(mailDto.getMessage());
+    public void sendMail(MailDto mailDto) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        try {
+            helper.setFrom(new InternetAddress(FromAddress,"게시판"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        helper.setTo(mailDto.getEmail());
+        helper.setSubject(mailDto.getTitle());
+        helper.setText(mailDto.getMessage());
         mailSender.send(message);
     }
 }
