@@ -52,4 +52,11 @@ public class Questions {
 
     @Column(nullable = false)
     private String category;
+
+    private Long number;
+
+    public Long setNumber(){
+        this.number = (long)replysList.size();
+        return number;
+    }
 }

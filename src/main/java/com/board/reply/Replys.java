@@ -38,10 +38,29 @@ public class Replys {
     Set<SignUpUser> voter;
     //나중에 답변 추천기능 내림차순으로 출력할 예정
 
+    Integer depth; //같은 값이면 들여쓰기가 같은 댓글
+
+    Long orderNumber; //같은 깊이의 댓글의 순서를 나타내기 위해 사용
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Replys parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Replys> children = new ArrayList<>();
+
+    public Replys(String content,SignUpUser author,Questions questions,Replys parent){
+        this.content = content;
+        this.parent = parent;
+        this.questions = questions;
+        this.author = author;
+        if(parent == null){
+            this.depth = 0;
+            this.orderNumber = questions.getNumber();
+        }
+        else{
+            this.depth = parent.depth+1;
+            this.orderNumber = parent.getOrderNumber();
+        }
+    }
 }

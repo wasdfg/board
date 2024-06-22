@@ -91,5 +91,19 @@ public class ReplysController {
         }
         return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/rereply/{uploadnumber}")
+    public String reReply(Principal principal,@PathVariable("uploadnumber")Integer uploadnumber,@Valid ReplysForm replysForm,BindingResult bindingResult,Model model){
+        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
+
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("questions", questions);
+            return "questions_detail";
+        }
+        Replys replys = this.replysService.create(questions,replysForm.getContent(),signUpUser);
+        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
+    }
 }
 
