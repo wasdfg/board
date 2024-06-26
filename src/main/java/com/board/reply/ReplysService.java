@@ -21,12 +21,13 @@ import java.util.Optional;
 public class ReplysService {
     private final ReplysRepository replysRepository;
 
-    public Replys create(Questions questions, String content, SignUpUser author){
+    public Replys create(Questions questions, String content, SignUpUser author,Replys parentReplys){
         Replys replys = new Replys();
         replys.setContent(content);
         replys.setNowtime(LocalDateTime.now());
         replys.setQuestions(questions);
         replys.setAuthor(author);
+        replys.setParent(parentReplys);
         this.replysRepository.save(replys); //위에 있는 content nowtime questions를 replys에 저장
         return replys;
     }

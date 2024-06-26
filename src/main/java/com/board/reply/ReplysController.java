@@ -29,7 +29,7 @@ public class ReplysController {
 
     @PreAuthorize("isAuthenticated()")//로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
     @PostMapping("/create/{uploadnumber}") //post로 처리 대용량처리에 용이
-    public String replysCreate(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @Valid ReplysForm replysForm, BindingResult bindingResult,Principal principal){//principal은 현재 로그인한 유저의 정보를 알려준다
+    public String replysCreate(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @Valid ReplysForm replysForm, BindingResult bindingResult,Principal principal, @RequestParam(value = "parentId", required = false) Integer parentId){//principal은 현재 로그인한 유저의 정보를 알려준다
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
 
@@ -37,7 +37,12 @@ public class ReplysController {
             model.addAttribute("questions", questions);
             return "questions_detail";
         }
-        Replys replys = this.replysService.create(questions,replysForm.getContent(),signUpUser);
+
+        Replys Preplys = null;
+        if(parentId != null){
+            Preplys = this.replysService.getReplys(parentId);
+        }
+        Replys replys = this.replysService.create(questions,replysForm.getContent(),signUpUser,Preplys);
         return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 
@@ -89,20 +94,6 @@ public class ReplysController {
         else{
             this.replysService.vote(replys, signUpUser);
         }
-        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/rereply/{uploadnumber}")
-    public String reReply(Principal principal,@PathVariable("uploadnumber")Integer uploadnumber,@Valid ReplysForm replysForm,BindingResult bindingResult,Model model){
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-
-        if(bindingResult.hasErrors()) {
-            model.addAttribute("questions", questions);
-            return "questions_detail";
-        }
-        Replys replys = this.replysService.create(questions,replysForm.getContent(),signUpUser);
         return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 }

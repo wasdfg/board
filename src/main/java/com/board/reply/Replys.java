@@ -49,18 +49,4 @@ public class Replys {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Replys> children = new ArrayList<>();
 
-    public Replys(String content,SignUpUser author,Questions questions,Replys parent){
-        this.content = content;
-        this.parent = parent;
-        this.questions = questions;
-        this.author = author;
-        if(parent == null){
-            this.depth = 0;
-            this.orderNumber = questions.getNumber();
-        }
-        else{
-            this.depth = parent.depth+1;
-            this.orderNumber = parent.getOrderNumber();
-        }
-    }
 }
