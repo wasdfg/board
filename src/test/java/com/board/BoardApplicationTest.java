@@ -151,7 +151,8 @@ public class BoardApplicationTest {
         for (int i = 1; i <= 1000000; i++) {
             String title = String.format("테스트 데이터입니다:[%03d]", i);
             String content = "내용무";
-            this.questionsService.create(title, content,null,"common");
+            String[] arr = {"common","ask"};
+            this.questionsService.create(title, content,null,arr[(int)((double)arr.length*Math.random())]);
         }
     }
 }
