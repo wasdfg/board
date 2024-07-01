@@ -3,7 +3,7 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.user.SignUpUser;
-import com.board.reply.dto.ReplysBasicDTO;
+import com.board.reply.dto.ReplysBasicDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,13 +21,18 @@ import java.util.Optional;
 public class ReplysService {
     private final ReplysRepository replysRepository;
 
-    public Replys create(Questions questions, String content, SignUpUser author,Replys parentReplys){
+    public Replys create(Questions questions, String content, SignUpUser author,Replys prereplys){
         Replys replys = new Replys();
         replys.setContent(content);
         replys.setNowtime(LocalDateTime.now());
         replys.setQuestions(questions);
         replys.setAuthor(author);
-        replys.setParent(parentReplys);
+        if(prereplys != null && prereplys.getParent_id() != null) {
+            replys.setParent_id(prereplys.getUploadnumber());
+        }
+        else{
+            replys.setParent_id(null);
+        }
         this.replysRepository.save(replys); //위에 있는 content nowtime questions를 replys에 저장
         return replys;
     }
@@ -57,7 +62,7 @@ public class ReplysService {
         this.replysRepository.save(replys);
     }
 
-    public Page<ReplysBasicDTO> getList(int page, SignUpUser signUpUser){
+    public Page<ReplysBasicDto> getList(int page, SignUpUser signUpUser){
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
@@ -66,4 +71,5 @@ public class ReplysService {
         Pageable pageable = PageRequest.of(page, 10,multiSort);
         return this.replysRepository.findByUser(signUpUser.getUsername(),pageable);
     }
+
 }

@@ -3,9 +3,11 @@ package com.board.reply;
 import com.board.question.Questions;
 import com.board.user.SignUpUser;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ public class Replys {
     private LocalDateTime modifyDate; //수정된 글의 시간
 
     @ManyToOne(fetch = FetchType.LAZY) //질문은 하나지만 답변은 여러개가 될수 있기에 N:1관계를 사용
+    @JoinColumn(name = "questions_uploadnumber")
     private Questions questions; //Questions 엔티티를 참조하기 위해 선언
 
     @ManyToOne(fetch = FetchType.LAZY) //글쓴이 1명당 여러 답변을 할 수 있어 다대1로 설정
@@ -38,15 +41,7 @@ public class Replys {
     Set<SignUpUser> voter;
     //나중에 답변 추천기능 내림차순으로 출력할 예정
 
-    Integer depth; //같은 값이면 들여쓰기가 같은 댓글
-
-    Long orderNumber; //같은 깊이의 댓글의 순서를 나타내기 위해 사용
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Replys parent;
-
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Replys> children = new ArrayList<>();
+    @ColumnDefault("null")
+    private Integer parent_id;
 
 }
