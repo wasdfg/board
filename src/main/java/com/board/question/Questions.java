@@ -35,14 +35,8 @@ public class Questions {
     //mappedBy는 참조하는 엔티티를 선언해준다.
 
     @ManyToOne //글쓴이 1명당 여러 질문을 할 수 있어 다대1로 설정
+    @JoinColumn(name = "username")
     private SignUpUser author;
-    
-    @Builder
-    public Questions(String title, String content, LocalDateTime nowtime) {
-        this.title = title;
-        this.content = content;
-        this.nowtime = nowtime;
-    }
 
     @ManyToMany
     Set<SignUpUser> voter;
@@ -53,10 +47,5 @@ public class Questions {
     @Column(nullable = false)
     private String category;
 
-    private Long number;
-
-    public Long setNumber(){
-        this.number = (long)replysList.size();
-        return number;
-    }
+    private Integer replysListsize;
 }
