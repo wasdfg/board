@@ -4,7 +4,8 @@
     <h2 class="border-bottom py-2" th:text="${questions.title}"></h2>
     <div class="card my-3">
         <div class="card-body">
-            <div class="card-text" th:utext="${@commonUtil.markdown(questions.content)}"></div> <!--text 대신 utext를 사용하는 이유는 text로 사용하게 되면 html태그가 이스케이프 처리되어 화면에 그대로 표시되기 때문-->
+            <div class="card-text" th:utext="${@commonUtil.markdown(questions.content)}"></div>
+            <!--text 대신 utext를 사용하는 이유는 text로 사용하게 되면 html태그가 이스케이프 처리되어 화면에 그대로 표시되기 때문-->
             <div class="d-flex justify-content-end">
                 <div th:if="${questions.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
                     <div class="mb-2">modified at</div>
@@ -35,39 +36,42 @@
         </div>
     </div>
     <!-- 답변의 갯수 표시 -->
-    <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(questions.replysList)}개의 답변이 있습니다.|"></h5>
+    <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(sortDate)}개의 답변이 있습니다.|"></h5>
     <!-- 답변 반복 시작 -->
-    <div class="card my-3" th:each="replys : ${sortVoter}" th:attr="data-id=${replys.uploadnumber}">
-        <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
-        <div class="card-body">
-            <div class="card-text" th:utext="${@commonUtil.markdown(replys.content)}"></div>
-            <div class="d-flex justify-content-end">
-                <div th:if="${replys.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
-                    <div class="mb-2">modified at</div>
-                    <div th:text="${#temporals.format(replys.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
-                </div>
-                <div class="badge bg-light text-dark p-2 text-start">
-                    <div class="mb-2">
-                        <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
+    <div th:each="replys : ${sortDate}">
+        <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}">
+            <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
+            <div class="card-body">
+                <div class="card-text" th:utext="${@commonUtil.markdown(replys.content)}"></div>
+                <div class="d-flex justify-content-end">
+                    <div th:if="${replys.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                        <div class="mb-2">modified at</div>
+                        <div th:text="${#temporals.format(replys.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
                     </div>
-                    <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
+                    <div class="badge bg-light text-dark p-2 text-start">
+                        <div class="mb-2">
+                            <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
+                        </div>
+                        <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="my-3">
-                <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-                   th:data-uri="@{|/replys/vote/${replys.uploadnumber}|}">
-                    추천
-                    <span class="badge rounded-pill bg-success" th:text="${#lists.size(replys.voter)}"></span>
-                </a>
-                <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
-                   sec:authorize="isAuthenticated()"
-                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
-                   th:text="수정"></a>
-                <a href="javascript:void(0);" th:data-uri="@{|/replys/delete/${replys.uploadnumber}|}"
-                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
-                   th:text="삭제"></a>
-                <a href="javascript:void(0);" class="btn btn-sm btn-outline-secondary reply-button" sec:authorize="isAuthenticated()">댓글쓰기</a>
+                <div class="my-3">
+                    <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
+                       th:data-uri="@{|/replys/vote/${replys.uploadnumber}|}">
+                        추천
+                        <span class="badge rounded-pill bg-success" th:text="${#lists.size(replys.voter)}"></span>
+                    </a>
+                    <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
+                       sec:authorize="isAuthenticated()"
+                       th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                       th:text="수정"></a>
+                    <a href="javascript:void(0);" th:data-uri="@{|/replys/delete/${replys.uploadnumber}|}"
+                       class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                       th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                       th:text="삭제"></a>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-outline-secondary reply-button"
+                       sec:authorize="isAuthenticated()">댓글쓰기</a>
+                </div>
             </div>
         </div>
     </div>
@@ -75,13 +79,16 @@
 
     <!-- 답변 작성 -->
     <div id="replyFormContainer">
-    <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post" class="my-3">
-        <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
-        <input type="hidden" name="parentId" id="parentId">
-        <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea> <!--비로그인 비활성화-->
-        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea> <!--로그인 활성화-->
-        <input type="submit" value="답변등록" class="btn btn-primary my-2">
-    </form>
+        <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post"
+              class="my-3">
+            <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
+            <input type="hidden" name="parentId" id="parentId">
+            <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control"
+                      rows="10"></textarea> <!--비로그인 비활성화-->
+            <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
+            <!--로그인 활성화-->
+            <input type="submit" value="답변등록" class="btn btn-primary my-2">
+        </form>
     </div>
 </div>
 <script layout:fragment="script" type='text/javascript'>
@@ -116,22 +123,16 @@ Array.from(replyButtons).forEach(function(button) {
     button.addEventListener('click', function() {
         const replyDiv = button.closest('.card');
         const replyId = replyDiv.getAttribute('data-id');
-        console.log(`Reply button clicked for replyId: ${replyId}`); // 디버깅 메시지 추가
         const parentIdInput = document.getElementById('parentId');
         if (parentIdInput) {
             parentIdInput.value = replyId;
-            console.log(`Setting parentIdInput value to: ${replyId}`); // 디버깅 메시지 추가
             const existingFormContainer = document.getElementById('replyFormContainer');
             if (existingFormContainer) {
-                console.log('Form container found, moving form to the current reply'); // 디버깅 메시지 추가
                 replyDiv.appendChild(existingFormContainer);
-            } else {
-                console.log('Form container not found'); // 디버깅 메시지 추가
             }
-        } else {
-            console.log('parentIdInput not found'); // 디버깅 메시지 추가
         }
     });
 });
+
 </script>
 </html>
