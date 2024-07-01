@@ -1,9 +1,9 @@
 package com.board.user;
 
-import com.board.question.dto.QuestionsBasicDTO;
+import com.board.question.dto.QuestionsBasicDto;
 import com.board.question.QuestionsService;
 import com.board.reply.ReplysService;
-import com.board.reply.dto.ReplysBasicDTO;
+import com.board.reply.dto.ReplysBasicDto;
 import com.board.user.dto.MailDto;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,7 +20,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
@@ -139,8 +137,8 @@ public class UsersController {
     @GetMapping("/showQNA")
     public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page,@RequestParam(value="type", defaultValue="question") String type){
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        Page<QuestionsBasicDTO> Qpaging = this.questionsService.getList(page,signUpUser);
-        Page<ReplysBasicDTO> Rpaging = this.replysService.getList(page,signUpUser);
+        Page<QuestionsBasicDto> Qpaging = this.questionsService.getList(page,signUpUser);
+        Page<ReplysBasicDto> Rpaging = this.replysService.getList(page,signUpUser);
         model.addAttribute("type", type);
         if(type.equals("question")) {
             model.addAttribute("Qpaging", Qpaging);
