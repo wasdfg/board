@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReplysBasicDTO {
+public class ReplysBasicDto {
 
     private String content;
 
@@ -17,7 +17,7 @@ public class ReplysBasicDTO {
 
     private Integer uploadnumber;
 
-    public ReplysBasicDTO(String content,Integer uploadnumber,LocalDateTime nowtime){
+    public ReplysBasicDto(String content, Integer uploadnumber, LocalDateTime nowtime){
         this.content = content;
         this.uploadnumber = uploadnumber;
         this.nowtime = nowtime;
