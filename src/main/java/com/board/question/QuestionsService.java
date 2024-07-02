@@ -2,8 +2,9 @@ package com.board.question;
 
 import com.board.DataNotFoundException;
 
-import com.board.question.dto.QuestionsBasicDTO;
+import com.board.question.dto.QuestionsBasicDto;
 import com.board.reply.Replys;
+import com.board.reply.ReplysRepository;
 import com.board.user.SignUpUser;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.*;
@@ -22,7 +23,7 @@ import java.util.*;
 @Service
 public class QuestionsService { //service에서 처리
     private final QuestionsRepository questionsRepository;
-
+    private final ReplysRepository replysRepository;
     public Questions getQuestions(Integer uploadnumber){
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber); //uploadnumber로 찾는다.
         if(questions.isPresent()){ //있으면
@@ -33,22 +34,14 @@ public class QuestionsService { //service에서 처리
         }
     }
 
-    public List<Replys> getSortByVoter(Integer uploadnumber) { //투표수 기준으로 정렬
+    public List<Replys> getSortByDate(Integer uploadnumber) { //투표수 기준으로 정렬
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
         if(questions.isPresent()){
             Questions questions1 = questions.get();
             questions1.setView(questions1.getView()+1); //조회수를 1 증가시켜준다 여기서 증가시키는 이유는 질문이나 답변을 수정하는 서비스 코드에서 getQuestions가 조회되기 떄문
             this.questionsRepository.save(questions1);
             if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면
-                List<Replys> sortedReplys = questions.get().getReplysList();
-                Collections.sort(sortedReplys, (a, b) -> {
-                    int sizeComparison = b.getVoter().size() - a.getVoter().size();
-                    if (sizeComparison != 0) {
-                        return sizeComparison; // 추천수로 내림차순 정렬
-                    } else {
-                        return a.getNowtime().compareTo(b.getNowtime()); // 추천수가 같으면 날짜로 오름차순 정렬
-                    }
-                }); //나중에는 특정 추천수 이상만 추천순으로 먼저 출력되게 수정할 예정
+                List<Replys> sortedReplys = this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber);
                 return sortedReplys;
             }
             else{
@@ -67,6 +60,7 @@ public class QuestionsService { //service에서 처리
         q.setNowtime(LocalDateTime.now());
         q.setAuthor(user);
         q.setCategory(category);
+        q.setReplysListsize(0);
         this.questionsRepository.save(q);
     }
 
@@ -86,22 +80,21 @@ public class QuestionsService { //service에서 처리
         this.questionsRepository.save(questions);
     }
 
-    public Page<Questions> getList(int page,String kw,String category) {
+    public Page<Questions> getList(int page, String kw, String category) {
+        System.out.println("getList called with page: " + page + ", kw: " + kw + ", category: " + category);
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-        Specification<Questions> spec; //조회한 내용을 저장 // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
-        if (StringUtils.isEmpty(kw)) { // 검색으로 찾는 경우가 아닐 때 불필요한 쿼리 조회를 없애기 위해 사용
-            // 검색 조건을 추가하지 않은 일반적인 Specification 객체 생성
-            spec = Specification.where(null);
-        } else {
+        Specification<Questions> spec = Specification.where(null); //조회한 내용을 저장 // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
+        if (!StringUtils.isEmpty(kw)) { // 검색으로 찾는 경우가 아닐 때 불필요한 쿼리 조회를 없애기 위해 사용
             // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
             spec = search(kw);
         }
-        if(category.isEmpty()) {
+
+        if(StringUtils.isEmpty(category)) { //가테고리 분류시
             return this.questionsRepository.findAll(spec, pageable);
         }
         else{
@@ -109,7 +102,7 @@ public class QuestionsService { //service에서 처리
         }
         //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
     }
-    public Page<QuestionsBasicDTO> getList(int page, SignUpUser signUpUser) {
+    public Page<QuestionsBasicDto> getList(int page, SignUpUser signUpUser) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
