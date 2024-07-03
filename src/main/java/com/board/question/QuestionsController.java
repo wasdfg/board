@@ -2,13 +2,11 @@ package com.board.question;
 
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
+import com.board.reply.ReplysService;
 import com.board.user.SignUpUser;
 import com.board.user.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -19,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -32,7 +28,6 @@ import java.util.List;
 @RequiredArgsConstructor //final을 선언할때 사용
 @Controller
 public class QuestionsController { //controller에서 요청을 받아와서
-    private final QuestionsRepository questionsRepository;
     private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
 
     private final UsersService usersService;
@@ -48,10 +43,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping(value = "/detail/{uploadnumber}")
     public String detail(Model model,@PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        List<Replys> sortVoter = this.questionsService.getSortByVoter(uploadnumber);
-        model.addAttribute("sortVoter",sortVoter);
+        List<Replys> sortDate = this.questionsService.getSortByDate(uploadnumber);
+        model.addAttribute("sortDate",sortDate);
         model.addAttribute("questions",questions);
-
         return "questions_detail";
     }
 
