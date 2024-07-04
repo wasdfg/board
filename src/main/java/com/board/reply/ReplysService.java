@@ -31,9 +31,11 @@ public class ReplysService {
         replys.setAuthor(author);
         if(prereplys != null) {
             replys.setParent_id(prereplys.getUploadnumber());
+            replys.setDepth(prereplys.getDepth()+1);
         }
         else{
             replys.setParent_id(null);
+            replys.setDepth(1);
         }
         questions.setReplysListsize(questions.getReplysListsize()+1);
         this.questionsRepository.save(questions);
