@@ -45,7 +45,6 @@ public class Replys {
     @ColumnDefault("null")
     private Integer parent_id;
 
-    // 데이터베이스에 물리적으로 저장하지 않지만 논리적으로 사용 가능한 속성
     private int depth;
 
 }
