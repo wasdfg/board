@@ -38,40 +38,38 @@
     <!-- 답변의 갯수 표시 -->
     <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(sortDate)}개의 답변이 있습니다.|"></h5>
     <!-- 답변 반복 시작 -->
-    <div th:each="replys : ${sortDate}">
-        <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}">
-            <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
-            <div class="card-body">
-                <div class="card-text" th:utext="${@commonUtil.markdown(replys.content)}"></div>
-                <div class="d-flex justify-content-end">
-                    <div th:if="${replys.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
-                        <div class="mb-2">modified at</div>
-                        <div th:text="${#temporals.format(replys.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
-                    </div>
-                    <div class="badge bg-light text-dark p-2 text-start">
-                        <div class="mb-2">
-                            <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
-                        </div>
-                        <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
-                    </div>
+    <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}" th:style="'margin-left: ' + (${replys.depth-1} * 20) + 'px;'">
+        <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
+        <div class="card-body">
+            <div class="card-text" th:utext="${@commonUtil.markdown(replys.content)}"></div>
+            <div class="d-flex justify-content-end">
+                <div th:if="${replys.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">modified at</div>
+                    <div th:text="${#temporals.format(replys.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
-                <div class="my-3">
-                    <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-                       th:data-uri="@{|/replys/vote/${replys.uploadnumber}|}">
-                        추천
-                        <span class="badge rounded-pill bg-success" th:text="${#lists.size(replys.voter)}"></span>
-                    </a>
-                    <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
-                       sec:authorize="isAuthenticated()"
-                       th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
-                       th:text="수정"></a>
-                    <a href="javascript:void(0);" th:data-uri="@{|/replys/delete/${replys.uploadnumber}|}"
-                       class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-                       th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
-                       th:text="삭제"></a>
-                    <a href="javascript:void(0);" class="btn btn-sm btn-outline-secondary reply-button"
-                       sec:authorize="isAuthenticated()">댓글쓰기</a>
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">
+                        <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
+                    </div>
+                    <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
+            </div>
+            <div class="my-3">
+                <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
+                   th:data-uri="@{|/replys/vote/${replys.uploadnumber}|}">
+                    추천
+                    <span class="badge rounded-pill bg-success" th:text="${#lists.size(replys.voter)}"></span>
+                </a>
+                <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                   th:text="수정"></a>
+                <a href="javascript:void(0);" th:data-uri="@{|/replys/delete/${replys.uploadnumber}|}"
+                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                   th:text="삭제"></a>
+                <a href="javascript:void(0);" class="btn btn-sm btn-outline-secondary reply-button"
+                   sec:authorize="isAuthenticated()">댓글쓰기</a>
             </div>
         </div>
     </div>
@@ -133,6 +131,7 @@ Array.from(replyButtons).forEach(function(button) {
         }
     });
 });
+
 
 </script>
 </html>
