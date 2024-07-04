@@ -18,7 +18,7 @@ public interface ReplysRepository extends JpaRepository<Replys,Integer>{
             " where parent_id is null"+
             " and questions_uploadnumber = :uploadnumber"+
             " UNION ALL" +
-            " select rp.uploadnumber,rp.content,rp.author_id,rp.questions_uploadnumber,rp.nowtime,rp.modify_Date,rp.parent_id,(depth+1) as depth"+
+            " select rp.uploadnumber,rp.content,rp.questions_uploadnumber,rp.author_id,rp.nowtime,rp.modify_Date,rp.parent_id,replys_tree.depth + 1"+
             " from replys as rp"+
             " inner join replys_tree on rp.parent_id = replys_tree.uploadnumber"+
             " where rp.questions_uploadnumber = :uploadnumber"+
