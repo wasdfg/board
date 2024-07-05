@@ -38,7 +38,7 @@
     <!-- 답변의 갯수 표시 -->
     <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(sortDate)}개의 답변이 있습니다.|"></h5>
     <!-- 답변 반복 시작 -->
-    <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}" th:style="'margin-left: ' + (${replys.depth-1} * 20) + 'px;'">
+    <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}" th:style="'margin-left: ' + (${replys.depth} * 20) + 'px;'">
         <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
         <div class="card-body">
             <div class="card-text" th:utext="${@commonUtil.markdown(replys.content)}"></div>
@@ -77,8 +77,7 @@
 
     <!-- 답변 작성 -->
     <div id="replyFormContainer">
-        <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post"
-              class="my-3">
+        <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post" class="my-3">
             <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
             <input type="hidden" name="parentId" id="parentId">
             <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control"
@@ -131,7 +130,5 @@ Array.from(replyButtons).forEach(function(button) {
         }
     });
 });
-
-
 </script>
 </html>
