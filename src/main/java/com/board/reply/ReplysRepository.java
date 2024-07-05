@@ -13,17 +13,18 @@ import java.util.List;
 public interface ReplysRepository extends JpaRepository<Replys,Integer>{
 
     @Query(value = "WITH RECURSIVE replys_tree AS (" +
-            "select uploadnumber,content,questions_uploadnumber,author_id,nowtime,modify_Date,parent_id,1 as depth"+
+            "select uploadnumber,content,questions_uploadnumber,author_id,nowtime,modify_Date,parent_id,depth, CAST(LPAD(uploadnumber, 10, '0') AS CHAR(255)) AS path"+
             " from replys"+
             " where parent_id is null"+
             " and questions_uploadnumber = :uploadnumber"+
             " UNION ALL" +
-            " select rp.uploadnumber,rp.content,rp.questions_uploadnumber,rp.author_id,rp.nowtime,rp.modify_Date,rp.parent_id,replys_tree.depth + 1"+
+            " select rp.uploadnumber,rp.content,rp.questions_uploadnumber,rp.author_id,rp.nowtime,rp.modify_Date,rp.parent_id,rp.depth,CAST(CONCAT(replys_tree.path, '.', LPAD(rp.uploadnumber, 10, '0')) AS CHAR(255)) AS path"+
             " from replys as rp"+
             " inner join replys_tree on rp.parent_id = replys_tree.uploadnumber"+
-            " where rp.questions_uploadnumber = :uploadnumber"+
             ")"+
-            "select uploadnumber,content,questions_uploadnumber,author_id,nowtime,modify_Date,parent_id,depth from replys_tree order by depth asc,nowtime asc"
+            " select uploadnumber,content,questions_uploadnumber,author_id,nowtime,modify_Date,parent_id,depth,path" +
+            " from replys_tree"+
+            " order by path"
             , nativeQuery = true) //속도향상을 위해 네이티브 쿼리를 사용해봄
     List<Replys> findReplysByQuestionsUploadnumber(@Param("uploadnumber") Integer uploadnumber);
     @Query("select new com.board.reply.dto.ReplysBasicDto(r.content,r.questions.uploadnumber as uploadnumber,r.nowtime) from Replys r where r.author.username = :username")
