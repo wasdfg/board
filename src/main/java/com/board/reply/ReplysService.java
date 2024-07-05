@@ -35,7 +35,7 @@ public class ReplysService {
         }
         else{
             replys.setParent_id(null);
-            replys.setDepth(1);
+            replys.setDepth(0);
         }
         questions.setReplysListsize(questions.getReplysListsize()+1);
         this.questionsRepository.save(questions);
