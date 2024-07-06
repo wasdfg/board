@@ -33,7 +33,7 @@ public class ReplysController {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         SignUpUser signUpUser = this.usersService.getUser(principal.getName());
 
-        if(bindingResult.hasErrors()) {
+        if(bindingResult.hasErrors()){
             model.addAttribute("questions", questions);
             return "questions_detail";
         }
