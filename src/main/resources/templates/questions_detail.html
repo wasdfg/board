@@ -38,7 +38,8 @@
     <!-- 답변의 갯수 표시 -->
     <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(sortDate)}개의 답변이 있습니다.|"></h5>
     <!-- 답변 반복 시작 -->
-    <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}" th:style="'margin-left: ' + (${replys.depth} * 40) + 'px;'">
+    <div class="card my-3" th:each="replys : ${sortDate}" th:attr="data-id=${replys.uploadnumber}"
+         th:style="'margin-left: ' + (${replys.depth} * 40) + 'px;'">
         <a th:id="|replys_${replys.uploadnumber}|"></a><!--a태그는 특정위치로 스크롤이 되게 도와준다-->
         <div class="card-body">
             <div class="card-text" th:utext="${@commonUtil.markdown(replys.content)}"></div>
@@ -69,7 +70,7 @@
                    th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
                    th:text="삭제"></a>
                 <a href="javascript:void(0);" class="btn btn-sm btn-outline-secondary reply-button"
-                   sec:authorize="isAuthenticated()">댓글쓰기</a>
+                   sec:authorize="isAuthenticated()" th:data-id="${replys.uploadnumber}">댓글쓰기</a>
             </div>
         </div>
     </div>
@@ -77,7 +78,8 @@
 
     <!-- 답변 작성 -->
     <div id="replyFormContainer">
-        <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post" class="my-3">
+        <form th:action="@{|/replys/create/${questions.uploadnumber}|}" th:object="${replysForm}" method="post"
+              class="my-3" id="replyForm">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
             <input type="hidden" name="parentId" id="parentId">
@@ -99,14 +101,14 @@ const delete_elements = document.getElementsByClassName("delete");
             });
         });
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const voted = urlParams.get('voted');
+const urlParams = new URLSearchParams(window.location.search);
+const voted = urlParams.get('voted');
 
         if (voted === 'true') {
             alert("이미 추천하셨습니다.");
         }
 
-        const recommend_elements = document.getElementsByClassName("recommend");
+const recommend_elements = document.getElementsByClassName("recommend");
         Array.from(recommend_elements).forEach(function(element) {
             element.addEventListener('click', function() {
                 if (confirm("정말로 추천하시겠습니까?")) {
@@ -116,19 +118,26 @@ const delete_elements = document.getElementsByClassName("delete");
         });
 
 const replyButtons = document.getElementsByClassName("reply-button");
-        Array.from(replyButtons).forEach(function(button) {
-            button.addEventListener('click', function() {
-                const replyDiv = button.closest('.card');
-                const replyId = replyDiv.getAttribute('data-id');
-                const parentIdInput = document.getElementById('parentId');
-                if (parentIdInput) {
-                    parentIdInput.value = replyId;
-                    const existingFormContainer = document.getElementById('replyFormContainer');
-                    if (existingFormContainer) {
-                        replyDiv.appendChild(existingFormContainer);
-                    }
-                }
-            });
+    Array.from(replyButtons).forEach(function(button) {
+        button.addEventListener('click', function() {
+            const replyId = this.getAttribute('data-id');
+            const parentIdInput = document.getElementById('parentId');
+            const replyFormContainer = document.getElementById('replyFormContainer');
+            if (parentIdInput && replyFormContainer) {
+                parentIdInput.value = replyId;
+                const cardBody = this.closest('.card-body');
+                cardBody.appendChild(replyFormContainer);
+                replyFormContainer.scrollIntoView({ behavior: 'smooth' });
+            }
         });
+    });
+
+document.getElementById("replyForm").addEventListener("submit", function(event) {
+    const contentField = this.querySelector("textarea[name='content']");
+    if (contentField && contentField.value.trim() === "") {
+        event.preventDefault();
+        alert("댓글 내용을 입력해주세요.");
+    }
+});
 </script>
 </html>
