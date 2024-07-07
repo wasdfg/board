@@ -47,5 +47,4 @@ public class Questions {
     @Column(nullable = false)
     private String category;
 
-    private Integer replysListsize;
 }

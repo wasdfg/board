@@ -37,8 +37,6 @@ public class ReplysService {
             replys.setParent_id(null);
             replys.setDepth(0);
         }
-        questions.setReplysListsize(questions.getReplysListsize()+1);
-        this.questionsRepository.save(questions);
         this.replysRepository.save(replys); //위에 있는 content nowtime questions를 replys에 저장
         return replys;
     }

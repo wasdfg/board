@@ -60,7 +60,6 @@ public class QuestionsService { //service에서 처리
         q.setNowtime(LocalDateTime.now());
         q.setAuthor(user);
         q.setCategory(category);
-        q.setReplysListsize(0);
         this.questionsRepository.save(q);
     }
 
