@@ -80,7 +80,6 @@ public class QuestionsService { //service에서 처리
     }
 
     public Page<Questions> getList(int page, String kw, String category) {
-        System.out.println("getList called with page: " + page + ", kw: " + kw + ", category: " + category);
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
