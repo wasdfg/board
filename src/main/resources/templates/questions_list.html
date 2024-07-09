@@ -68,41 +68,47 @@
     <!-- 페이징처리 끝 -->
     <form th:action="@{/questions/list}" method="get" id="searchForm">
         <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="category" name="category" th:value="${category}">
         <input type="hidden" id="page" name="page" th:value="${paging.number}">
     </form>
 </div>
 <script layout:fragment="script" type='text/javascript'>
-const page_elements = document.getElementsByClassName("page-link");
-Array.from(page_elements).forEach(function(element) {
-    element.addEventListener('click', function() {
-        document.getElementById('page').value = this.dataset.page;
+    const page_elements = document.getElementsByClassName("page-link");
+    Array.from(page_elements).forEach(function(element) {
+        element.addEventListener('click', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+
+            document.getElementById('page').value = this.dataset.page;
+            if (category) {
+                document.getElementById('category').value = category;
+            }
+            document.getElementById('searchForm').submit();
+        });
+    });
+
+    const btn_search = document.getElementById("btn_search");
+    btn_search.addEventListener('click', function() {
+        document.getElementById('kw').value = document.getElementById('search_kw').value;
+        document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
         document.getElementById('searchForm').submit();
     });
-});
-const btn_search = document.getElementById("btn_search");
-btn_search.addEventListener('click', function() {
-    document.getElementById('kw').value = document.getElementById('search_kw').value;
-    document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
-    document.getElementById('searchForm').submit();
-});
-function updateCategory(category) {
-            // 현재 URL에서 정적 부분을 추출
-            const baseUrl = window.location.origin + window.location.pathname;
 
-            // 새로운 URLSearchParams 객체를 생성
-            const urlParams = new URLSearchParams(window.location.search);
+    function updateCategory(category) {
+        const baseUrl = window.location.origin + window.location.pathname;
+        const urlParams = new URLSearchParams(window.location.search);
 
-            // 모든 기존 파라미터를 삭제
-            urlParams.delete('kw');
-            urlParams.delete('page');
-             urlParams.set('category', category);
+        urlParams.set('category', category);
+        urlParams.set('page', 0); // 카테고리를 변경할 때 페이지를 0으로 설정
 
-            // 새 URL을 설정
-            const newUrl = baseUrl + '?' + urlParams.toString();
+        const kw = document.getElementById('search_kw').value;
+        if (kw) {
+            urlParams.set('kw', kw);
+        }
 
-            // URL을 변경하고 페이지를 리로드
-            window.history.replaceState(null, null, newUrl);
-            window.location.reload();
-}
+        const newUrl = baseUrl + '?' + urlParams.toString();
+        window.history.replaceState(null, null, newUrl);
+        window.location.reload();
+    }
 </script>
 </html>
