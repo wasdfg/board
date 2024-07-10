@@ -33,10 +33,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     private final UsersService usersService;
 
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
-    public String list(Model model,@RequestParam(value="page", defaultValue="0") int page,@RequestParam(value = "kw", defaultValue = "") String kw,@RequestParam(value = "category", defaultValue = "") String category){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
-        Page<Questions> paging = this.questionsService.getList(page,kw,category);
-        model.addAttribute("paging", paging);
-        model.addAttribute("kw",kw);
+    public String list(Model model){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         return "questions_list";
     }
 
