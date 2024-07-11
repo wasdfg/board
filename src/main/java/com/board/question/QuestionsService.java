@@ -5,7 +5,8 @@ import com.board.DataNotFoundException;
 import com.board.question.dto.QuestionsBasicDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
-import com.board.user.SignUpUser;
+import com.board.user.Users;
+import com.board.user.UsersDetail;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
@@ -53,12 +54,12 @@ public class QuestionsService { //service에서 처리
         }
     }
 
-    public void create(String title, String content, SignUpUser user,String category){
+    public void create(String title, String content, Users users,String category){
         Questions q = new Questions();
         q.setTitle(title);
         q.setContent(content);
         q.setNowtime(LocalDateTime.now());
-        q.setAuthor(user);
+        q.setAuthor(users);
         q.setCategory(category);
         this.questionsRepository.save(q);
     }
@@ -74,8 +75,8 @@ public class QuestionsService { //service에서 처리
         this.questionsRepository.delete(questions);
     }
 
-    public void vote(Questions questions,SignUpUser signUpUser){
-        questions.getVoter().add(signUpUser); //현재 로그인한 아이디를 가져옴
+    public void vote(Questions questions,Users users){
+        questions.getVoter().add(users); //현재 로그인한 아이디를 가져옴
         this.questionsRepository.save(questions);
     }
 
@@ -100,14 +101,14 @@ public class QuestionsService { //service에서 처리
         }
         //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
     }
-    public Page<QuestionsBasicDto> getList(int page, SignUpUser signUpUser) {
+    public Page<QuestionsBasicDto> getList(int page, Users users) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.questionsRepository.findByUser(signUpUser.getUsername(),pageable);
+        return this.questionsRepository.findByUser(users.getUsername(),pageable);
     }
 
     private Specification<Questions> search(String kw){ //kw로 검색할 문자열 받아온다
@@ -116,9 +117,9 @@ public class QuestionsService { //service에서 처리
             @Override
             public Predicate toPredicate(Root<Questions> q, CriteriaQuery<?> query, CriteriaBuilder cb){
                 query.distinct(true); //중복 없이
-                Join<Questions,SignUpUser> u1 = q.join("author",JoinType.LEFT); //left outer join을 사용
+                Join<Questions,UsersDetail> u1 = q.join("author",JoinType.LEFT); //left outer join을 사용
                 Join<Questions,Replys> a = q.join("replysList",JoinType.LEFT);
-                Join<Questions,SignUpUser> u2 = q.join("author",JoinType.LEFT);
+                Join<Questions, UsersDetail> u2 = q.join("author",JoinType.LEFT);
                 return cb.or(cb.like(q.get("title"),"%"+kw+"%"),//제목  or로 검색,sql문의 like %문자%와 같은 역할
                         cb.like(q.get("content"),"%"+kw+"%"), //내용
                         cb.like(u1.get("username"),"%"+kw+"%"), //글 작성자

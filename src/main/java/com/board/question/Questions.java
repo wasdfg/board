@@ -1,7 +1,7 @@
 package com.board.question;
 
 import com.board.reply.Replys;
-import com.board.user.SignUpUser;
+import com.board.user.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,11 +35,11 @@ public class Questions {
     //mappedBy는 참조하는 엔티티를 선언해준다.
 
     @ManyToOne //글쓴이 1명당 여러 질문을 할 수 있어 다대1로 설정
-    @JoinColumn(name = "username")
-    private SignUpUser author;
+    @JoinColumn(name = "username",referencedColumnName = "id")
+    private Users author;
 
     @ManyToMany
-    Set<SignUpUser> voter;
+    Set<Users> voter;
 
     @Column(columnDefinition = "integer default 0", nullable = false) //0부터 시작하는 조회수
     private int view;

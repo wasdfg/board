@@ -3,8 +3,8 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.question.QuestionsRepository;
-import com.board.user.SignUpUser;
 import com.board.reply.dto.ReplysBasicDto;
+import com.board.user.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +23,7 @@ public class ReplysService {
     private final ReplysRepository replysRepository;
 
     private final QuestionsRepository questionsRepository;
-    public Replys create(Questions questions, String content, SignUpUser author,Replys prereplys){
+    public Replys create(Questions questions, String content, Users author, Replys prereplys){
         Replys replys = new Replys();
         replys.setContent(content);
         replys.setNowtime(LocalDateTime.now());
@@ -61,19 +61,19 @@ public class ReplysService {
         this.replysRepository.delete(replys);
     }
 
-    public void vote(Replys replys,SignUpUser signUpUser){
-        replys.getVoter().add(signUpUser);
+    public void vote(Replys replys,Users users){
+        replys.getVoter().add(users);
         this.replysRepository.save(replys);
     }
 
-    public Page<ReplysBasicDto> getList(int page, SignUpUser signUpUser){
+    public Page<ReplysBasicDto> getList(int page, Users users){
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.replysRepository.findByUser(signUpUser.getUsername(),pageable);
+        return this.replysRepository.findByUser(users.getUsername(),pageable);
     }
 
 }

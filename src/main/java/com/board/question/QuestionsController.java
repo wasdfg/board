@@ -2,8 +2,7 @@ package com.board.question;
 
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
-import com.board.reply.ReplysService;
-import com.board.user.SignUpUser;
+import com.board.user.Users;
 import com.board.user.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.data.domain.Page;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
@@ -64,8 +61,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
         if(bindingResult.hasErrors()){ //에러가 있는지 검사
             return "questions_form";
         }
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        this.questionsService.create(questionsForm.getTitle(),questionsForm.getContent(),signUpUser,questionsForm.getCategory());
+        Users users = this.usersService.getUsers(principal.getName());
+        this.questionsService.create(questionsForm.getTitle(),questionsForm.getContent(),users,questionsForm.getCategory());
         return "redirect:/questions/list";
     }
 
@@ -110,11 +107,11 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping("/vote/{uploadnumber}")
     public String questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber, Model model) {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName()); // 현재 로그인한 유저의 정보를 담는다
+        Users users = this.usersService.getUsers(principal.getName()); // 현재 로그인한 유저의 정보를 담는다
 
-        boolean alreadyVoted = questions.getVoter().contains(signUpUser); // 이미 투표를 했는지 확인
+        boolean alreadyVoted = questions.getVoter().contains(users); // 이미 투표를 했는지 확인
         if (!alreadyVoted) {
-            this.questionsService.vote(questions, signUpUser);
+            this.questionsService.vote(questions, users);
         }
 
         model.addAttribute("voted", alreadyVoted);

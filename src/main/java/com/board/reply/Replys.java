@@ -1,17 +1,14 @@
 package com.board.reply;
 
 import com.board.question.Questions;
-import com.board.user.SignUpUser;
+import com.board.user.Users;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -36,10 +33,10 @@ public class Replys {
 
     @ManyToOne(fetch = FetchType.LAZY) //글쓴이 1명당 여러 답변을 할 수 있어 다대1로 설정
     @JoinColumn(name="author_id",referencedColumnName = "id")
-    private SignUpUser author;
+    private Users author;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    Set<SignUpUser> voter;
+    Set<Users> voter;
     //나중에 답변 추천기능 내림차순으로 출력할 예정
 
     @ColumnDefault("null")

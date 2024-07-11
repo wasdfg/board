@@ -5,6 +5,7 @@ import com.board.question.QuestionsService;
 import com.board.reply.ReplysService;
 import com.board.reply.dto.ReplysBasicDto;
 import com.board.user.dto.MailDto;
+import com.board.user.dto.SimpleInfoDto;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,6 @@ public class UsersController {
         if (bindingResult.hasErrors()) { 
             return "signup_form";
         }
-
         if (!usersCreateForm.getPassword1().equals(usersCreateForm.getPassword2())) { //비밀번호 검증이 실패했을 경우
             bindingResult.rejectValue("password2", "passwordInCorrect", "2개의 패스워드가 일치하지 않습니다.");
             return "signup_form";
@@ -78,9 +78,9 @@ public class UsersController {
     @PostMapping("/chginfo")
     @PreAuthorize("isAuthenticated()")
     public String changePw(@RequestParam("inputpw") String inputpw,@RequestParam("checkpw") String checkpw,Principal principal,Model model){
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
+        UsersDetail usersDetail = this.usersService.getUsersDetail(principal.getName());
         if (inputpw.equals(checkpw)) {
-            this.usersService.updatePw(signUpUser,checkpw);
+            this.usersService.updatePw(usersDetail,checkpw);
             return "redirect:/";
         }
         else{
@@ -98,8 +98,8 @@ public class UsersController {
     @PostMapping("/chkinfo")
     @PreAuthorize("isAuthenticated()")
     public String checkPw(@RequestParam("password") String password, Principal principal, Model model){
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        if(passwordEncoder.matches(password, signUpUser.getPassword())) {
+        UsersDetail usersDetail = this.usersService.getUsersDetail(principal.getName());
+        if(passwordEncoder.matches(password, usersDetail.getPassword())) {
             return changePw();
         }
         else{
@@ -125,9 +125,10 @@ public class UsersController {
 
     @PostMapping("/findId")
     public ResponseEntity<?> findId(@RequestParam("inputEmail") String email) {
-        SignUpUser signUpUser = usersService.getUserByEmail(email);
-        if (signUpUser != null) {
-            return ResponseEntity.ok(signUpUser.getUsername());
+        UsersDetail usersDetail = usersService.getUserByEmail(email);
+        if (usersDetail != null) {
+            Users users = usersDetail.getUsers();
+            return ResponseEntity.ok(users.getUsername());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -136,9 +137,9 @@ public class UsersController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/showQNA")
     public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page,@RequestParam(value="type", defaultValue="question") String type){
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        Page<QuestionsBasicDto> Qpaging = this.questionsService.getList(page,signUpUser);
-        Page<ReplysBasicDto> Rpaging = this.replysService.getList(page,signUpUser);
+        Users users = this.usersService.getUsers(principal.getName());
+        Page<QuestionsBasicDto> Qpaging = this.questionsService.getList(page,users);
+        Page<ReplysBasicDto> Rpaging = this.replysService.getList(page,users);
         model.addAttribute("type", type);
         if(type.equals("question")) {
             model.addAttribute("Qpaging", Qpaging);
@@ -156,17 +157,18 @@ public class UsersController {
 
     @PostMapping("/findPwd")
     public ResponseEntity<?> findPassword(@RequestParam(value="inputEmail")String email){
-        SignUpUser user = this.usersService.getUserByEmail(email);
-        if(user == null){
+        UsersDetail usersDetail = this.usersService.getUserByEmail(email);
+        if(usersDetail == null){
             return ResponseEntity.notFound().build();
         }
         else{
+            Users users = usersDetail.getUsers();
             String tempPw = this.usersService.makeTempPw();
-            this.usersService.updatePw(user,tempPw);
+            this.usersService.updatePw(usersDetail,tempPw);
             MailDto mailDto = new MailDto();
             mailDto.setEmail(email);
             mailDto.setTitle("임시 비밀번호 안내 이메일입니다.");
-            mailDto.setMessage("안녕하세요. 임시비밀번호 안내 관련 메일 입니다." + "[" + user.getUsername() + "]" + "님의 임시 비밀번호는 " + tempPw + " 입니다.");
+            mailDto.setMessage("안녕하세요. 임시비밀번호 안내 관련 메일 입니다." + "[" + users.getUsername() + "]" + "님의 임시 비밀번호는 " + tempPw + " 입니다.");
             try {
                 this.usersService.sendMail(mailDto);
             } catch (MessagingException e) {

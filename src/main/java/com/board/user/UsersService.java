@@ -23,6 +23,8 @@ import java.util.Optional;
 public class UsersService {
     private final UsersRepository usersRepository;
 
+    private final UsersDetailRepository usersDetailRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     private static final String FromAddress = "ljh60700@gmail.com";
@@ -30,34 +32,53 @@ public class UsersService {
     @Autowired
     private final JavaMailSender mailSender;
 
-    public SignUpUser create(String username, String password,String email){
-        SignUpUser users = new SignUpUser();
-        users.setEmail(email);
-        users.setPassword(passwordEncoder.encode(password)); //해시함수로 암호화를 해줌
+    @Transactional
+    public void create(String username,String password,String email){
+        Users users = new Users();
         users.setUsername(username);
         this.usersRepository.save(users);
-        return users;
+
+        UsersDetail usersDetail = new UsersDetail();
+        usersDetail.setUsers(users);
+        usersDetail.setId(users.getId());
+        usersDetail.setEmail(email);
+        usersDetail.setPassword(passwordEncoder.encode(password)); //해시함수로 암호화를 해줌
+        this.usersDetailRepository.save(usersDetail);
+
     }
 
-    public SignUpUser getUser(String username) {
-        Optional<SignUpUser> signUpUser = this.usersRepository.findByUsername(username);
-        if (signUpUser.isPresent()) {
-            return signUpUser.get();
+    public UsersDetail getUsersDetail(String username) {
+        Optional<Users> users = this.usersRepository.findByUsername(username);
+        if(users.isPresent()) {
+            UsersDetail usersDetail = this.usersDetailRepository.findByUsers(users);
+            if (usersDetail != null) {
+                return usersDetail;
+            } else {
+                throw new DataNotFoundException("SignUpUser not found");
+            }
+        }
+        return null;
+    }
+
+    public Users getUsers(String username){
+        Optional<Users> users = this.usersRepository.findByUsername(username);
+        if (users.isPresent()) {
+            return users.get();
         } else {
             throw new DataNotFoundException("SignUpUser not found");
         }
     }
 
     @Transactional
-    public SignUpUser updatePw(SignUpUser signUpUser,String password){
-        SignUpUser signUpUser1 = signUpUser;
-        signUpUser1.setPassword(passwordEncoder.encode(password));
-        return this.usersRepository.save(signUpUser1);
+    public UsersDetail updatePw(UsersDetail usersDetail,String password){
+        UsersDetail usersDetail1 = usersDetail;
+        usersDetail1.setPassword(passwordEncoder.encode(password));
+        return this.usersDetailRepository.save(usersDetail1);
     }
 
-    public SignUpUser getUserByEmail(String email){
-        SignUpUser signUpUser = this.usersRepository.findByEmail(email);
-        return signUpUser;
+    public UsersDetail getUserByEmail(String email){
+        UsersDetail usersDetail = this.usersDetailRepository.findByEmail(email);
+        return usersDetail;
     }
 
     public String makeTempPw(){

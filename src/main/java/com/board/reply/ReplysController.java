@@ -2,7 +2,7 @@ package com.board.reply;
 
 import com.board.question.Questions;
 import com.board.question.QuestionsService;
-import com.board.user.SignUpUser;
+import com.board.user.Users;
 import com.board.user.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ReplysController {
     @PostMapping("/create/{uploadnumber}") //post로 처리 대용량처리에 용이
     public String replysCreate(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @Valid ReplysForm replysForm, BindingResult bindingResult,Principal principal, @RequestParam(value = "parentId", required = false) Integer parentId){//principal은 현재 로그인한 유저의 정보를 알려준다
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
+        Users users = this.usersService.getUsers(principal.getName());
 
         if(bindingResult.hasErrors()){
             model.addAttribute("questions", questions);
@@ -42,7 +42,7 @@ public class ReplysController {
         if(parentId != null){
             Preplys = this.replysService.getReplys(parentId);
         }
-        Replys replys = this.replysService.create(questions,replysForm.getContent(),signUpUser,Preplys);
+        Replys replys = this.replysService.create(questions,replysForm.getContent(),users,Preplys);
         return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
 
@@ -87,12 +87,12 @@ public class ReplysController {
     @GetMapping("/vote/{uploadnumber}")
     public String replysVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber,Model model) {
         Replys replys = this.replysService.getReplys(uploadnumber);
-        SignUpUser signUpUser = this.usersService.getUser(principal.getName());
-        if(replys.getVoter().contains(signUpUser) == true){ //이미 투표를 했는지 확인
+        Users users = this.usersService.getUsers(principal.getName());
+        if(replys.getVoter().contains(users) == true){ //이미 투표를 했는지 확인
             model.addAttribute("voted",true);
         }
         else{
-            this.replysService.vote(replys, signUpUser);
+            this.replysService.vote(replys, users);
         }
         return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
     }
