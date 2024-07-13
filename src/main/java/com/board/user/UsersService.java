@@ -36,11 +36,9 @@ public class UsersService {
     public void create(String username,String password,String email){
         Users users = new Users();
         users.setUsername(username);
-        this.usersRepository.save(users);
 
         UsersDetail usersDetail = new UsersDetail();
         usersDetail.setUsers(users);
-        usersDetail.setId(users.getId());
         usersDetail.setEmail(email);
         usersDetail.setPassword(passwordEncoder.encode(password)); //해시함수로 암호화를 해줌
         this.usersDetailRepository.save(usersDetail);

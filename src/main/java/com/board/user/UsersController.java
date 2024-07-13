@@ -5,7 +5,6 @@ import com.board.question.QuestionsService;
 import com.board.reply.ReplysService;
 import com.board.reply.dto.ReplysBasicDto;
 import com.board.user.dto.MailDto;
-import com.board.user.dto.SimpleInfoDto;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
