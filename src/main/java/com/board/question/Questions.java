@@ -13,7 +13,6 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity //데이터베이스 entity로 사용하기 위해 선언
-//entity는 setter를 사용하지 않는다. 데이터베이스와 연동되는 사안이기 때문에 데이터 수정이 쉬우면 안된다.
 public class Questions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //generationtype은 값을 자동으로 1씩 증가시켜준다
