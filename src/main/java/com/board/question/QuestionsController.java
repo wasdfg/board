@@ -40,7 +40,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
         for(int i = start;i < end;i++){
             pageNumber.add(i);
         }
-        System.out.println(paging.getNumber());
+
         model.addAttribute("pageNumber",pageNumber);
         model.addAttribute("paging",paging);
         model.addAttribute("pages",pages);
