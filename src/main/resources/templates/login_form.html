@@ -18,7 +18,7 @@
     <a th:href="@{/user/findAccount}" class="btn btn-secondary">아이디 또는 비밀번호 찾기</a>
   </form>
 </div>
-<script type="text/javascript">
+<script layout:fragment="script" type="text/javascript">
 document.getElementById('username').addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         event.preventDefault(); // 기본 엔터 동작 방지
