@@ -89,7 +89,7 @@
 function handlePageClick(event) {
     event.preventDefault(); // 기본 동작 방지
     event.stopPropagation(); // 이벤트 버블링 방지
-    console.log("Page link clicked");
+    //console.log("Page link clicked");
 
     const urlParams = new URLSearchParams(window.location.search);
     const category = urlParams.get('category');
@@ -118,7 +118,7 @@ function handlePageClick(event) {
 function handleSearchClick(event) {
     event.preventDefault(); // 기본 동작 방지
     event.stopPropagation(); // 이벤트 버블링 방지
-    console.log("Search button clicked");
+    //console.log("Search button clicked");
 
     const searchKeywordInput = document.getElementById('search_kw');
     if (searchKeywordInput) {
@@ -140,7 +140,7 @@ function handleSearchClick(event) {
 }
 
 function updateCategory(category) {
-    console.log("Category updated to: " + category);
+    //console.log("Category updated to: " + category);
     const categoryInput = document.getElementById('category');
     if (categoryInput) {
         categoryInput.value = category;
