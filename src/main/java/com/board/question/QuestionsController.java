@@ -40,7 +40,16 @@ public class QuestionsController { //controller에서 요청을 받아와서
         for(int i = start;i < end;i++){
             pageNumber.add(i);
         }
+        List<Category> categoryList = Arrays.asList(
+                new Category("title","제목"),
+                new Category("content","내용"),
+                new Category("titlecontent","제목+내용"),
+                new Category("replys","댓글"),
+                new Category("username","글쓴이")
+        );
 
+
+        model.addAttribute("categoryList",categoryList);
         model.addAttribute("pageNumber",pageNumber);
         model.addAttribute("paging",paging);
         model.addAttribute("pages",pages);
