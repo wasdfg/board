@@ -6,15 +6,6 @@
             <button class="categoryButton" onclick="updateCategory('ask')">질문 게시글</button>
             <button class="categoryButton" onclick="updateCategory('notice')">공지 게시글</button>
         </div>
-        <div class="col-6">
-            <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
-        </div>
-        <div class="col-6">
-            <div class="input-group">
-                <input type="text" id="search_kw" class="form-control" th:value="${kw}">
-                <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
-            </div>
-        </div>
     </div>
     <table class="table">
         <thead class="table-dark">
@@ -28,34 +19,42 @@
         </thead>
 
         <tbody>
-        <tr class="text-center" th:each="questions, loop : ${pages}"> <!--th:each 는 반복문을 의미한다-->
-            <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td> <!--번호를 역순으로 출력하게 설정-->
+        <tr class="text-center" th:each="questions, loop : ${pages}" th:attr="style=${loop.index % 2 == 0 ? 'background-color: #f9f9f9;' : 'background-color: #e9e9e9;'}">
+            <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
             <td class="text-start">
-                <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>  <!--자바 객체의 값을 더할때는 ||를 덮어야한다 -->
+                <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>
                 <span class="text-danger small ms-2"
                       th:if="${#lists.size(questions.replysList) > 0}"
-                      th:text="${#lists.size(questions.replysList)}"> <!--답변 개수를 출력-->
-                    </span>
+                      th:text="${#lists.size(questions.replysList)}">
+            </span>
             </td>
             <td><span th:if="${questions.author != null}" th:text="${questions.author.username}"></span></td>
-            <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td> <!--시간 출력형식을 변경해줌-->
+            <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
             <td th:text="${questions.view}"></td>
         </tr>
         </tbody>
-
     </table>
+
+    <!--댓글 등록하기-->
+    <div style="width: 100%; display: flex; justify-content: flex-end;">
+        <a th:href="@{/questions/create}" class="btn btn-primary">질문 등록하기</a>
+    </div>
     <!-- 페이징처리 시작 -->
     <div th:if="${!paging.isEmpty()}">
         <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${(paging.totalPages <= 10 || (pageNumber.size() > 0 && pageNumber.get(0) == 1))} ? 'disabled'"> <!--이전 페이지가 없거나 페이지가 10아래인 경우 이전 링크를 비활성화-->
+            <li class="page-item"
+                th:classappend="${(paging.totalPages <= 10 || (pageNumber.size() > 0 && pageNumber.get(0) == 1))} ? 'disabled'">
+                <!--이전 페이지가 없거나 페이지가 10아래인 경우 이전 링크를 비활성화-->
                 <a class="page-link" href="javascript:void(0)" th:data-page="${(pageNumber.get(0)/10-1)*10}">
                     <span>이전</span>
                 </a>
             </li> <!--출력할 페이지를 표시해준다-->
-            <li th:each="page: ${(pageNumber)}" th:classappend="${page == paging.getNumber()+1} ? 'active'" class="page-item">
+            <li th:each="page: ${(pageNumber)}" th:classappend="${page == paging.getNumber()+1} ? 'active'"
+                class="page-item">
                 <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page-1}"></a>
             </li>
-            <li class="page-item" th:classappend="${paging.number >= (paging.totalPages - 1) / 10 * 10} ? 'disabled'"> <!--다음 페이지가 없거나 마지막 단위일 경우 다음 링크를 비활성화-->
+            <li class="page-item" th:classappend="${paging.number >= (paging.totalPages - 1) / 10 * 10} ? 'disabled'">
+                <!--다음 페이지가 없거나 마지막 단위일 경우 다음 링크를 비활성화-->
                 <a class="page-link" href="javascript:void(0)" th:data-page="${(pageNumber.get(0)/10+1)*10}">
                     <span>다음</span>
                 </a>
@@ -63,9 +62,28 @@
         </ul>
     </div>
     <!-- 페이징처리 끝 -->
+    <!--검색 창-->
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <form action="#" method="get" class="d-flex align-items-center flex-nowrap">
+                <select name="selectIndex" id="select_index" class="form-select me-2" style="height: 38px; flex-grow: 0; width: auto;">
+                    <option th:each="index : ${searchIndex}" th:value="${index.value}"
+                            th:text="${index.showValue}">FAST
+                    </option>
+                </select>
+                <input type="text" name="kw" id="search_kw" class="form-control me-2" th:value="${kw}"
+                       style="height: 38px; flex-grow: 1; min-width: 200px;" placeholder="검색어를 입력하세요">
+                <button class="btn btn-outline-secondary" type="submit" id="btn_search"
+                        style="height: 38px; flex-grow: 0; white-space: nowrap;">찾기
+                </button>
+            </form>
+        </div>
+    </div>
+
     <form th:action="@{/questions/list}" method="get" id="searchForm">
         <input type="hidden" id="kw" name="kw" th:value="${kw}">
         <input type="hidden" id="category" name="category" th:value="${category}">
+        <input type="hidden" id="selectIndex" name="selectIndex" th:value="${selectIndex}">
         <input type="hidden" id="page" name="page" th:value="${paging.number}">
     </form>
 </div>
@@ -127,6 +145,15 @@ function handleSearchClick(event) {
             kwInput.value = searchKeywordInput.value;
         }
     }
+
+    const selectIndex = document.getElementById('select_index');
+        if (selectIndex) {
+            const selectIndexInput = document.getElementById('selectIndex');
+            if (selectIndexInput) {
+                selectIndexInput.value = selectIndex.value;
+            }
+        }
+
 
     const pageInput = document.getElementById('page');
     if (pageInput) {
