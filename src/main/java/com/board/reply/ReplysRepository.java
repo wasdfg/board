@@ -5,11 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 //JpaRepository를 상속 Reply 엔티티와 기본키인 id의 자료형
+@EnableJpaRepositories
 public interface ReplysRepository extends JpaRepository<Replys,Integer>{
 
     @Query(value = "WITH RECURSIVE replys_tree AS (" +
@@ -27,6 +29,7 @@ public interface ReplysRepository extends JpaRepository<Replys,Integer>{
             " order by path"
             , nativeQuery = true) //속도향상을 위해 네이티브 쿼리를 사용해봄
     List<Replys> findReplysByQuestionsUploadnumber(@Param("uploadnumber") Integer uploadnumber);
+
     @Query("select new com.board.reply.dto.ReplysBasicDto(r.content,r.questions.uploadnumber as uploadnumber,r.nowtime) from Replys r where r.author.username = :username")
     Page<ReplysBasicDto> findByUser(@Param("username") String username, Pageable pageable);
 }
