@@ -31,8 +31,18 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model,@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String kw,
-                       @RequestParam(value = "category", defaultValue = "") String category){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
-        Page<Questions> paging = this.questionsService.getList(page, kw, category);
+                       @RequestParam(value = "category", defaultValue = "") String category,
+                       @RequestParam(name = "selectIndex", required = false) String selectIndex){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
+        List<Category> searchIndex = Arrays.asList(
+                new Category("title","제목"),
+                new Category("content","내용"),
+                new Category("titleContent","제목+내용"),
+                new Category("replys","댓글"),
+                new Category("username","글쓴이")
+        );
+
+        Page<Questions> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
+        System.out.println(paging.getContent().size());
         List<Questions> pages = paging.getContent();
         List<Integer> pageNumber = new ArrayList<>();
         int start = page/10 * 10 + 1;
@@ -40,16 +50,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
         for(int i = start;i < end;i++){
             pageNumber.add(i);
         }
-        List<Category> categoryList = Arrays.asList(
-                new Category("title","제목"),
-                new Category("content","내용"),
-                new Category("titlecontent","제목+내용"),
-                new Category("replys","댓글"),
-                new Category("username","글쓴이")
-        );
 
-
-        model.addAttribute("categoryList",categoryList);
+        model.addAttribute("searchIndex",searchIndex);
         model.addAttribute("pageNumber",pageNumber);
         model.addAttribute("paging",paging);
         model.addAttribute("pages",pages);
