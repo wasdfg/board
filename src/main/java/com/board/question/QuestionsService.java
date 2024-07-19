@@ -6,9 +6,13 @@ import com.board.question.dto.QuestionsBasicDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
 import com.board.user.Users;
-import com.board.user.UsersDetail;
 import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -19,7 +23,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -85,7 +92,7 @@ public class QuestionsService { //service에서 처리
         this.questionsRepository.save(questions);
     }
 
-    public Page<Questions> getList(int page, String kw, String category) {
+    public Page<Questions> getList(int page, String kw,String category) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
@@ -134,7 +141,7 @@ public class QuestionsService { //service에서 처리
                 query.distinct(true); //중복 없이
                 Join<Questions,Users> u1 = q.join("author",JoinType.LEFT); //left outer join을 사용
                 Join<Questions,Replys> a = q.join("replysList",JoinType.LEFT);
-                Join<Replys, Users> u2 = q.join("author",JoinType.LEFT);
+                Join<Replys, Users> u2 = q.join("author", JoinType.LEFT);
                 return cb.or(cb.like(q.get("title"),"%"+kw+"%"),//제목  or로 검색,sql문의 like %문자%와 같은 역할
                         cb.like(q.get("content"),"%"+kw+"%"), //내용
                         cb.like(u1.get("username"),"%"+kw+"%"), //글 작성자
@@ -143,5 +150,34 @@ public class QuestionsService { //service에서 처리
                 );
             }
         };
+    }
+
+    public Page<Questions> searchKeyword(int page,String keyword, String selectIndex, String category) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        Sort multiSort = Sort.by(
+                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
+                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
+        );
+        Pageable pageable = PageRequest.of(page, 10,multiSort);
+
+        if (selectIndex != null && !selectIndex.trim().isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
+            keyword = '*'+keyword+'*'; //검색 키워드로 와일드 카드 %를 의미
+            switch (selectIndex) {
+                case "title":
+                    return questionsRepository.searchByTitle(keyword, category, pageable);
+                case "content":
+                    return questionsRepository.searchByContent(keyword, category, pageable);
+                case "titleContent":
+                    return questionsRepository.searchByTitleContent(keyword, category, pageable);
+                case "replys":
+                    return questionsRepository.searchByReplys(keyword, category, pageable);
+                case "username":
+                    return questionsRepository.searchByUsername(keyword, category, pageable);
+                default:
+                    return questionsRepository.findAll(pageable); // 전체 결과 반환
+            }
+        } else {
+            return questionsRepository.findAll(pageable); // 전체 결과 반환
+        }
     }
 }
