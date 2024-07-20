@@ -43,8 +43,24 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             nativeQuery = true)
     Page<Questions> searchByContent(String keyword,String category, Pageable pageable);
 
-    @Query(value = "SELECT DISTINCT q.* FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND (MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE) OR MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE))",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND (MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE) OR MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE))",
+    @Query(value = "SELECT * FROM ( " +
+            "    SELECT DISTINCT q.* FROM questions q " +
+            "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
+            "    AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE) " +
+            "    UNION " +
+            "    SELECT DISTINCT q.* FROM questions q " +
+            "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
+            "    AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE) " +
+            ") AS combined",
+            countQuery = "SELECT COUNT(*) FROM ( " +
+                    "    SELECT DISTINCT q.uploadnumber FROM questions q " +
+                    "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
+                    "    AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE) " +
+                    "    UNION " +
+                    "    SELECT DISTINCT q.uploadnumber FROM questions q " +
+                    "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
+                    "    AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE) " +
+                    ") AS combined",
             nativeQuery = true)
     Page<Questions> searchByTitleContent(String keyword,String category, Pageable pageable);
 
