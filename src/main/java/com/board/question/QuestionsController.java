@@ -42,7 +42,6 @@ public class QuestionsController { //controller에서 요청을 받아와서
         );
 
         Page<Questions> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
-        System.out.println(paging.getContent().size());
         List<Questions> pages = paging.getContent();
         List<Integer> pageNumber = new ArrayList<>();
         int start = page/10 * 10 + 1;
