@@ -102,6 +102,25 @@
         btn_search.removeEventListener('click', handleSearchClick); // 중복 등록 방지
         btn_search.addEventListener('click', handleSearchClick);
     }
+
+    // URL 파라미터에서 값을 읽어와서 selectbox와 검색어 필드를 설정
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchKeyword = urlParams.get('kw');
+    const selectIndex = urlParams.get('selectIndex');
+
+    if (searchKeyword) {
+        const searchKeywordInput = document.getElementById('search_kw');
+        if (searchKeywordInput) {
+            searchKeywordInput.value = searchKeyword;
+        }
+    }
+
+    if (selectIndex) {
+        const selectIndexInput = document.getElementById('select_index');
+        if (selectIndexInput) {
+            selectIndexInput.value = selectIndex;
+        }
+    }
 });
 
 function handlePageClick(event) {
