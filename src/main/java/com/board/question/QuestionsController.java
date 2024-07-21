@@ -1,5 +1,6 @@
 package com.board.question;
 
+import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
 import com.board.user.Users;
@@ -41,8 +42,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 new Category("username","글쓴이")
         );
 
-        Page<Questions> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
-        List<Questions> pages = paging.getContent();
+        Page<QuestionsListDto> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
+        List<QuestionsListDto> pages = paging.getContent();
         List<Integer> pageNumber = new ArrayList<>();
         int start = page/10 * 10 + 1;
         int end = Math.min(start + 10, (int)Math.ceil((double)paging.getTotalElements() / 10)+1);

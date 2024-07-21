@@ -24,11 +24,11 @@
             <td class="text-start">
                 <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>
                 <span class="text-danger small ms-2"
-                      th:if="${#lists.size(questions.replysList) > 0}"
-                      th:text="${#lists.size(questions.replysList)}">
+                      th:if="${questions.replysSize > 0}"
+                      th:text="${questions.replysSize}">
             </span>
             </td>
-            <td><span th:if="${questions.author != null}" th:text="${questions.author.username}"></span></td>
+            <td><span th:if="${questions.username != null}" th:text="${questions.username.username}"></span></td>
             <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
             <td th:text="${questions.view}"></td>
         </tr>

@@ -3,6 +3,7 @@ package com.board.question;
 import com.board.DataNotFoundException;
 
 import com.board.question.dto.QuestionsBasicDto;
+import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
 import com.board.user.Users;
@@ -152,7 +153,7 @@ public class QuestionsService { //service에서 처리
         };
     }
 
-    public Page<Questions> searchKeyword(int page,String keyword, String selectIndex, String category) {
+    public Page<QuestionsListDto> searchKeyword(int page, String keyword, String selectIndex, String category) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
@@ -174,10 +175,10 @@ public class QuestionsService { //service에서 처리
                 case "username":
                     return questionsRepository.searchByUsername(keyword, category, pageable);
                 default:
-                    return questionsRepository.findAll(pageable); // 전체 결과 반환
+                    return questionsRepository.findAllList(pageable); // 전체 결과 반환
             }
         } else {
-            return questionsRepository.findAll(pageable); // 전체 결과 반환
+            return questionsRepository.findAllList(pageable); // 전체 결과 반환
         }
     }
 }
