@@ -32,7 +32,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.projectlombok:lombok')
     implementation('com.h2database:h2')
-    implementation ('mysql:mysql-connector-java:8.0.35')
+    implementation ('mysql:mysql-connector-java:8.0.30')
     runtimeOnly ('com.mysql:mysql-connector-j')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
     implementation ('org.springframework.boot:spring-boot-starter-thymeleaf')
