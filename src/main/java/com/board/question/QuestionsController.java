@@ -12,8 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
@@ -60,7 +64,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     }
 
     @GetMapping(value = "/detail/{uploadnumber}")
-    public String detail(Model model,@PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
+    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         List<Replys> sortDate = this.questionsService.getSortByDate(uploadnumber);
         model.addAttribute("sortDate",sortDate);
@@ -105,7 +109,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/modify/{uploadnumber}")
-    public String questionsModify(@Valid QuestionsForm questionsForm,BindingResult bindingResult,@PathVariable("uploadnumber") Integer uploadnumber, Principal principal) { //글 수정
+    public String questionsModify(@Valid QuestionsForm questionsForm, BindingResult bindingResult, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) { //글 수정
         if (bindingResult.hasErrors()) {
             return "questions_form";
         }
