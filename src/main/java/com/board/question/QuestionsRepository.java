@@ -44,10 +44,11 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT u.username " +
             "     FROM users u " +
             "     WHERE u.id = q.user_id) AS username " +
-            " FROM questions q",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q",
+            " FROM questions q" +
+            " WHERE (:category IS NULL OR :category = '' OR q.category = :category)",
+            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category)",
             nativeQuery = true)
-    Page<QuestionsListDto> findAllList(Pageable pageable);
+    Page<QuestionsListDto> findAllList(Pageable pageable,String category);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber," +
             "    q.view," +

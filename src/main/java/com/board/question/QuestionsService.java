@@ -174,10 +174,10 @@ public class QuestionsService { //service에서 처리
                 case "username":
                     return questionsRepository.searchByUsername(keyword, category, pageable);
                 default:
-                    return questionsRepository.findAllList(pageable); // 전체 결과 반환
+                    return questionsRepository.findAllList(pageable,category); // 전체 결과 반환
             }
         } else {
-            return questionsRepository.findAllList(pageable); // 전체 결과 반환
+            return questionsRepository.findAllList(pageable,category); // 전체 결과 반환
         }
     }
 }

@@ -28,7 +28,7 @@
                       th:text="${questions.replysSize}">
             </span>
             </td>
-            <td><span th:if="${questions.username != null}" th:text="${questions.username.username}"></span></td>
+            <td><span th:if="${questions.username != null}" th:text="${questions.username}"></span></td>
             <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
             <td th:text="${questions.view}"></td>
         </tr>
