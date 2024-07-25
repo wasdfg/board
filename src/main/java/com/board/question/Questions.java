@@ -34,7 +34,7 @@ public class Questions {
     //mappedBy는 참조하는 엔티티를 선언해준다.
 
     @ManyToOne //글쓴이 1명당 여러 질문을 할 수 있어 다대1로 설정
-    @JoinColumn(name = "username",referencedColumnName = "id")
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
     private Users author;
 
     @ManyToMany
