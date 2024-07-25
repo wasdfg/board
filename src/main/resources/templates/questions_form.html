@@ -1,7 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
     <h5 class="my-3 border-bottom pb-2">질문등록</h5>
-    <form th:object="${questionsForm}" method="post">
+    <form th:object="${questionsForm}" method="post" onsubmit="return validateForm()">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
         <div>
@@ -23,4 +23,14 @@
         <input type="submit" value="저장하기" class="btn btn-primary my-2">
     </form>
 </div>
+<script layout:fragment="script" type='text/javascript'>
+    function validateForm() {
+        const category = document.getElementById('category').value;
+        if (!category) {
+            alert('카테고리를 선택해주세요');
+            return false;
+        }
+        return true;
+    }
+</script>
 </html>
