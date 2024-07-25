@@ -36,11 +36,15 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     @Query(value = "SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title," +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q",
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            " FROM questions q",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q",
             nativeQuery = true)
     Page<QuestionsListDto> findAllList(Pageable pageable);
@@ -48,11 +52,15 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     @Query(value = "SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title," +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE)",
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            " FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
     Page<QuestionsListDto> searchByTitle(String keyword,String category, Pageable pageable);
@@ -60,11 +68,15 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     @Query(value = "SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title, " +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE)",
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            " FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
     Page<QuestionsListDto> searchByContent(String keyword,String category, Pageable pageable);
@@ -73,22 +85,30 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title," +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q " +
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize," +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            " FROM questions q " +
             "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
             "    AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE) " +
             "    UNION " +
             "    SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title," +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q " +
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            "FROM questions q " +
             "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
             "    AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE) " +
             ") AS combined",
@@ -107,11 +127,15 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     @Query(value = "SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title," +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(r.content) AGAINST(:keyword IN BOOLEAN MODE)",
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            "FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(r.content) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(r.content) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
     Page<QuestionsListDto> searchByReplys(String keyword,String category, Pageable pageable);
@@ -119,11 +143,15 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     @Query(value = "SELECT DISTINCT q.uploadnumber," +
             "    q.view," +
             "    q.nowtime," +
-            "    q.username," +
+            "    q.user_id," +
             "    q.title," +
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(u.username) AGAINST(:keyword IN BOOLEAN MODE)",
+            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "    (SELECT u.username " +
+            "     FROM users u " +
+            "     WHERE u.id = q.user_id) AS username " +
+            "FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(u.username) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(u.username) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
     Page<QuestionsListDto> searchByUsername(String keyword,String category, Pageable pageable);
