@@ -3,14 +3,13 @@ package com.board.user;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.security.core.userdetails.User;
 
 @Getter
 @Setter
 @Entity
 public class UsersDetail {
     @Id
-    private Long id; // Foreign Key referencing User.id
+    private Long id; // Foreign Key referencing Users.id
 
     private String password;
 
