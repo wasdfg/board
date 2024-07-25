@@ -86,7 +86,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @PreAuthorize("isAuthenticated()") //로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
     @PostMapping("/create") //url처리
-    public String questionsCreate(@Valid QuestionsForm questionsForm, BindingResult bindingResult, Principal principal,Model model){//질문 폼에 조건 추가
+    public String questionsCreate(@Valid QuestionsForm questionsForm, BindingResult bindingResult, Principal principal){//질문 폼에 조건 추가
         if(bindingResult.hasErrors()){ //에러가 있는지 검사
             return "questions_form";
         }
