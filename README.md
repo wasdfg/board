@@ -9,7 +9,7 @@
   
   ------
   ### 사용한 버전
-  spring boot 3.2.1 , java 17
+  Spring boot 3.2.1 , Java 17
   -----
 
 
