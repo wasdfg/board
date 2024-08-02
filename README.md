@@ -9,10 +9,10 @@
   
   ------
   ### 사용한 버전
-  spring boot 3.2.1 , java 17
+  Spring boot 3.2.1 , Java 17
   -----
 
 
 
-### 참고한 책
+### 참고한 내용
 점프 투 스프링부트 https://wikidocs.net/book/7601
