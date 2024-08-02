@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build:
-      context: src/main/java
+      context: .
       dockerfile: Dockerfile
       # option to specify build args, if needed
       args:
