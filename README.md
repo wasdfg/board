@@ -3,7 +3,7 @@
   ### -질문 작성과 답변 작성이 가능한 게시판을 작성하는 것
 
   ------
-  ### 사용한 언어 및 프레임워크 
+  ### 기술 스택 
   <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=springboot&logoColor=white"/></a>  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=white"/></a>
   
   
