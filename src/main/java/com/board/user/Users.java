@@ -15,6 +15,9 @@ public class Users {
     @Column(unique = true)
     private String username;
 
+    @Column(unique = true)
+    private String nickname;
+
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private UsersDetail usersDetail;
 }

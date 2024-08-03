@@ -13,7 +13,7 @@ public interface QuestionsListDto {
 
     Long getUser_id();
 
-    String getUsername();
+    String getNickname();
 
     int getView();
 

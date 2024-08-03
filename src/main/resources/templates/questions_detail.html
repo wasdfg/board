@@ -50,7 +50,7 @@
                 </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div class="mb-2">
-                        <span th:if="${replys.author != null}" th:text="${replys.author.username}"></span>
+                        <span th:if="${replys.author != null}" th:text="${replys.author.nickname}"></span>
                     </div>
                     <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>

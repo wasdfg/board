@@ -41,9 +41,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             " FROM questions q" +
             " WHERE (:category IS NULL OR :category = '' OR q.category = :category)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category)",
@@ -58,9 +58,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             " FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
@@ -74,9 +74,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             " FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
@@ -91,9 +91,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize," +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             " FROM questions q " +
             "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
             "    AND MATCH(q.title) AGAINST(:keyword IN BOOLEAN MODE) " +
@@ -106,9 +106,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             "FROM questions q " +
             "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
             "    AND MATCH(q.content) AGAINST(:keyword IN BOOLEAN MODE) " +
@@ -133,9 +133,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             "FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(r.content) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(r.content) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
@@ -149,9 +149,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "    (SELECT COUNT(*) " +
             "     FROM replys r " +
             "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.username " +
+            "    (SELECT u.nickname " +
             "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS username " +
+            "     WHERE u.id = q.user_id) AS nickname " +
             "FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(u.username) AGAINST(:keyword IN BOOLEAN MODE)",
             countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND MATCH(u.username) AGAINST(:keyword IN BOOLEAN MODE)",
             nativeQuery = true)
