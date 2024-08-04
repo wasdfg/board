@@ -155,11 +155,12 @@ public class QuestionsService { //service에서 처리
     public Page<QuestionsListDto> searchKeyword(int page, String keyword, String selectIndex, String category) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
-                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-
+        if(category.equals("all")){
+            category = null;
+        }
         if (selectIndex != null && !selectIndex.trim().isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
             keyword = '*'+keyword+'*'; //검색 키워드로 와일드 카드 %를 의미
             switch (selectIndex) {
