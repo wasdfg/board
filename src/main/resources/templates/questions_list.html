@@ -1,13 +1,26 @@
 <html layout:decorate="~{layout}"><!--공용 레이아웃 추가-->
 <div layout:fragment="content" class="container my-3">
-    <div class="row my-3">
-        <div class="col-6">
-            <button class="categoryButton" onclick="updateCategory('free')">자유 게시글</button>
-            <button class="categoryButton" onclick="updateCategory('ask')">질문 게시글</button>
-            <button class="categoryButton" onclick="updateCategory('notice')">공지 게시글</button>
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-12">
+                <div class="button-table">
+                    <div class="button-cell">
+                        <button class="categoryButton btn btn-primary" onclick="updateCategory('all')">전체 게시글</button>
+                    </div>
+                    <div class="button-cell">
+                        <button class="categoryButton btn btn-primary" onclick="updateCategory('free')">자유 게시글</button>
+                    </div>
+                    <div class="button-cell">
+                        <button class="categoryButton btn btn-primary" onclick="updateCategory('ask')">질문 게시글</button>
+                    </div>
+                    <div class="button-cell">
+                        <button class="categoryButton btn btn-primary" onclick="updateCategory('notice')">공지 게시글</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <table class="table">
+    <table class="table table-bordered table-hover">
         <thead class="table-dark">
         <tr class="text-center">
             <th>번호</th>
@@ -17,16 +30,13 @@
             <th>조회수</th>
         </tr>
         </thead>
-
         <tbody>
-        <tr class="text-center" th:each="questions, loop : ${pages}" th:attr="style=${loop.index % 2 == 0 ? 'background-color: #f9f9f9;' : 'background-color: #e9e9e9;'}">
+        <tr class="text-center" th:each="questions, loop : ${pages}" th:data-id="${questions.uploadnumber}">
             <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
             <td class="text-start">
-                <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>
-                <span class="text-danger small ms-2"
-                      th:if="${questions.replysSize > 0}"
-                      th:text="${questions.replysSize}">
-            </span>
+                <span th:text="${questions.title}"></span>
+                <span class="text-danger small ms-2" th:if="${questions.replysSize > 0}"
+                      th:text="${questions.replysSize}"></span>
             </td>
             <td><span th:if="${questions.nickname != null}" th:text="${questions.nickname}"></span></td>
             <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
@@ -66,7 +76,8 @@
     <div class="row justify-content-center">
         <div class="col-lg-6">
             <form action="#" method="get" class="d-flex align-items-center flex-nowrap">
-                <select name="selectIndex" id="select_index" class="form-select me-2" style="height: 38px; flex-grow: 0; width: auto;">
+                <select name="selectIndex" id="select_index" class="form-select me-2"
+                        style="height: 38px; flex-grow: 0; width: auto;">
                     <option th:each="index : ${searchIndex}" th:value="${index.value}"
                             th:text="${index.showValue}">FAST
                     </option>
@@ -81,14 +92,14 @@
     </div>
 
     <form th:action="@{/questions/list}" method="get" id="searchForm">
-        <input type="hidden" id="kw" name="kw" th:value="${kw}">
-        <input type="hidden" id="category" name="category" th:value="${category}">
+        <input type="hidden" id="category" name="category" th:value="${category != null?category:'all'}">
         <input type="hidden" id="selectIndex" name="selectIndex" th:value="${selectIndex}">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
         <input type="hidden" id="page" name="page" th:value="${paging.number}">
     </form>
 </div>
 <script layout:fragment="script" type='text/javascript'>
-    document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
     // 페이지 링크 클릭 이벤트 리스너 등록
     const page_elements = document.getElementsByClassName("page-link");
     Array.from(page_elements).forEach(function(element) {
@@ -107,6 +118,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const searchKeyword = urlParams.get('kw');
     const selectIndex = urlParams.get('selectIndex');
+    const category = urlParams.get('category');
 
     if (searchKeyword) {
         const searchKeywordInput = document.getElementById('search_kw');
@@ -121,31 +133,50 @@
             selectIndexInput.value = selectIndex;
         }
     }
-});
 
-function handlePageClick(event) {
-    event.preventDefault(); // 기본 동작 방지
-    event.stopPropagation(); // 이벤트 버블링 방지
-    //console.log("Page link clicked");
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-
-    // 페이지 값 설정
-    const pageInput = document.getElementById('page');
-    if (pageInput) {
-        pageInput.value = this.dataset.page;
-    }
-
-    // 카테고리 값 설정
     if (category) {
         const categoryInput = document.getElementById('category');
         if (categoryInput) {
             categoryInput.value = category;
         }
     }
+});
 
-    console.log("Form submitted");
+function handlePageClick(event) {
+    event.preventDefault(); // 기본 동작 방지
+    event.stopPropagation(); // 이벤트 버블링 방지
+
+    // 현재 URL에서 파라미터 읽기
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category');
+    const searchKeyword = urlParams.get('kw');
+    const selectIndex = urlParams.get('selectIndex');
+
+    // 클릭한 페이지 번호 가져오기
+    const page = this.dataset.page;
+
+    // hidden 필드 값 설정
+    const pageInput = document.getElementById('page');
+    if (pageInput) {
+        pageInput.value = page;
+    }
+
+    const categoryInput = document.getElementById('category');
+    if (categoryInput) {
+        categoryInput.value = category || ''; // category가 없으면 빈 문자열로 설정
+    }
+
+    const kwInput = document.getElementById('kw');
+    if (kwInput) {
+        kwInput.value = searchKeyword || ''; // 검색어가 없으면 빈 문자열로 설정
+    }
+
+    const selectIndexInput = document.getElementById('selectIndex');
+    if (selectIndexInput) {
+        selectIndexInput.value = selectIndex || ''; // selectIndex가 없으면 빈 문자열로 설정
+    }
+
+    // 폼 제출
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
         searchForm.submit();
@@ -155,30 +186,36 @@ function handlePageClick(event) {
 function handleSearchClick(event) {
     event.preventDefault(); // 기본 동작 방지
     event.stopPropagation(); // 이벤트 버블링 방지
-    //console.log("Search button clicked");
 
+    // 검색어를 숨겨진 필드에 설정
     const searchKeywordInput = document.getElementById('search_kw');
-    if (searchKeywordInput) {
-        const kwInput = document.getElementById('kw');
-        if (kwInput) {
-            kwInput.value = searchKeywordInput.value;
-        }
+    const kwInput = document.getElementById('kw');
+    if (kwInput && searchKeywordInput) {
+        kwInput.value = searchKeywordInput.value;
     }
 
+    // 선택 인덱스를 숨겨진 필드에 설정
     const selectIndex = document.getElementById('select_index');
-        if (selectIndex) {
-            const selectIndexInput = document.getElementById('selectIndex');
-            if (selectIndexInput) {
-                selectIndexInput.value = selectIndex.value;
-            }
-        }
+    const selectIndexHiddenInput = document.getElementById('selectIndex');
+    if (selectIndexHiddenInput && selectIndex) {
+        selectIndexHiddenInput.value = selectIndex.value;
+    }
 
+    // 현재 선택된 카테고리 값을 숨겨진 필드에 설정
+    const categoryInput = document.getElementById('category');
+    const category = categoryInput ? categoryInput.value : '';
+    const categoryHiddenInput = document.getElementById('category');
+    if (categoryHiddenInput) {
+        categoryHiddenInput.value = category;
+    }
 
+    // 페이지를 첫 페이지로 설정
     const pageInput = document.getElementById('page');
     if (pageInput) {
         pageInput.value = 0;
     }
 
+    // 폼 제출
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
         searchForm.submit();
@@ -186,21 +223,52 @@ function handleSearchClick(event) {
 }
 
 function updateCategory(category) {
-    //console.log("Category updated to: " + category);
     const categoryInput = document.getElementById('category');
     if (categoryInput) {
         categoryInput.value = category;
     }
 
+    // 검색어를 빈 값으로 설정
+    const kwInput = document.getElementById('kw');
+    if (kwInput) {
+        kwInput.value = '';
+    }
+
+    // 선택 인덱스 값을 가져와서 숨겨진 필드에 설정
+    const selectIndexInput = document.getElementById('select_index');
+    const selectIndexHiddenInput = document.getElementById('selectIndex');
+    if (selectIndexHiddenInput && selectIndexInput) {
+        selectIndexHiddenInput.value = selectIndexInput.value;
+    }
+
+    // 페이지를 첫 페이지로 설정
     const pageInput = document.getElementById('page');
     if (pageInput) {
         pageInput.value = 0;
     }
 
+    // 폼 제출
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
         searchForm.submit();
     }
 }
+document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                // 클릭된 행에 'clicked' 클래스 추가
+                rows.forEach(r => r.classList.remove('clicked'));
+                this.classList.add('clicked');
+
+                // 클릭된 행의 data-id 속성을 사용하여 페이지 이동
+                const id = this.getAttribute('data-id');
+                if (id) {
+                    window.location.href = `/questions/detail/${id}`;
+                }
+            });
+        });
+    });
 </script>
 </html>
