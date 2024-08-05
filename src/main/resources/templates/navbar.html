@@ -1,24 +1,43 @@
 <nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-    <div class="container-fluid">
+    <div class="container">
         <a class="navbar-brand" href="/">Board</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item" sec:authorize="isAnonymous()">
-                    <a class="nav-link" th:href="@{/user/login}">로그인</a>
-                </li>
-                <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
-                    <a class="nav-link" th:href="@{/user/chkinfo}">비밀번호 변경</a>
-                    <a class="nav-link" th:href="@{/user/showQNA}">내가 쓴 글 확인</a>
-                </li>
-                <li class="nav-item" sec:authorize="isAnonymous()">
-                    <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
-                </li>
-            </ul>
+        <!-- 로그인과 회원가입 버튼은 비로그인 상태에서만 보이도록 설정 -->
+        <div sec:authorize="isAnonymous()" class="d-flex">
+            <a class="btn btn-outline-primary me-2" th:href="@{/user/login}">로그인</a>
+            <a class="btn btn-primary" th:href="@{/user/signup}">회원가입</a>
+        </div>
+
+        <!-- 로그인 후 드롭다운 메뉴 버튼 -->
+        <div sec:authorize="isAuthenticated()" class="d-flex">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    메뉴 열기
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" th:href="@{/user/logout}">로그아웃</a></li>
+                    <li><a class="dropdown-item" th:href="@{/user/chkinfo}">비밀번호 변경</a></li>
+                    <li><a class="dropdown-item" th:href="@{/user/showQNA}">내가 쓴 글 확인</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>
+<script layout:fragment="content">
+        document.addEventListener('DOMContentLoaded', function () {
+            var dropdowns = document.querySelectorAll('.dropdown-menu');
+            dropdowns.forEach(function (dropdown) {
+                dropdown.addEventListener('show.bs.dropdown', function (event) {
+                    var rect = dropdown.getBoundingClientRect();
+                    var viewportWidth = window.innerWidth;
+                    if (rect.right > viewportWidth) {
+                        dropdown.style.left = 'auto';
+                        dropdown.style.right = '0';
+                    } else {
+                        dropdown.style.left = '0';
+                        dropdown.style.right = 'auto';
+                    }
+                });
+            });
+        });
+</script>
