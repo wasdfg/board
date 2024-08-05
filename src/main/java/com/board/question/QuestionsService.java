@@ -162,7 +162,7 @@ public class QuestionsService { //service에서 처리
             category = null;
         }
         if (selectIndex != null && !selectIndex.trim().isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
-            keyword = '*'+keyword+'*'; //검색 키워드로 와일드 카드 %를 의미
+            keyword = '%'+keyword+'%'; //검색 키워드로 와일드 카드 %를 의미
             switch (selectIndex) {
                 case "title":
                     return questionsRepository.searchByTitle(keyword, category, pageable);
