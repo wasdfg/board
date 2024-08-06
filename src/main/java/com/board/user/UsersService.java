@@ -27,7 +27,6 @@ public class UsersService {
 
     private static final String FromAddress = "ljh60700@gmail.com";
 
-    @Autowired
     private final JavaMailSender mailSender;
 
     @Transactional
