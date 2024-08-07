@@ -31,13 +31,15 @@
   -----
   ### 화면 구성
   
-  |메인 페이지|로그인 페이지|
+  |메인 페이지|댓글 페이지|
   |---|---|
-  |4|5|
-  
-  |||
+  |![메인 페이지](https://github.com/user-attachments/assets/6b85c915-b617-4a64-a6d2-1306f555feae)| ![답변 달기](https://github.com/user-attachments/assets/11e7e970-c848-4d1e-8aa7-5f355f6b5025)|
+ 
+  |검색 기능|글 작성 내역 확인|
   |---|---|
-  |||
+  |![검색](https://github.com/user-attachments/assets/0a1fbc9e-b802-4b8a-8ecc-73e5d281fa0b)|![글 작성 내역](https://github.com/user-attachments/assets/65fa0fd9-d573-4c80-ab67-19ac6e48b437)|
+
+
   -----
   ### 배운 점 & 아쉬운 점
   ##### 배운점  
