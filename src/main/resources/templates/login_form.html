@@ -18,37 +18,4 @@
     <a th:href="@{/user/findAccount}" class="btn btn-secondary">아이디 또는 비밀번호 찾기</a>
   </form>
 </div>
-<script layout:fragment="script" type="text/javascript">
-document.getElementById('username').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // 기본 엔터 동작 방지
-        document.querySelector('form').submit(); // 폼 제출
-    }
-});
-
-document.getElementById('password').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // 기본 엔터 동작 방지
-        document.querySelector('form').submit(); // 폼 제출
-    }
-});
-
-document.querySelector('form').addEventListener('submit', function(event) {
-    event.preventDefault(); // 기본 폼 제출 동작 방지
-    var form = this;
-    var formData = new FormData(form);
-
-    fetch(form.getAttribute('action'), {
-        method: 'POST',
-        body: formData
-    }).then(function(response) {
-        // 로그인이 성공하면 현재 창으로 redirect
-        if (response.redirected) {
-            window.location.href = response.url;
-        }
-    }).catch(function(error) {
-        console.error('로그인 중 오류 발생:', error);
-    });
-});
-</script>
 </html>
