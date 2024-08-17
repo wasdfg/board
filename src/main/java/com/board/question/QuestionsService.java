@@ -50,9 +50,6 @@ public class QuestionsService { //service에서 처리
     public List<Replys> getSortByDate(Integer uploadnumber) { //투표수 기준으로 정렬
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
         if(questions.isPresent()){
-            Questions questions1 = questions.get();
-            questions1.setView(questions1.getView()+1); //조회수를 1 증가시켜준다 여기서 증가시키는 이유는 질문이나 답변을 수정하는 서비스 코드에서 getQuestions가 조회되기 떄문
-            this.questionsRepository.save(questions1);
             if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면
                 List<Replys> sortedReplys = this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber);
                 return sortedReplys;
