@@ -11,15 +11,19 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
@@ -47,8 +51,13 @@ public class SecurityConfig{
                 .logout((logout) -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
                         .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true))
-        ;
+                        .invalidateHttpSession(true)) //로그아웃하면 세션을 자동으로 파기해줌
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션이 필요한 경우에만 생성 주로 로그인을 할 경우에만 생성됨
+                        .maximumSessions(1)  // 세션 최대 수 설정
+                        .maxSessionsPreventsLogin(true)  // 최대 세션 수 초과 시 로그인 차단
+                        .expiredSessionStrategy(new SimpleRedirectSessionInformationExpiredStrategy("/user/login?sessionExpired=true"))  // 세션 만료 시 리다이렉트
+                );
         // authorizeHttpRequests() : security 처리에 HttpServletRequest를 이용한다는 것을 의미
         // requestMatchers : 특정 리소스에 대해서 권한을 설정
         //permitAll : requestMatchers로 설정한 리소스의 접근을 인증절차 없이 허용
