@@ -34,9 +34,9 @@ import java.io.IOException;
 public class SecurityConfig{
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.authorizeRequests(auth-> auth.requestMatchers("/**","/h2-console/**","/user/findPwd/**","/questions/detail/**").permitAll())
+        http.authorizeRequests(auth-> auth.requestMatchers("/**","/h2-console/**","/user/findPwd/**","/questions/detail/**", "/user/login").permitAll())
                 .csrf((csrf) -> csrf
-                        .ignoringRequestMatchers("/h2-console/**","/user/findPwd/**","/questions/detail/**")
+                        .ignoringRequestMatchers("/h2-console/**","/user/findPwd/**","/questions/detail/**", "/user/login")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                         //토큰을 쿠키에 저장
                 .headers((headers) -> headers
