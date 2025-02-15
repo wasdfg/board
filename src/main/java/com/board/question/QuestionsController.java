@@ -5,6 +5,10 @@ import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
 import com.board.user.Users;
 import com.board.user.UsersService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,7 +27,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequestMapping("/questions") // /questions로 시작하는 url의 앞부분을 prefix해준다.
 @RequiredArgsConstructor //final을 선언할때 사용
@@ -37,8 +43,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
     public String list(Model model,@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String kw,
                        @RequestParam(value = "category", defaultValue = "") String category,
-                       @RequestParam(name = "selectIndex", required = false) String selectIndex){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
+                       @RequestParam(name = "selectIndex", required = false) String selectIndex,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         List<Category> searchIndex = Arrays.asList(
+                new Category("all","전체"),
                 new Category("title","제목"),
                 new Category("content","내용"),
                 new Category("titleContent","제목+내용"),
@@ -46,29 +53,88 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 new Category("username","글쓴이")
         );
 
+        Long all_content_count = this.questionsService.getQuestionsCount();
         Page<QuestionsListDto> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
-        List<QuestionsListDto> pages = paging.getContent();
-        List<Integer> pageNumber = new ArrayList<>();
-        int start = page/10 * 10 + 1;
-        int end = Math.min(start + 10, (int)Math.ceil((double)paging.getTotalElements() / 10)+1);
-        for(int i = start;i < end;i++){
-            pageNumber.add(i);
-        }
 
+        Set<Integer> readQuestions = new HashSet<>(); //세션이나 쿠키를 가져와서 저장할 공간
+        principal = request.getUserPrincipal();
+        if(principal != null) {// 로그인 상태일 때 세션을 가져온다
+            readQuestions = (Set<Integer>) session.getAttribute("readQuestions");
+            if (readQuestions == null) {
+                readQuestions = new HashSet<>();
+            }
+        }
+        else {// 비로그인 상태라면 쿠키를 가져온다
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().startsWith("readQuestions_")) {
+                        try {
+                            Integer id = Integer.parseInt(cookie.getName().split("_")[1]);
+                            readQuestions.add(id);
+                        } catch (NumberFormatException e) {
+                            // 쿠키 이름이 올바르지 않으면 무시
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(readQuestions);
+        model.addAttribute("readQuestions", readQuestions); //읽은 글을 확인
         model.addAttribute("searchIndex",searchIndex);
-        model.addAttribute("pageNumber",pageNumber);
         model.addAttribute("paging",paging);
-        model.addAttribute("pages",pages);
+        model.addAttribute("all_content_count",all_content_count);
 
         return "questions_list";
     }
 
     @GetMapping(value = "/detail/{uploadnumber}")
-    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm){
+    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm, HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         List<Replys> sortDate = this.questionsService.getSortByDate(uploadnumber);
         model.addAttribute("sortDate",sortDate);
         model.addAttribute("questions",questions);
+        if(principal != null){ //로그인 된 상태라면 세션으로 사용
+            String username = principal.getName();
+
+            // 세션에서 읽은 댓글 목록 가져오기
+            Set<Integer> readQuestions = (Set<Integer>) session.getAttribute("readQuestions");
+            if (readQuestions == null) {
+                readQuestions = new HashSet<>();
+            }
+
+            if (!readQuestions.contains(uploadnumber)) {
+                // 세션에 읽은 댓글 ID 추가
+                readQuestions.add(uploadnumber);
+                session.setAttribute("readQuestions", readQuestions);
+            }
+        }
+        else{ //비로그인 상태라면 쿠키를 사용
+            Cookie[] cookies = request.getCookies();
+            Cookie readQuestionsCookie = null;
+
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("readQuestions")) {
+                        readQuestionsCookie = cookie;
+                        break;
+                    }
+                }
+            }
+            if (readQuestionsCookie == null) {
+                readQuestionsCookie = new Cookie("readQuestions", String.valueOf(uploadnumber));
+            }
+            else {
+                String value = readQuestionsCookie.getValue();
+                if (!value.contains(String.valueOf(uploadnumber))) {
+                    readQuestionsCookie.setValue(value + "," + uploadnumber);
+                }
+            }
+                // 쿠키에 읽은 댓글 ID 추가
+            readQuestionsCookie.setPath("/"); // 쿠키가 모든 경로에서 유효하게 설정
+            readQuestionsCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
+            response.addCookie(readQuestionsCookie);
+        }
         return "questions_detail";
     }
 
