@@ -155,16 +155,11 @@ public class QuestionsService { //service에서 처리
     }
 
     public Page<QuestionsListDto> searchKeyword(int page, String keyword, String selectIndex, String category) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        Sort multiSort = Sort.by(
-                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
-        );
-        Pageable pageable = PageRequest.of(page, 10,multiSort);
-        if(category.equals("all")){
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("uploadnumber"))); //10개씩 페이징예정
+        if(category.equals("all")) {
             category = null;
         }
         if (selectIndex != null && !selectIndex.trim().isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
-            keyword = keyword+'%'; //검색 키워드로 와일드 카드 %를 의미
             switch (selectIndex) {
                 case "title":
                     return questionsRepository.searchByTitle(keyword, category, pageable);
@@ -177,10 +172,10 @@ public class QuestionsService { //service에서 처리
                 case "username":
                     return questionsRepository.searchByUsername(keyword, category, pageable);
                 default:
-                    return questionsRepository.findAllList(pageable,category); // 전체 결과 반환
+                    return questionsRepository.findAllList(keyword,category,pageable); // 전체 결과 반환
             }
         } else {
-            return questionsRepository.findAllList(pageable,category); // 전체 결과 반환
+            return questionsRepository.findAllList(keyword,category,pageable); // 전체 결과 반환
         }
     }
 }
