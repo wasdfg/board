@@ -42,7 +42,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model,@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String kw,
-                       @RequestParam(value = "category", defaultValue = "") String category,
+                       @RequestParam(value = "category", defaultValue = "all") String category,
                        @RequestParam(name = "selectIndex", required = false) String selectIndex,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         List<Category> searchIndex = Arrays.asList(
                 new Category("all","전체"),
@@ -79,7 +79,6 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 }
             }
         }
-        System.out.println(readQuestions);
         model.addAttribute("readQuestions", readQuestions); //읽은 글을 확인
         model.addAttribute("searchIndex",searchIndex);
         model.addAttribute("paging",paging);
