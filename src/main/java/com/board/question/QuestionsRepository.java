@@ -33,145 +33,131 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     @Query("select new com.board.question.dto.QuestionsBasicDto(q.title,q.uploadnumber,q.nowtime) from Questions q where q.author.username = :username")
     Page<QuestionsBasicDto> findByUser(@Param("username")String username, Pageable pageable);
 
-    @Query(value = "SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title," +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
-            " FROM questions q" +
-            " WHERE (:category IS NULL OR :category = '' OR q.category = :category)",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category)",
-            nativeQuery = true)
-    Page<QuestionsListDto> findAllList(Pageable pageable,String category);
-
-    @Query(value = "SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title," +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
-            " FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND q.title like :keyword",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND q.title like :keyword",
-            nativeQuery = true)
-    Page<QuestionsListDto> searchByTitle(String keyword,String category, Pageable pageable);
-
-    @Query(value = "SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title, " +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
-            " FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND q.content like :keyword",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND q.content like :keyword",
-            nativeQuery = true)
-    Page<QuestionsListDto> searchByContent(String keyword,String category, Pageable pageable);
-
-    @Query(value = "SELECT * FROM ( " +
-            "    SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title," +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize," +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
-            " FROM questions q " +
-            "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
-            "    AND q.title like :keyword " +
-            "    UNION " +
-            "    SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title," +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "COUNT(r.questions_uploadnumber) AS replysSize, " +
+            "u.nickname AS nickname " +
             "FROM questions q " +
-            "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
-            "    AND q.content like :keyword " +
-            ") AS combined",
-            countQuery = "SELECT COUNT(*) FROM ( " +
-                    "    SELECT DISTINCT q.uploadnumber FROM questions q " +
-                    "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
-                    "    AND AND q.title like :keyword " +
-                    "    UNION " +
-                    "    SELECT DISTINCT q.uploadnumber FROM questions q " +
-                    "    WHERE (:category IS NULL OR :category = '' OR q.category = :category) " +
-                    "    AND AND q.content like :keyword " +
-                    ") AS combined",
+            "LEFT JOIN users u ON q.user_id = u.id " +
+            "LEFT JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "AND ( " +
+            "    :keyword IS NULL OR " +  // 키워드가 있으면 검색 조건 추가
+            "    q.title LIKE CONCAT('%', :keyword, '%') OR " +
+            "    q.content LIKE CONCAT('%', :keyword, '%') OR " +
+            "    u.nickname LIKE CONCAT('%', :keyword, '%') OR " +
+            "    r.content LIKE CONCAT('%', :keyword, '%') " +
+            ") " +
+            "GROUP BY q.uploadnumber " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) " +
+                    "FROM questions q " +
+                    "LEFT JOIN users u ON q.user_id = u.id " +
+                    "LEFT JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
+                    "WHERE (:category IS NULL OR q.category = :category) " +
+                    "AND ( " +
+                    "    :keyword IS NULL OR " +  // 키워드가 있으면 검색 조건 추가
+                    "    q.title LIKE CONCAT('%', :keyword, '%') OR " +
+                    "    q.content LIKE CONCAT('%', :keyword, '%') OR " +
+                    "    u.nickname LIKE CONCAT('%', :keyword, '%') OR " +
+                    "    r.content LIKE CONCAT('%', :keyword, '%') " +
+                    ")",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByTitleContent(String keyword,String category, Pageable pageable);
+    Page<QuestionsListDto> findAllList(@Param("keyword")String keyword,@Param("category") String category,Pageable pageable);
 
-    @Query(value = "SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title," +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
-            "FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND AND r.content like :keyword",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q JOIN replys r ON q.uploadnumber = r.questions_uploadnumber WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND r.content like :keyword",
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "(SELECT COUNT(*) FROM replys r WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "(SELECT u.nickname FROM users u WHERE u.id = q.user_id) AS nickname " +
+            "FROM questions q " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "AND q.title LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(*) FROM questions q WHERE (:category IS NULL OR q.category = :category) " +
+                    "AND q.title LIKE CONCAT('%', :keyword, '%')",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByReplys(String keyword,String category, Pageable pageable);
+    Page<QuestionsListDto> searchByTitle(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
-    @Query(value = "SELECT DISTINCT q.uploadnumber," +
-            "    q.view," +
-            "    q.nowtime," +
-            "    q.user_id," +
-            "    q.title," +
-            "    (SELECT COUNT(*) " +
-            "     FROM replys r " +
-            "     WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
-            "    (SELECT u.nickname " +
-            "     FROM users u " +
-            "     WHERE u.id = q.user_id) AS nickname " +
-            "FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND AND u.username like :keyword",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q JOIN users u ON q.author_id = u.id WHERE (:category IS NULL OR :category = '' OR q.category = :category) AND u.username like :keyword",
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "(SELECT COUNT(*) FROM replys r WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "(SELECT u.nickname FROM users u WHERE u.id = q.user_id) AS nickname " +
+            "FROM questions q " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "AND q.content LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(*) FROM questions q WHERE (:category IS NULL OR q.category = :category) " +
+                    "AND q.content LIKE CONCAT('%', :keyword, '%')",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByUsername(String keyword,String category, Pageable pageable);
-    //Page<Questions> findByCategory(Pageable pageable,String category);
-    //@Query("select title, author, nowtime from Questions")
-    //Page<Questions> getData(Pageable pageable);
-    /*@Query("select "
-            + "distinct q "
-            + "from Questions q "
-            + "left outer join SignUpUser u1 on q.author=u1 "
-            + "left outer join replys a on a.question=q "
-            + "left outer join SignUpUser u2 on a.author=u2 "
-            + "where "
-            + "   q.subject like %:kw% "
-            + "   or q.content like %:kw% "
-            + "   or u1.username like %:kw% "
-            + "   or a.content like %:kw% "
-            + "   or u2.username like %:kw% ")
-    Page<Questions> findAllByKeyword(@Param("kw") String kw, Pageable pageable);*/ //쿼리로 직접 선언 가능
+    Page<QuestionsListDto> searchByContent(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "COALESCE(COUNT(r.questions_uploadnumber), 0) AS replysSize, " +
+            "u.nickname " +
+            "FROM questions q " +
+            "LEFT JOIN users u ON u.id = q.user_id " +
+            "LEFT JOIN replys r ON r.questions_uploadnumber = q.uploadnumber " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "AND (q.title LIKE CONCAT('%', :keyword, '%') OR q.content LIKE CONCAT('%', :keyword, '%')) " +
+            "GROUP BY q.uploadnumber, q.view, q.nowtime, q.user_id, q.title, u.nickname " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(*) FROM questions q " +
+                    "WHERE (:category IS NULL OR q.category = :category) " +
+                    "AND (q.title LIKE CONCAT('%', :keyword, '%') OR q.content LIKE CONCAT('%', :keyword, '%'))",
+            nativeQuery = true)
+    Page<QuestionsListDto> searchByTitleContent(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "(SELECT COUNT(*) FROM replys r WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "(SELECT u.nickname FROM users u WHERE u.id = q.user_id) AS nickname " +
+            "FROM questions q " +
+            "JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "AND r.content LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(*) FROM questions q " +
+                    "JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
+                    "WHERE (:category IS NULL OR q.category = :category) " +
+                    "AND r.content LIKE CONCAT('%', :keyword, '%')",
+            nativeQuery = true)
+    Page<QuestionsListDto> searchByReplys(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "(SELECT COUNT(*) FROM replys r WHERE r.questions_uploadnumber = q.uploadnumber) AS replysSize, " +
+            "(SELECT u.nickname FROM users u WHERE u.id = q.user_id) AS nickname " +
+            "FROM questions q " +
+            "JOIN users u ON q.user_id = u.id " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "AND u.nickname LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(*) FROM questions q " +
+                    "JOIN users u ON q.user_id = u.id " +
+                    "WHERE (:category IS NULL OR q.category = :category) " +
+                    "AND u.nickname LIKE CONCAT('%', :keyword, '%')",
+            nativeQuery = true)
+    Page<QuestionsListDto> searchByUsername(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+
 }
 // CRUD 작업을 처리하는 메서드를 내장하고 있다
 
