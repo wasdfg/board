@@ -31,7 +31,12 @@ public class ReplysService {
         replys.setAuthor(author);
         if(prereplys != null) {
             replys.setParent_id(prereplys.getUploadnumber());
-            replys.setDepth(prereplys.getDepth()+1);
+            if(prereplys.getDepth() < 15) { //깊이를 15로 지정
+                replys.setDepth(prereplys.getDepth() + 1);
+            }
+            else{
+                replys.setDepth(15);
+            }
         }
         else{
             replys.setParent_id(null);
