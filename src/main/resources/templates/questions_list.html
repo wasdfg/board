@@ -50,29 +50,43 @@
     <div style="width: 100%; display: flex; justify-content: flex-end;">
         <a th:href="@{/questions/create}" class="btn btn-primary">글 작성하기</a>
     </div>
-    <!-- 페이징처리 시작 -->
+    <!-- 페이징버튼처리 시작 -->
     <div th:if="${!paging.isEmpty()}">
         <ul class="pagination justify-content-center">
+
+            <!-- 이전 버튼 -->
             <li class="page-item"
-                th:classappend="${(all_cotent_count <= 10*10 || (pageNumber.size() > 0 && pageNumber.get(0) == 1))} ? 'disabled'">
-                <!--이전 페이지가 없거나 페이지가 10아래인 경우 이전 링크를 비활성화-->
-                <a class="page-link" href="javascript:void(0)" th:data-page="${(pageNumber.get(0)/10-1)*10}">
+                th:classappend="${paging.number < 10} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${(paging.number / 10 - 1) * 10}"
+                   th:if="${paging.number >= 10}">
                     <span>이전</span>
                 </a>
-            </li> <!--출력할 페이지를 표시해준다-->
-            <li th:each="page: ${(pageNumber)}" th:classappend="${page == paging.getNumber()+1} ? 'active'"
-                class="page-item">
-                <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page-1}"></a>
             </li>
-            <li class="page-item" th:classappend="${paging.number >= (paging.totalPages - 1) / 10 * 10} ? 'disabled'">
-                <!--다음 페이지가 없거나 마지막 단위일 경우 다음 링크를 비활성화-->
-                <a class="page-link" href="javascript:void(0)" th:data-page="${(pageNumber.get(0)/10+1)*10}">
+
+            <!-- 페이지 번호 버튼 -->
+            <li th:each="page: ${#numbers.sequence(currentPageGroupStart, currentPageGroupEnd)}"
+                th:classappend="${page == paging.number + 1} ? 'active'"
+                class="page-item">
+                <a th:text="${page}" class="page-link" href="javascript:void(0)"
+                   th:data-page="${page - 1}"></a>
+            </li>
+
+            <!-- 다음 버튼 -->
+            <li class="page-item"
+                th:classappend="${paging.number + 1 >= paging.totalPages} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${(paging.number / 10 + 1) * 10}"
+                   th:if="${paging.number + 1 < paging.totalPages}">
                     <span>다음</span>
                 </a>
             </li>
+
         </ul>
     </div>
+
     <!-- 페이징처리 끝 -->
+
     <!--검색 창-->
     <div class="row justify-content-center">
         <div class="col-lg-6">
