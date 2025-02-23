@@ -53,8 +53,12 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 new Category("username","글쓴이")
         );
 
-        Long all_content_count = this.questionsService.getQuestionsCount();
         Page<QuestionsListDto> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
+        int all_content_count = (int)paging.getTotalElements();
+        int current_Page = paging.getNumber(); //현제 페이지
+        int current_Page_Group_Start = (current_Page / 10) * 10 + 1; //현재페이지의 시작번호 10개기준이므로 mod10 = 1인거
+        int current_Page_Group_End = Math.min(current_Page_Group_Start + 9, all_content_count); //뒷자리가 10의배수인거 또는 마지막번호 중 작은거
+
 
         Set<Integer> readQuestions = new HashSet<>(); //세션이나 쿠키를 가져와서 저장할 공간
         principal = request.getUserPrincipal();
@@ -83,6 +87,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
         model.addAttribute("searchIndex",searchIndex);
         model.addAttribute("paging",paging);
         model.addAttribute("all_content_count",all_content_count);
+        model.addAttribute("currentPageGroupStart", current_Page_Group_Start);
+        model.addAttribute("currentPageGroupEnd", current_Page_Group_End);
 
         return "questions_list";
     }
