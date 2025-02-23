@@ -41,8 +41,8 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             "COUNT(r.questions_uploadnumber) AS replysSize, " +
             "u.nickname AS nickname " +
             "FROM questions q " +
-            "LEFT JOIN users u ON q.user_id = u.id " +
-            "LEFT JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
+            "LEFT JOIN (SELECT id,nickname FROM users) u ON q.user_id = u.id " +
+            "LEFT JOIN (SELECT questions_uploadnumber,content FROM replys) r ON q.uploadnumber = r.questions_uploadnumber " +
             "WHERE (:category IS NULL OR q.category = :category) " +
             "AND ( " +
             "    :keyword IS NULL OR " +  // 키워드가 있으면 검색 조건 추가
