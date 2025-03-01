@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StopWatch;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -93,28 +94,6 @@ public class QuestionsService { //service에서 처리
         questions.getVoter().add(users); //현재 로그인한 아이디를 가져옴
         this.questionsRepository.save(questions);
     }
-
-    public Page<Questions> getList(int page, String kw,String category) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        Sort multiSort = Sort.by(
-                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
-                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
-        );
-        Pageable pageable = PageRequest.of(page, 10,multiSort);
-        Specification<Questions> spec = Specification.where(null); //조회한 내용을 저장 // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
-        if (!StringUtils.isEmpty(kw)) { // 검색으로 찾는 경우가 아닐 때 불필요한 쿼리 조회를 없애기 위해 사용
-            // 검색 조건이 있는 경우에는 search 메서드를 통해 검색 조건이 추가된 Specification 객체 생성
-            spec = search(kw);
-        }
-
-        if(StringUtils.isEmpty(category)) { //가테고리 분류시
-            return this.questionsRepository.findAll(spec, pageable);
-        }
-        else{
-            return this.questionsRepository.findByCategory(pageable,category);
-        }
-        //return this.questionsRepository.findAllByKeyword(kw, pageable); //쿼리로 사용했을 시 리턴문
-    }
     public Page<QuestionsBasicDto> getList(int page, Users users) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
@@ -135,30 +114,22 @@ public class QuestionsService { //service에서 처리
         return this.questionsRepository.findAll(pageable);
     }
 
-    private Specification<Questions> search(String kw){ //kw로 검색할 문자열 받아온다
-        return new Specification<>() {
-            private static final long serialVersionUID = 1L;
-            @Override
-            public Predicate toPredicate(Root<Questions> q, CriteriaQuery<?> query, CriteriaBuilder cb){
-                query.distinct(true); //중복 없이
-                Join<Questions,Users> u1 = q.join("author",JoinType.LEFT); //left outer join을 사용
-                Join<Questions,Replys> a = q.join("replysList",JoinType.LEFT);
-                Join<Replys, Users> u2 = q.join("author", JoinType.LEFT);
-                return cb.or(cb.like(q.get("title"),"%"+kw+"%"),//제목  or로 검색,sql문의 like %문자%와 같은 역할
-                        cb.like(q.get("content"),"%"+kw+"%"), //내용
-                        cb.like(u1.get("username"),"%"+kw+"%"), //글 작성자
-                        cb.like(a.get("content"),"%"+kw+"%"), //답변 내용
-                        cb.like(u2.get("username"),"%"+kw+"%") //답변 작성자
-                );
-            }
-        };
-    }
-
-    public Page<QuestionsListDto> searchKeyword(int page, String keyword, String selectIndex, String category) {
+    public Page<QuestionsListDto> searchCheck(int page, String category) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("uploadnumber"))); //10개씩 페이징예정
         if(category.equals("all")) {
             category = null;
         }
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start("쿼리 실행");
+        Page<QuestionsListDto> x = questionsRepository.findAllWithoutKeyword(category, pageable);
+        stopWatch.stop();
+        System.out.println("쿼리 실행 시간: " + stopWatch.getTotalTimeMillis() + "ms");
+        return x;
+        //return questionsRepository.findAllWithoutKeyword(category, pageable);
+    }
+
+    public Page<Questions> searchByKeyword(int page,String keyword,String selectIndex,String category){
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("uploadnumber"))); //10개씩 페이징예정
         if (selectIndex != null && !selectIndex.trim().isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
             switch (selectIndex) {
                 case "title":

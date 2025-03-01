@@ -46,14 +46,22 @@ public class QuestionsController { //controller에서 요청을 받아와서
                        @RequestParam(name = "selectIndex", required = false) String selectIndex,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         List<Category> searchIndex = Arrays.asList(
                 new Category("all","전체"),
+                new Category("titleContent","제목+내용"),
                 new Category("title","제목"),
                 new Category("content","내용"),
-                new Category("titleContent","제목+내용"),
-                new Category("replys","댓글"),
-                new Category("username","글쓴이")
+                new Category("username","글쓴이"),
+                new Category("replys","댓글")
         );
-
-        Page<QuestionsListDto> paging = this.questionsService.searchKeyword(page, kw, selectIndex, category);
+        Page<?> paging; //받는 타입을 동적으로 사용하기 위해서 선언
+        long startTime = System.currentTimeMillis();
+        if(kw.trim().isEmpty()) { //공백이나 null값이면 없는걸로 처리
+            paging = this.questionsService.searchCheck(page, category);
+        }
+        else{
+            paging = this.questionsService.searchByKeyword(page, kw, selectIndex, category);
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("searchCheck 실행 시간: " + (endTime - startTime) + "ms");
         int all_content_count = (int)paging.getTotalElements();
         int current_Page = paging.getNumber(); //현제 페이지
         int current_Page_Group_Start = (current_Page / 10) * 10 + 1; //현재페이지의 시작번호 10개기준이므로 mod10 = 1인거
