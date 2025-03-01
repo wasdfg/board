@@ -66,7 +66,29 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
                     "    r.content LIKE CONCAT('%', :keyword, '%') " +
                     ")",
             nativeQuery = true)
-    Page<QuestionsListDto> findAllList(@Param("keyword")String keyword,@Param("category") String category,Pageable pageable);
+    Page<Questions> findAllList(@Param("keyword")String keyword,@Param("category") String category,Pageable pageable);
+
+
+    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
+            "q.view, " +
+            "q.nowtime, " +
+            "q.user_id, " +
+            "q.title, " +
+            "COUNT(r.questions_uploadnumber) AS replysSize, " +
+            "u.nickname AS nickname " +
+            "FROM questions q " +
+            "LEFT JOIN (SELECT id,nickname FROM users) u ON q.user_id = u.id " +
+            "LEFT JOIN (SELECT questions_uploadnumber,content FROM replys) r ON q.uploadnumber = r.questions_uploadnumber " +
+            "WHERE (:category IS NULL OR q.category = :category) " +
+            "GROUP BY q.uploadnumber " +
+            "ORDER BY q.uploadnumber DESC",
+            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) " +
+                    "FROM questions q " +
+                    "LEFT JOIN users u ON q.user_id = u.id " +
+                    "LEFT JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
+                    "WHERE (:category IS NULL OR q.category = :category) ",
+            nativeQuery = true)
+    Page<QuestionsListDto> findAllWithoutKeyword(@Param("category") String category,Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
@@ -82,7 +104,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             countQuery = "SELECT COUNT(*) FROM questions q WHERE (:category IS NULL OR q.category = :category) " +
                     "AND q.title LIKE CONCAT('%', :keyword, '%')",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByTitle(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+    Page<Questions> searchByTitle(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
@@ -98,7 +120,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
             countQuery = "SELECT COUNT(*) FROM questions q WHERE (:category IS NULL OR q.category = :category) " +
                     "AND q.content LIKE CONCAT('%', :keyword, '%')",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByContent(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+    Page<Questions> searchByContent(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
@@ -118,7 +140,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
                     "WHERE (:category IS NULL OR q.category = :category) " +
                     "AND (q.title LIKE CONCAT('%', :keyword, '%') OR q.content LIKE CONCAT('%', :keyword, '%'))",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByTitleContent(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+    Page<Questions> searchByTitleContent(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
@@ -137,7 +159,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
                     "WHERE (:category IS NULL OR q.category = :category) " +
                     "AND r.content LIKE CONCAT('%', :keyword, '%')",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByReplys(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+    Page<Questions> searchByReplys(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
@@ -156,7 +178,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
                     "WHERE (:category IS NULL OR q.category = :category) " +
                     "AND u.nickname LIKE CONCAT('%', :keyword, '%')",
             nativeQuery = true)
-    Page<QuestionsListDto> searchByUsername(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
+    Page<Questions> searchByUsername(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
 }
 // CRUD 작업을 처리하는 메서드를 내장하고 있다
