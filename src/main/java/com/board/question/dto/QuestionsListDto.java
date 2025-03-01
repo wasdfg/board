@@ -1,7 +1,5 @@
 package com.board.question.dto;
 
-import com.board.user.Users;
-
 import java.time.LocalDateTime;
 
 public interface QuestionsListDto {
@@ -11,11 +9,13 @@ public interface QuestionsListDto {
 
     LocalDateTime getNowtime();
 
-    Long getUser_id();
+    Long getUserId();
 
     String getNickname();
 
     int getView();
 
     int getReplysSize();
+
+    String getCategory();
 }
