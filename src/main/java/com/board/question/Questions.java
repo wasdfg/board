@@ -2,16 +2,27 @@ package com.board.question;
 
 import com.board.reply.Replys;
 import com.board.user.Users;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor //기본 생성자 자동추가 public Question{}을 생성해준다
 @Getter
-@Setter
 @Entity //데이터베이스 entity로 사용하기 위해 선언
 public class Questions {
     @Id
@@ -29,13 +40,13 @@ public class Questions {
     private LocalDateTime modifyDate; //수정된 글의 시간
 
     @OneToMany(mappedBy = "questions",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY) //질문이 삭제되면 답변도 같이 삭제되게 cascade를 추가
-    private List<Replys> replysList; //reply 객체를 list로 담아둔다.
+    private List<Replys> replysList = new ArrayList<>(); //reply 객체를 list로 담아둔다.
     //참조하기 위해 questions.getReplysList()를 호출한다.
     //mappedBy는 참조하는 엔티티를 선언해준다.
 
     @ManyToOne //글쓴이 1명당 여러 질문을 할 수 있어 다대1로 설정
     @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private Users author;
+    private Users users;
 
     @ManyToMany
     Set<Users> voter;
@@ -46,4 +57,58 @@ public class Questions {
     @Column(nullable = false)
     private String category;
 
+    public static Questions create(String title, String content, Users users,String category){
+        Questions q = new Questions();
+        q.setTitle(title);
+        q.setContent(content);
+        q.setNowtime(LocalDateTime.now());
+        q.setUsers(users);
+        q.setCategory(category);
+        return q;
+    }
+
+    public static Questions modify(Questions questions,String title,String content){ //수정할 내용 저장
+        Questions modifyQustions = new Questions();
+        questions.setTitle(title);
+        questions.setContent(content);
+        questions.setModifyDate(LocalDateTime.now());
+        return modifyQustions;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void increaseView() {
+        this.view++;
+    }
+
+    public void setModifyDate(LocalDateTime time) {
+        this.modifyDate = time;
+    }
+
+    public void setNowtime(LocalDateTime time){
+        this.nowtime = time;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
+    public void setVoter(Set<Users> voter) {
+        this.voter = voter;
+    }
+
+    public void setReplysList(List<Replys> replysList) {
+        this.replysList = replysList;
+        replysList.add(this);
+    }
 }

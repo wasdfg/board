@@ -52,17 +52,21 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 new Category("username","글쓴이"),
                 new Category("replys","댓글")
         );
+        int all_content_count = 0;
         Page<?> paging; //받는 타입을 동적으로 사용하기 위해서 선언
         long startTime = System.currentTimeMillis();
+        System.out.println("12341521512521251");
         if(kw.trim().isEmpty()) { //공백이나 null값이면 없는걸로 처리
             paging = this.questionsService.searchCheck(page, category);
         }
         else{
             paging = this.questionsService.searchByKeyword(page, kw, selectIndex, category);
         }
+        System.out.println(paging.getNumberOfElements());
+        System.out.println(paging.getTotalPages());
         long endTime = System.currentTimeMillis();
         System.out.println("searchCheck 실행 시간: " + (endTime - startTime) + "ms");
-        int all_content_count = (int)paging.getTotalElements();
+        all_content_count = (int)paging.getTotalElements();
         int current_Page = paging.getNumber(); //현제 페이지
         int current_Page_Group_Start = (current_Page / 10) * 10 + 1; //현재페이지의 시작번호 10개기준이므로 mod10 = 1인거
         int current_Page_Group_End = Math.min(current_Page_Group_Start + 9, all_content_count); //뒷자리가 10의배수인거 또는 마지막번호 중 작은거
@@ -170,7 +174,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
             return "questions_form";
         }
         Users users = this.usersService.getUsers(principal.getName());
-        this.questionsService.create(questionsForm.getTitle(),questionsForm.getContent(),users,questionsForm.getCategory());
+        this.questionsService.createQuestions(questionsForm.getTitle(),questionsForm.getContent(),users,questionsForm.getCategory());
         return "redirect:/questions/list";
     }
 
@@ -178,7 +182,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping("/modify/{uploadnumber}")
     public String questionModify(QuestionsForm questionsForm, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        if(!questions.getAuthor().getUsername().equals(principal.getName())) {
+        if(!questions.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         questionsForm.setTitle(questions.getTitle());
@@ -193,7 +197,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
             return "questions_form";
         }
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        if(!questions.getAuthor().getUsername().equals(principal.getName())) {
+        if(!questions.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         this.questionsService.modify(questions,questionsForm.getTitle(),questionsForm.getContent());
@@ -204,7 +208,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping("/delete/{id}")
     public String questionDelete(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        if (!questions.getAuthor().getUsername().equals(principal.getName())) {
+        if (!questions.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
         this.questionsService.delete(questions);

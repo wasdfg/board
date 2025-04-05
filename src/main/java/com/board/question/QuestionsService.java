@@ -7,17 +7,12 @@ import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
 import com.board.user.Users;
-import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +30,9 @@ public class QuestionsService { //service에서 처리
 
     @Autowired
     private final QuestionsRepository questionsRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Autowired
     private final ReplysRepository replysRepository;
@@ -69,21 +67,22 @@ public class QuestionsService { //service에서 처리
         }
     }
 
-    public void create(String title, String content, Users users,String category){
-        Questions q = new Questions();
-        q.setTitle(title);
-        q.setContent(content);
-        q.setNowtime(LocalDateTime.now());
-        q.setAuthor(users);
-        q.setCategory(category);
-        this.questionsRepository.save(q);
+
+
+    @Transactional
+    public void createQuestions(String title, String content, Users users,String category){
+        Questions questions = Questions.create(title,content,users,category);
+        em.persist(questions);
+
     }
 
+    @Transactional
     public void modify(Questions questions,String title,String content){ //수정할 내용 저장
-        questions.setTitle(title);
-        questions.setContent(content);
-        questions.setModifyDate(LocalDateTime.now());
-        this.questionsRepository.save(questions);
+        Questions checkQuestions = em.find(Questions.class,questions.getUploadnumber());
+        if(checkQuestions != null){
+
+        }
+        em.persist(checkQuestions);
     }
 
     public void delete(Questions questions){
@@ -119,13 +118,18 @@ public class QuestionsService { //service에서 처리
         if(category.equals("all")) {
             category = null;
         }
+        System.out.println(category);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("쿼리 실행");
-        Page<QuestionsListDto> x = questionsRepository.findAllWithoutKeyword(category, pageable);
+        System.out.println("111111");
+        Page<QuestionsListDto> results = questionsRepository.findAllWithoutKeyword(category,pageable);
+        //Page<QuestionsListDto> results = questionsRepository.findAllWithoutKeyword(category,pageable).map(QuestionsListDto::from);
+        System.out.println("list의 사이즈는 "+results.getTotalElements());
+        long totalCount = questionsRepository.countWithoutKeyword(category);
         stopWatch.stop();
         System.out.println("쿼리 실행 시간: " + stopWatch.getTotalTimeMillis() + "ms");
-        return x;
-        //return questionsRepository.findAllWithoutKeyword(category, pageable);
+
+        return results;
     }
 
     public Page<Questions> searchByKeyword(int page,String keyword,String selectIndex,String category){
