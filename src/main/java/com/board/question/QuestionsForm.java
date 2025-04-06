@@ -1,6 +1,7 @@
 package com.board.question;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,5 +16,6 @@ public class QuestionsForm {
     @NotEmpty(message = "내용을 필수로 적어주세요.")//조건을 만족하지 않을 때 뜨는 문구
     private String content;
 
+    @NotNull(message = "카테고리를 입력해 주세요.")
     private String category;
 }

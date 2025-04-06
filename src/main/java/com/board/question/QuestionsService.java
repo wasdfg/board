@@ -8,6 +8,7 @@ import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
 import com.board.user.Users;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -78,19 +79,18 @@ public class QuestionsService { //service에서 처리
 
     @Transactional
     public void modify(Questions questions,String title,String content){ //수정할 내용 저장
-        Questions checkQuestions = em.find(Questions.class,questions.getUploadnumber());
-        if(checkQuestions != null){
-
-        }
-        em.persist(checkQuestions);
+        questions.setTitle(title);
+        questions.setContent(content);
     }
 
+    @Transactional
     public void delete(Questions questions){
         this.questionsRepository.delete(questions);
     }
 
+    @Transactional
     public void vote(Questions questions,Users users){
-        questions.getVoter().add(users); //현재 로그인한 아이디를 가져옴
+        questions.getVoter().add(users);
         this.questionsRepository.save(questions);
     }
     public Page<QuestionsBasicDto> getList(int page, Users users) {
