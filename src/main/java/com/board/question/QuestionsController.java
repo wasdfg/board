@@ -1,6 +1,5 @@
 package com.board.question;
 
-import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
 import com.board.user.Users;
@@ -11,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -221,9 +221,12 @@ public class QuestionsController { //controller에서 요청을 받아와서
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         Users users = this.usersService.getUsers(principal.getName()); // 현재 로그인한 유저의 정보를 담는다
 
-        boolean alreadyVoted = questions.getVoter().contains(users); // 이미 투표를 했는지 확인
-        if (!alreadyVoted) {
-            this.questionsService.vote(questions, users);
+        boolean alreadyVoted = false;
+
+        try {
+            this.questionsService.vote(questions, users); // 무조건 시도
+        } catch (DataIntegrityViolationException e) {
+            alreadyVoted = true; // 이미 투표한 경우 UNIQUE 제약 위반 발생
         }
 
         model.addAttribute("voted", alreadyVoted);

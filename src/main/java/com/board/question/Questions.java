@@ -74,12 +74,9 @@ public class Questions {
         return q;
     }
 
-    public static Questions modify(Questions questions,String title,String content){ //수정할 내용 저장
-        Questions modifyQustions = new Questions();
-        questions.setTitle(title);
-        questions.setContent(content);
-        questions.setModifyDate(LocalDateTime.now());
-        return modifyQustions;
+    public void modify(String title,String content){ //수정할 내용 저장
+        this.title = title;
+        this.content = content;
     }
 
     public void setTitle(String title) {

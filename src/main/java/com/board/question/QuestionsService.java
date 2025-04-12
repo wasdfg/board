@@ -31,7 +31,8 @@ public class QuestionsService { //service에서 처리
 
     @Autowired
     private final QuestionsRepository questionsRepository;
-
+    
+    /*영속성 컨택스트를 위한 코드*/
     @PersistenceContext
     private EntityManager em;
 
@@ -68,8 +69,6 @@ public class QuestionsService { //service에서 처리
         }
     }
 
-
-
     @Transactional
     public void createQuestions(String title, String content, Users users,String category){
         Questions questions = Questions.create(title,content,users,category);
@@ -79,8 +78,7 @@ public class QuestionsService { //service에서 처리
 
     @Transactional
     public void modify(Questions questions,String title,String content){ //수정할 내용 저장
-        questions.setTitle(title);
-        questions.setContent(content);
+        questions.modify(title, content);
     }
 
     @Transactional

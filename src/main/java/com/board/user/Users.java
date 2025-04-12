@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 public class Users {
     @Id
@@ -20,4 +19,16 @@ public class Users {
 
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private UsersDetail usersDetail;
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setUsersDetail(UsersDetail usersDetail) {
+        this.usersDetail = usersDetail;
+    }
 }
