@@ -17,5 +17,5 @@ public class QuestionsForm {
     private String content;
 
     @NotNull(message = "카테고리를 입력해 주세요.")
-    private String category;
+    private Category category;
 }
