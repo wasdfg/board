@@ -1,18 +1,19 @@
 package com.board.question;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
 @Getter
-@Setter
-public class Category {
-    private String value;
-    private String showValue;
+public enum Category{
+    ALL("all", "전체"),
+    FREE("free", "자유"),
+    ASK("ask", "질문"),
+    NOTICE("notice", "공지");
 
-    public Category(String value,String showValue){
-        this.showValue = showValue;
+    private final String value;
+    private final String label;
+
+    Category(String value, String label) {
         this.value = value;
+        this.label = label;
     }
 }
