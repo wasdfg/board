@@ -93,8 +93,8 @@
             <form action="#" method="get" class="d-flex align-items-center flex-nowrap">
                 <select name="selectIndex" id="select_index" class="form-select me-2"
                         style="height: 38px; flex-grow: 0; width: auto;">
-                    <option th:each="index : ${searchIndex}" th:value="${index.value}"
-                            th:text="${index.showValue}">FAST
+                    <option th:each="index : ${searchType}" th:value="${index.value}"
+                            th:text="${index.label}">FAST
                     </option>
                 </select>
                 <input type="text" name="kw" id="search_kw" class="form-control me-2" th:value="${kw}"

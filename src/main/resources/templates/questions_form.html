@@ -9,7 +9,7 @@
                 <div>글 종류</div>
                 <option value="">==글 종류 선택==</option>
                 <option th:each="category : ${categories}" th:value="${category.value}"
-                        th:text="${category.showValue}">FAST</option>
+                        th:text="${category.label}">FAST</option>
             </select>
         </div>
         <div class="mb-3">
