@@ -2,7 +2,6 @@ package com.board.question;
 
 import com.board.question.dto.QuestionsBasicDto;
 import com.board.question.dto.QuestionsListDto;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
@@ -12,25 +11,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 //JpaRepository를 상속 Question 엔티티와 기본키인 id의 자료형
 @EnableJpaRepositories
-public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
-    //Questions findByUploadNumber(int num);
+public interface QuestionsRepository extends JpaRepository<Questions,Integer>, QuestionsRepositoryCustom {
 
-    Questions findByTitle(String title); //findby형식의 사용자 정의 함수
-    Questions findByTitleAndContent(String title, String content);
-    List<Questions> findByTitleLike(String title); //title 조회해서 찾기 값이 여러개 일 수 있으므로 list에 저장
-    //@Query("select q.title,q.view,q.author,q.uploadnumber from Questions q")
-
-    //Page<Questions> findAll(Specification<Questions> spec,Pageable pageable); //검색으로 db에서 조회한 내용을 paging해서 저장
-
-    Page<Questions> findAll(Specification<Questions> spec, Pageable pageable);
-
-    Page<Questions> findByCategory(Pageable pageable,@Param("category")String category);
-
-    @Query("select new com.board.question.dto.QuestionsBasicDto(q.title,q.uploadnumber,q.nowtime) from Questions q where q.author.username = :username")
+    @Query("select new com.board.question.dto.QuestionsBasicDto(q.title,q.uploadnumber,q.nowtime) from Questions q where q.users.username = :username")
     Page<QuestionsBasicDto> findByUser(@Param("username")String username, Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
@@ -69,26 +54,14 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer> {
     Page<Questions> findAllList(@Param("keyword")String keyword,@Param("category") String category,Pageable pageable);
 
 
-    @Query(value = "SELECT DISTINCT q.uploadnumber, " +
-            "q.view, " +
-            "q.nowtime, " +
-            "q.user_id, " +
-            "q.title, " +
-            "COUNT(r.questions_uploadnumber) AS replysSize, " +
-            "u.nickname AS nickname " +
-            "FROM questions q " +
-            "LEFT JOIN (SELECT id,nickname FROM users) u ON q.user_id = u.id " +
-            "LEFT JOIN (SELECT questions_uploadnumber,content FROM replys) r ON q.uploadnumber = r.questions_uploadnumber " +
-            "WHERE (:category IS NULL OR q.category = :category) " +
-            "GROUP BY q.uploadnumber " +
-            "ORDER BY q.uploadnumber DESC",
-            countQuery = "SELECT COUNT(DISTINCT q.uploadnumber) " +
-                    "FROM questions q " +
-                    "LEFT JOIN users u ON q.user_id = u.id " +
-                    "LEFT JOIN replys r ON q.uploadnumber = r.questions_uploadnumber " +
-                    "WHERE (:category IS NULL OR q.category = :category) ",
+    @Query(value = "SELECT q FROM Questions q LEFT JOIN FETCH q.users LEFT JOIN FETCH q.replysList WHERE (:category IS NULL OR q.category = :category)")
+    Page<QuestionsListDto> findAllWithoutKeyword(@Param("category") Category category,Pageable pageable);
+
+    @Query(value = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q "
+            + "LEFT JOIN users u ON q.user_id = u.id "
+            + "WHERE (:category IS NULL OR q.category = :category)",
             nativeQuery = true)
-    Page<QuestionsListDto> findAllWithoutKeyword(@Param("category") String category,Pageable pageable);
+    long countWithoutKeyword(@Param("category") Category category);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
