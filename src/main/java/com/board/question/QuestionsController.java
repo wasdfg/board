@@ -1,5 +1,6 @@
 package com.board.question;
 
+import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
 import com.board.user.Users;
@@ -41,27 +42,13 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model,@RequestParam(value = "page", defaultValue = "0") int page,
-                       @RequestParam(value = "kw", defaultValue = "") String kw,
-                       @RequestParam(value = "category", defaultValue = "all") String category,
-                       @RequestParam(name = "selectIndex", required = false) String selectIndex,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
-        List<Category> searchIndex = Arrays.asList(
-                new Category("all","전체"),
-                new Category("titleContent","제목+내용"),
-                new Category("title","제목"),
-                new Category("content","내용"),
-                new Category("username","글쓴이"),
-                new Category("replys","댓글")
-        );
+                       @RequestParam(value = "kw", defaultValue = "") String keyword,
+                       @RequestParam(value = "category", defaultValue = "all") Category category,
+                       @RequestParam(name = "searchType", required = false) SearchType searchType,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         int all_content_count = 0;
-        Page<?> paging; //받는 타입을 동적으로 사용하기 위해서 선언
         long startTime = System.currentTimeMillis();
         System.out.println("12341521512521251");
-        if(kw.trim().isEmpty()) { //공백이나 null값이면 없는걸로 처리
-            paging = this.questionsService.searchCheck(page, category);
-        }
-        else{
-            paging = this.questionsService.searchByKeyword(page, kw, selectIndex, category);
-        }
+        Page<QuestionsListDto> paging = questionsService.getList(page,category,keyword,searchType);
         System.out.println(paging.getNumberOfElements());
         System.out.println(paging.getTotalPages());
         long endTime = System.currentTimeMillis();
@@ -96,7 +83,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
             }
         }
         model.addAttribute("readQuestions", readQuestions); //읽은 글을 확인
-        model.addAttribute("searchIndex",searchIndex);
+        model.addAttribute("searchType",SearchType.values());
+        model.addAttribute("category",category.values());
         model.addAttribute("paging",paging);
         model.addAttribute("all_content_count",all_content_count);
         model.addAttribute("currentPageGroupStart", current_Page_Group_Start);
@@ -158,12 +146,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @PreAuthorize("isAuthenticated()") //로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
     @GetMapping("/create")
     public String questionsCreate(QuestionsForm questionsForm,Model model){
-        List<Category> categories = Arrays.asList(
-                new Category("free", "자유"),
-                new Category("ask", "질문"),
-                new Category("notice", "공지")
-        );
-        model.addAttribute("categories", categories);
+        model.addAttribute("categories", Category.values());
         return "questions_form";
     }
 

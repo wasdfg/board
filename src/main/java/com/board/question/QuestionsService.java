@@ -70,7 +70,7 @@ public class QuestionsService { //service에서 처리
     }
 
     @Transactional
-    public void createQuestions(String title, String content, Users users,String category){
+    public void createQuestions(String title, String content, Users users,Category category){
         Questions questions = Questions.create(title,content,users,category);
         em.persist(questions);
 
@@ -101,17 +101,17 @@ public class QuestionsService { //service에서 처리
         return this.questionsRepository.findByUser(users.getUsername(),pageable);
     }
 
-    public Page<Questions> getList(int page) {
+    public Page<QuestionsListDto> getList(int page,Category category,String keyword,SearchType searchType) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
                 Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.questionsRepository.findAll(pageable);
+        return this.questionsRepository.searchPage(category,keyword,searchType,pageable);
     }
 
-    public Page<QuestionsListDto> searchCheck(int page, String category) {
+    public Page<QuestionsListDto> searchCheck(int page, Category category) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("uploadnumber"))); //10개씩 페이징예정
         if(category.equals("all")) {
             category = null;
