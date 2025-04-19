@@ -64,13 +64,13 @@ public class Questions {
     @Column(nullable = false)
     private String category;
 
-    public static Questions create(String title, String content, Users users,String category){
+    public static Questions create(String title, String content, Users users,Category category){
         Questions q = new Questions();
         q.setTitle(title);
         q.setContent(content);
         q.setNowtime(LocalDateTime.now());
         q.setUsers(users);
-        q.setCategory(category);
+        q.setCategory(category.getValue());
         return q;
     }
 
