@@ -16,7 +16,7 @@ public class QuestionsListDto {
     private int view;
     private int replysSize;
     private String nickname;
-    private List<String> replyContents;  // 추가된 부분
+    private List<String> replyContents;
 
     public QuestionsListDto(Integer uploadnumber, String title, String content,
                             LocalDateTime nowtime, String category, int view,
