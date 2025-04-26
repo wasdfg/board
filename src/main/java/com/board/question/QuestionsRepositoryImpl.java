@@ -23,13 +23,18 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
     @Override
     public Page<QuestionsListDto> searchPage(Category category,String keyword,SearchType searchType,Pageable pageable) {
         StringBuilder jpql = new StringBuilder();
-        jpql.append("SELECT DISTINCT new com.example.dto.QuestionsListDto(q.uploadnumber, q.title, q.users.nickname, q.nowtime) ");
-        jpql.append("FROM Questions q ");
+        jpql.append("SELECT DISTINCT new com.board.question.dto.QuestionsListDto(" +
+                "q.uploadnumber, q.title, q.content, q.nowtime, q.category, q.view, " +
+                "SIZE(q.replysList), u.nickname, null) " +
+                "FROM Questions q ");
 
-        // 댓글 검색일 경우에만 join
+        // 필요한 경우에만 댓글 JOIN
         if (searchType == SearchType.REPLYS || searchType == SearchType.ALL) {
             jpql.append("LEFT JOIN q.replysList r ");
         }
+
+        // users는 항상 조인 (nickname 검색하려면 필요)
+        jpql.append("JOIN q.users u ");
 
         jpql.append("WHERE 1=1 ");
 
@@ -37,7 +42,6 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
             jpql.append("AND q.category = :category ");
         }
 
-        // 키워드에 따른 검색 조건
         if (keyword != null && !keyword.isBlank()) {
             keyword = "%" + keyword + "%";
             switch (searchType) {
@@ -51,27 +55,18 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
                     jpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword) ");
                     break;
                 case USERNAME:
-                    jpql.append("AND q.users.nickname LIKE :keyword ");
+                    jpql.append("AND u.nickname LIKE :keyword ");
                     break;
                 case REPLYS:
                     jpql.append("AND r.content LIKE :keyword ");
                     break;
                 case ALL:
-                    jpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword ")
-                            .append("OR q.users.nickname LIKE :keyword OR r.content LIKE :keyword) ");
+                    jpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword " +
+                            "OR u.nickname LIKE :keyword OR r.content LIKE :keyword) ");
                     break;
             }
         }
-
-        // 정렬
-        if (pageable.getSort().isSorted()) {
-            jpql.append("ORDER BY ");
-            List<String> orders = new ArrayList<>();
-            for (Sort.Order order : pageable.getSort()) {
-                orders.add("q." + order.getProperty() + " " + order.getDirection().name());
-            }
-            jpql.append(String.join(", ", orders));
-        }
+        jpql.append("ORDER BY q.uploadnumber DESC ");
 
         TypedQuery<QuestionsListDto> query = entityManager.createQuery(jpql.toString(), QuestionsListDto.class);
 
@@ -89,13 +84,19 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
         // Count 쿼리
         StringBuilder countJpql = new StringBuilder();
         countJpql.append("SELECT COUNT(DISTINCT q) FROM Questions q ");
+
         if (searchType == SearchType.REPLYS || searchType == SearchType.ALL) {
             countJpql.append("LEFT JOIN q.replysList r ");
         }
+
+        countJpql.append("JOIN q.users u "); // users 닉네임 검색 대비
+
         countJpql.append("WHERE 1=1 ");
+
         if (category != null && category != Category.ALL) {
             countJpql.append("AND q.category = :category ");
         }
+
         if (keyword != null && !keyword.isBlank()) {
             switch (searchType) {
                 case TITLE:
@@ -108,14 +109,14 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
                     countJpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword) ");
                     break;
                 case USERNAME:
-                    countJpql.append("AND q.users.nickname LIKE :keyword ");
+                    countJpql.append("AND u.nickname LIKE :keyword ");
                     break;
                 case REPLYS:
                     countJpql.append("AND r.content LIKE :keyword ");
                     break;
                 case ALL:
-                    countJpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword ")
-                            .append("OR q.users.nickname LIKE :keyword OR r.content LIKE :keyword) ");
+                    countJpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword " +
+                            "OR u.nickname LIKE :keyword OR r.content LIKE :keyword) ");
                     break;
             }
         }
