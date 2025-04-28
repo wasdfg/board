@@ -44,10 +44,10 @@ public class QuestionsController { //controller에서 요청을 받아와서
     public String list(Model model,@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String keyword,
                        @RequestParam(value = "category", defaultValue = "ALL") Category category,
-                       @RequestParam(name = "searchType", required = false) SearchType searchType,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
+                       @RequestParam(name = "searchType", defaultValue = "ALL") SearchType searchType,HttpSession session, HttpServletRequest request,Principal principal){//매개변수를 model로 지정하면 객체가 자동으로 생성된다.
         int all_content_count = 0;
         long startTime = System.currentTimeMillis();
-        System.out.println("12341521512521251");
+        System.out.println("category param: " + category);
         Page<QuestionsListDto> paging = questionsService.getList(page,category,keyword,searchType);
         System.out.println(paging.getNumberOfElements());
         System.out.println(paging.getTotalPages());
@@ -57,7 +57,6 @@ public class QuestionsController { //controller에서 요청을 받아와서
         int current_Page = paging.getNumber(); //현제 페이지
         int current_Page_Group_Start = (current_Page / 10) * 10 + 1; //현재페이지의 시작번호 10개기준이므로 mod10 = 1인거
         int current_Page_Group_End = Math.min(current_Page_Group_Start + 9, all_content_count); //뒷자리가 10의배수인거 또는 마지막번호 중 작은거
-
 
         Set<Integer> readQuestions = new HashSet<>(); //세션이나 쿠키를 가져와서 저장할 공간
         principal = request.getUserPrincipal();
@@ -83,8 +82,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
             }
         }
         model.addAttribute("readQuestions", readQuestions); //읽은 글을 확인
-        model.addAttribute("searchType",SearchType.values());
-        model.addAttribute("category",category.values());
+        model.addAttribute("searchTypeList",SearchType.values());
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("category",category);
         model.addAttribute("paging",paging);
         model.addAttribute("all_content_count",all_content_count);
         model.addAttribute("currentPageGroupStart", current_Page_Group_Start);
