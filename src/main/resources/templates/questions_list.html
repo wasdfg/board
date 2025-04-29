@@ -1,28 +1,20 @@
-<html layout:decorate="~{layout}"><!--공용 레이아웃 추가-->
+<html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
-    <div class="container">
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="button-table">
-                    <div class="button-cell">
-                        <button class="categoryButton btn btn-primary" onclick="updateCategory('all')">전체 게시글</button>
-                    </div>
-                    <div class="button-cell">
-                        <button class="categoryButton btn btn-primary" onclick="updateCategory('free')">자유 게시글</button>
-                    </div>
-                    <div class="button-cell">
-                        <button class="categoryButton btn btn-primary" onclick="updateCategory('ask')">질문 게시글</button>
-                    </div>
-                    <div class="button-cell">
-                        <button class="categoryButton btn btn-primary" onclick="updateCategory('notice')">공지 게시글</button>
-                    </div>
-                </div>
-            </div>
+
+    <!-- 카테고리 버튼 -->
+    <div class="row my-3">
+        <div class="col-12 d-flex flex-wrap justify-content-center gap-2">
+            <button class="btn btn-primary" onclick="updateCategory('ALL')">전체 게시글</button>
+            <button class="btn btn-primary" onclick="updateCategory('FREE')">자유 게시글</button>
+            <button class="btn btn-primary" onclick="updateCategory('ASK')">질문 게시글</button>
+            <button class="btn btn-primary" onclick="updateCategory('NOTICE')">공지 게시글</button>
         </div>
     </div>
+
+    <!-- 게시글 목록 테이블 -->
     <table class="table table-bordered table-hover">
-        <thead class="table-dark">
-        <tr class="text-center">
+        <thead class="table-dark text-center">
+        <tr>
             <th>번호</th>
             <th style="width:50%">제목</th>
             <th>글쓴이</th>
@@ -31,7 +23,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr class="text-center" th:each="questions, loop : ${paging.content}" th:data-id="${questions.uploadnumber}"
+        <tr class="text-center" th:each="questions, loop : ${paging.content}"
+            th:data-id="${questions.uploadnumber}"
             th:classappend="${readQuestions.contains(questions.uploadnumber)} ? 'read' : ''">
             <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
             <td class="text-start">
@@ -46,244 +39,93 @@
         </tbody>
     </table>
 
-    <!--댓글 등록하기-->
-    <div style="width: 100%; display: flex; justify-content: flex-end;">
+    <!-- 글 작성 버튼 -->
+    <div class="d-flex justify-content-end my-2">
         <a th:href="@{/questions/create}" class="btn btn-primary">글 작성하기</a>
     </div>
-    <!-- 페이징버튼처리 시작 -->
+
+    <!-- 페이징 -->
     <div th:if="${!paging.isEmpty()}">
         <ul class="pagination justify-content-center">
 
-            <!-- 이전 버튼 -->
-            <li class="page-item"
-                th:classappend="${paging.number < 10} ? 'disabled'">
+            <!-- 이전 -->
+            <li class="page-item" th:classappend="${paging.number < 10} ? 'disabled'">
                 <a class="page-link" href="javascript:void(0)"
-                   th:data-page="${(paging.number / 10 - 1) * 10}"
-                   th:if="${paging.number >= 10}">
-                    <span>이전</span>
-                </a>
+                   th:data-page="${(paging.number / 10 - 1) * 10}">이전</a>
             </li>
 
-            <!-- 페이지 번호 버튼 -->
+            <!-- 페이지 번호 -->
             <li th:each="page: ${#numbers.sequence(currentPageGroupStart, currentPageGroupEnd)}"
-                th:classappend="${page == paging.number + 1} ? 'active'"
-                class="page-item">
+                th:classappend="${page == paging.number + 1} ? 'active'" class="page-item">
                 <a th:text="${page}" class="page-link" href="javascript:void(0)"
                    th:data-page="${page - 1}"></a>
             </li>
 
-            <!-- 다음 버튼 -->
-            <li class="page-item"
-                th:classappend="${paging.number + 1 >= paging.totalPages} ? 'disabled'">
+            <!-- 다음 -->
+            <li class="page-item" th:classappend="${paging.number + 1 >= paging.totalPages} ? 'disabled'">
                 <a class="page-link" href="javascript:void(0)"
-                   th:data-page="${(paging.number / 10 + 1) * 10}"
-                   th:if="${paging.number + 1 < paging.totalPages}">
-                    <span>다음</span>
-                </a>
+                   th:data-page="${(paging.number / 10 + 1) * 10}">다음</a>
             </li>
 
         </ul>
     </div>
 
-    <!-- 페이징처리 끝 -->
 
-    <!--검색 창-->
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <form action="#" method="get" class="d-flex align-items-center flex-nowrap">
-                <select name="selectIndex" id="select_index" class="form-select me-2"
-                        style="height: 38px; flex-grow: 0; width: auto;">
-                    <option th:each="index : ${searchType}" th:value="${index.value}"
-                            th:text="${index.label}">FAST
-                    </option>
+    <div class="row justify-content-center my-4">
+        <div class="col-lg-8">
+        <!-- 검색창 -->
+            <form th:action="@{/questions/list}" method="get" class="d-flex" id="searchForm">
+                <input type="hidden" name="category" id="category" th:value="${category != null ? category : 'ALL'}">
+                <select name="searchType" id="searchType" class="form-select me-2" style="width: auto;">
+                    <option th:each="type : ${searchTypeList}" th:value="${type.name()}" th:text="${type.label}">ALL</option>
                 </select>
-                <input type="text" name="kw" id="search_kw" class="form-control me-2" th:value="${kw}"
-                       style="height: 38px; flex-grow: 1; min-width: 200px;" placeholder="검색어를 입력하세요">
-                <button class="btn btn-outline-secondary" type="submit" id="btn_search"
-                        style="height: 38px; flex-grow: 0; white-space: nowrap;">찾기
-                </button>
+                <input type="text" name="kw" id="search_kw" class="form-control me-2"
+                    th:value="${kw}" placeholder="검색어를 입력하세요">
+                <button class="btn btn-outline-secondary" style="display: block; width: 12%;" type="submit" id="btn_search">찾기</button>
+                <input type="hidden" name="page" id="page" th:value="${paging.number}">
             </form>
         </div>
     </div>
-
-    <form th:action="@{/questions/list}" method="get" id="searchForm">
-        <input type="hidden" id="category" name="category" th:value="${category != null?category:'all'}">
-        <input type="hidden" id="selectIndex" name="selectIndex" th:value="${selectIndex}">
-        <input type="hidden" id="kw" name="kw" th:value="${kw}">
-        <input type="hidden" id="page" name="page" th:value="${paging.number}">
-    </form>
 </div>
-<script layout:fragment="script" type='text/javascript'>
-document.addEventListener('DOMContentLoaded', (event) => {
-    // 페이지 링크 클릭 이벤트 리스너 등록
-    const page_elements = document.getElementsByClassName("page-link");
-    Array.from(page_elements).forEach(function(element) {
-        element.removeEventListener('click', handlePageClick); // 중복 등록 방지
-        element.addEventListener('click', handlePageClick);
-    });
 
-    // 검색 버튼 클릭 이벤트 리스너 등록
-    const btn_search = document.getElementById("btn_search");
-    if (btn_search) {
-        btn_search.removeEventListener('click', handleSearchClick); // 중복 등록 방지
-        btn_search.addEventListener('click', handleSearchClick);
-    }
-
-    // URL 파라미터에서 값을 읽어와서 selectbox와 검색어 필드를 설정
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchKeyword = urlParams.get('kw');
-    const selectIndex = urlParams.get('selectIndex');
-    const category = urlParams.get('category');
-
-    if (searchKeyword) {
-        const searchKeywordInput = document.getElementById('search_kw');
-        if (searchKeywordInput) {
-            searchKeywordInput.value = searchKeyword;
-        }
-    }
-
-    if (selectIndex) {
-        const selectIndexInput = document.getElementById('select_index');
-        if (selectIndexInput) {
-            selectIndexInput.value = selectIndex;
-        }
-    }
-
-    if (category) {
-        const categoryInput = document.getElementById('category');
-        if (categoryInput) {
-            categoryInput.value = category;
-        }
-    }
-});
-
-function handlePageClick(event) {
-    event.preventDefault(); // 기본 동작 방지
-    event.stopPropagation(); // 이벤트 버블링 방지
-
-    // 현재 URL에서 파라미터 읽기
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-    const searchKeyword = urlParams.get('kw');
-    const selectIndex = urlParams.get('selectIndex');
-
-    // 클릭한 페이지 번호 가져오기
-    const page = this.dataset.page;
-
-    // hidden 필드 값 설정
-    const pageInput = document.getElementById('page');
-    if (pageInput) {
-        pageInput.value = page;
-    }
-
-    const categoryInput = document.getElementById('category');
-    if (categoryInput) {
-        categoryInput.value = category || ''; // category가 없으면 빈 문자열로 설정
-    }
-
-    const kwInput = document.getElementById('kw');
-    if (kwInput) {
-        kwInput.value = searchKeyword || ''; // 검색어가 없으면 빈 문자열로 설정
-    }
-
-    const selectIndexInput = document.getElementById('selectIndex');
-    if (selectIndexInput) {
-        selectIndexInput.value = selectIndex || ''; // selectIndex가 없으면 빈 문자열로 설정
-    }
-
-    // 폼 제출
+<!-- 스크립트 -->
+<script layout:fragment="script" type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+    const pageLinks = document.querySelectorAll('.page-link');
     const searchForm = document.getElementById('searchForm');
-    if (searchForm) {
-        searchForm.submit();
-    }
-}
-
-function handleSearchClick(event) {
-    event.preventDefault(); // 기본 동작 방지
-    event.stopPropagation(); // 이벤트 버블링 방지
-
-    // 검색어를 숨겨진 필드에 설정
-    const searchKeywordInput = document.getElementById('search_kw');
-    const kwInput = document.getElementById('kw');
-    if (kwInput && searchKeywordInput) {
-        kwInput.value = searchKeywordInput.value;
-    }
-
-    // 선택 인덱스를 숨겨진 필드에 설정
-    const selectIndex = document.getElementById('select_index');
-    const selectIndexHiddenInput = document.getElementById('selectIndex');
-    if (selectIndexHiddenInput && selectIndex) {
-        selectIndexHiddenInput.value = selectIndex.value;
-    }
-
-    // 현재 선택된 카테고리 값을 숨겨진 필드에 설정
-    const categoryInput = document.getElementById('category');
-    const category = categoryInput ? categoryInput.value : '';
-    const categoryHiddenInput = document.getElementById('category');
-    if (categoryHiddenInput) {
-        categoryHiddenInput.value = category;
-    }
-
-    // 페이지를 첫 페이지로 설정
     const pageInput = document.getElementById('page');
-    if (pageInput) {
-        pageInput.value = 0;
-    }
 
-    // 폼 제출
-    const searchForm = document.getElementById('searchForm');
-    if (searchForm) {
-        searchForm.submit();
-    }
-}
+    const goToPage = (page) => {
+        if (searchForm) {
+            pageInput.value = page;
+            searchForm.submit();
+        }
+    };
 
-function updateCategory(category) {
-    const categoryInput = document.getElementById('category');
-    if (categoryInput) {
-        categoryInput.value = category;
-    }
-
-    // 검색어를 빈 값으로 설정
-    const kwInput = document.getElementById('kw');
-    if (kwInput) {
-        kwInput.value = '';
-    }
-
-    // 선택 인덱스 값을 가져와서 숨겨진 필드에 설정
-    const selectIndexInput = document.getElementById('select_index');
-    const selectIndexHiddenInput = document.getElementById('selectIndex');
-    if (selectIndexHiddenInput && selectIndexInput) {
-        selectIndexHiddenInput.value = selectIndexInput.value;
-    }
-
-    // 페이지를 첫 페이지로 설정
-    const pageInput = document.getElementById('page');
-    if (pageInput) {
-        pageInput.value = 0;
-    }
-
-    // 폼 제출
-    const searchForm = document.getElementById('searchForm');
-    if (searchForm) {
-        searchForm.submit();
-    }
-}
-document.addEventListener('DOMContentLoaded', function() {
-        const rows = document.querySelectorAll('tbody tr');
-
-        rows.forEach(row => {
-            row.addEventListener('click', function() {
-                // 클릭된 행에 'clicked' 클래스 추가
-                rows.forEach(r => r.classList.remove('clicked'));
-                this.classList.add('clicked');
-
-                // 클릭된 행의 data-id 속성을 사용하여 페이지 이동
-                const id = this.getAttribute('data-id');
-                if (id) {
-                    window.location.href = `/questions/detail/${id}`;
-                }
-            });
+    pageLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = e.target.dataset.page;
+            if (page) goToPage(page);
         });
     });
+
+    // 게시글 클릭 시 이동
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('click', () => {
+            const id = row.dataset.id;
+            if (id) {
+                window.location.href = `/questions/detail/${id}`;
+            }
+        });
+    });
+
+    // 카테고리 버튼 클릭 시
+    window.updateCategory = (category) => {
+        document.getElementById('category').value = category.toUpperCase();
+        pageInput.value = 0;
+        searchForm.submit();
+    };
+});
 </script>
 </html>

@@ -85,6 +85,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
         model.addAttribute("searchTypeList",SearchType.values());
         model.addAttribute("searchType", searchType);
         model.addAttribute("category",category);
+        model.addAttribute("kw", keyword);
         model.addAttribute("paging",paging);
         model.addAttribute("all_content_count",all_content_count);
         model.addAttribute("currentPageGroupStart", current_Page_Group_Start);
