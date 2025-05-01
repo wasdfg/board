@@ -94,7 +94,6 @@ public class QuestionsService { //service에서 처리
     public Page<QuestionsBasicDto> getList(int page, Users users) {
         List<Sort.Order> sorts = new ArrayList<>();
         Sort multiSort = Sort.by(
-                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
                 Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
         );
         Pageable pageable = PageRequest.of(page, 10,multiSort);
@@ -102,13 +101,13 @@ public class QuestionsService { //service에서 처리
     }
 
     public Page<QuestionsListDto> getList(int page,Category category,String keyword,SearchType searchType) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        Sort multiSort = Sort.by(
-                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
-                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
-        );
-        Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.questionsRepository.searchPage(category,keyword,searchType,pageable);
+        Pageable pageable = PageRequest.of(page, 10);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return questionsRepository.findAllWithoutKeyword(category, pageable);
+        } else {
+            return this.questionsRepository.searchPage(category,keyword,searchType,pageable);
+        }
+
     }
 
     public Page<QuestionsListDto> searchCheck(int page, Category category) {

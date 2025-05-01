@@ -54,7 +54,31 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer>, Q
     Page<Questions> findAllList(@Param("keyword")String keyword,@Param("category") String category,Pageable pageable);
 
 
-    @Query(value = "SELECT q FROM Questions q LEFT JOIN FETCH q.users LEFT JOIN FETCH q.replysList WHERE (:category IS NULL OR q.category = :category)")
+    @Query(value = """
+    SELECT 
+        q.uploadnumber,
+        q.title,
+        q.content,
+        q.nowtime,
+        q.category,
+        q.view,
+        u.nickname,
+        (
+            SELECT COUNT(*) 
+            FROM replys r 
+            WHERE r.questions_uploadnumber = q.uploadnumber
+        ) AS replysCount
+    FROM 
+        questions q
+    JOIN users u ON q.user_id = u.id
+    WHERE q.category = :category
+    ORDER BY q.uploadnumber DESC
+    """,
+            countQuery = """
+        SELECT COUNT(*) FROM questions q
+        WHERE q.category = :category
+    """,
+            nativeQuery = true)
     Page<QuestionsListDto> findAllWithoutKeyword(@Param("category") Category category,Pageable pageable);
 
     @Query(value = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q "

@@ -8,38 +8,84 @@ import org.springframework.data.repository.query.Param;
 
 public interface QuestionsRepositoryCustom {
 
-    @Query(value = "SELECT " +
-            "    q.uploadnumber, " +
-            "    q.title, " +
-            "    q.content, " +
-            "    q.nowtime, " +
-            "    q.category, " +
-            "    q.view, " +
-            "    COUNT(r.uploadnumber) AS replysCount, " +
-            "    u.nickname " +
-            "FROM " +
-            "    questions q " +
-            "JOIN " +
-            " users u ON q.user_id = u.id " +
-            "LEFT JOIN " +
-            "    replys r ON r.questions_uploadnumber = q.uploadnumber "+
-            "WHERE q.category = :category " +
-            "AND (" +
-            "    :keyword IS NULL OR ( " +
-            "       ( :searchType = 'ALL' AND (" +
-            "            q.title LIKE CONCAT(:keyword, '%') OR " +
-            "            q.content LIKE CONCAT(:keyword, '%') OR " +
-            "            u.nickname LIKE CONCAT(:keyword, '%') OR " +
-            "            r.content LIKE CONCAT(:keyword, '%')" +
-            "        ) ) " +
-            "        OR :searchType = 'TITLE' AND q.title LIKE CONCAT(:keyword, '%')" +
-            "        OR :searchType = 'CONTENT' AND q.content LIKE CONCAT(:keyword, '%')" +
-            "        OR :searchType = 'USERNAME' AND u.nickname LIKE CONCAT(:keyword, '%')" +
-            "        OR :searchType = 'REPLYS' AND r.content LIKE CONCAT(:keyword, '%')" +
-            "        OR :searchType = 'TITLE_CONTENT' AND (q.title LIKE CONCAT(:keyword, '%') OR q.content LIKE CONCAT(:keyword, '%'))" +
-            " ) " +
-            "    ) " +
-            "GROUP BY " +
-            "    q.uploadnumber ", nativeQuery = true)
+    @Query(value = """
+        SELECT 
+            q.uploadnumber,
+            q.title,
+            q.content,
+            q.nowtime,
+            q.category,
+            q.view,
+            (
+                SELECT COUNT(*) FROM replys r 
+                WHERE r.questions_uploadnumber = q.uploadnumber
+            ) AS replysCount,
+            u.nickname
+        FROM 
+            questions q
+        JOIN users u ON q.user_id = u.id
+        WHERE 
+            q.category = :category
+            AND (
+                :keyword IS NULL OR (
+                    (:searchType = 'ALL' AND (
+                        q.title LIKE CONCAT(:keyword, '%') OR
+                        q.content LIKE CONCAT(:keyword, '%') OR
+                        u.nickname LIKE CONCAT(:keyword, '%') OR
+                        EXISTS (
+                            SELECT 1 FROM replys r
+                            WHERE r.questions_uploadnumber = q.uploadnumber
+                            AND r.content LIKE CONCAT(:keyword, '%')
+                        )
+                    )) OR
+                    (:searchType = 'TITLE' AND q.title LIKE CONCAT(:keyword, '%')) OR
+                    (:searchType = 'CONTENT' AND q.content LIKE CONCAT(:keyword, '%')) OR
+                    (:searchType = 'USERNAME' AND u.nickname LIKE CONCAT(:keyword, '%')) OR
+                    (:searchType = 'REPLYS' AND EXISTS (
+                        SELECT 1 FROM replys r
+                        WHERE r.questions_uploadnumber = q.uploadnumber
+                        AND r.content LIKE CONCAT(:keyword, '%')
+                    )) OR
+                    (:searchType = 'TITLE_CONTENT' AND (
+                        q.title LIKE CONCAT(:keyword, '%') OR
+                        q.content LIKE CONCAT(:keyword, '%')
+                    ))
+                )
+            )
+        ORDER BY q.uploadnumber DESC
+    """,
+            countQuery = """
+        SELECT COUNT(*) FROM questions q
+        JOIN users u ON q.user_id = u.id
+        WHERE 
+            q.category = :category
+            AND (
+                :keyword IS NULL OR (
+                    (:searchType = 'ALL' AND (
+                        q.title LIKE CONCAT(:keyword, '%') OR
+                        q.content LIKE CONCAT(:keyword, '%') OR
+                        u.nickname LIKE CONCAT(:keyword, '%') OR
+                        EXISTS (
+                            SELECT 1 FROM replys r
+                            WHERE r.questions_uploadnumber = q.uploadnumber
+                            AND r.content LIKE CONCAT(:keyword, '%')
+                        )
+                    )) OR
+                    (:searchType = 'TITLE' AND q.title LIKE CONCAT(:keyword, '%')) OR
+                    (:searchType = 'CONTENT' AND q.content LIKE CONCAT(:keyword, '%')) OR
+                    (:searchType = 'USERNAME' AND u.nickname LIKE CONCAT(:keyword, '%')) OR
+                    (:searchType = 'REPLYS' AND EXISTS (
+                        SELECT 1 FROM replys r
+                        WHERE r.questions_uploadnumber = q.uploadnumber
+                        AND r.content LIKE CONCAT(:keyword, '%')
+                    )) OR
+                    (:searchType = 'TITLE_CONTENT' AND (
+                        q.title LIKE CONCAT(:keyword, '%') OR
+                        q.content LIKE CONCAT(:keyword, '%')
+                    ))
+                )
+            )
+    """,
+            nativeQuery = true)
     Page<QuestionsListDto> searchPage(@Param("category") Category category,@Param("keyword") String keyword,@Param("searchType") SearchType searchType, Pageable pageable);
 }
