@@ -16,121 +16,138 @@ import java.util.List;
 public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
+
 
     @Override
-    public Page<QuestionsListDto> searchPage(Category category,String keyword,SearchType searchType,Pageable pageable) {
-        StringBuilder jpql = new StringBuilder();
-        jpql.append("SELECT DISTINCT new com.board.question.dto.QuestionsListDto(" +
-                "q.uploadnumber, q.title, q.content, q.nowtime, q.category, q.view, " +
-                "SIZE(q.replysList), u.nickname, null) " +
-                "FROM Questions q ");
+    public Page<QuestionsListDto> searchPage(Category category, String keyword, SearchType searchType, Pageable pageable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("""
+            SELECT new com.board.question.dto.QuestionsListDtoImpl(
+                q.uploadnumber, q.title, q.content, q.nowtime, q.category, q.view,
+                (SELECT COUNT(r) FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber),
+                u.nickname
+            )
+            FROM Questions q
+            JOIN q.users u
+            WHERE 1 = 1
+        """);
 
-        // 필요한 경우에만 댓글 JOIN
-        if (searchType == SearchType.REPLYS || searchType == SearchType.ALL) {
-            jpql.append("LEFT JOIN q.replysList r ");
-        }
-
-        // users는 항상 조인 (nickname 검색하려면 필요)
-        jpql.append("JOIN q.users u ");
-
-        jpql.append("WHERE 1=1 ");
-
-        if (category != null && category != Category.ALL) {
-            jpql.append("AND q.category = :category ");
+        if (!"ALL".equals(category)) {
+            sb.append(" AND q.category = :category");
         }
 
         if (keyword != null && !keyword.isBlank()) {
-            keyword = keyword + "%";
+            sb.append(" AND (");
             switch (searchType) {
-                case TITLE:
-                    jpql.append("AND q.title LIKE :keyword ");
-                    break;
-                case CONTENT:
-                    jpql.append("AND q.content LIKE :keyword ");
-                    break;
-                case TITLE_CONTENT:
-                    jpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword) ");
-                    break;
-                case USERNAME:
-                    jpql.append("AND u.nickname LIKE :keyword ");
-                    break;
-                case REPLYS:
-                    jpql.append("AND r.content LIKE :keyword ");
-                    break;
-                case ALL:
-                    jpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword " +
-                            "OR u.nickname LIKE :keyword OR r.content LIKE :keyword) ");
-                    break;
+                case ALL -> sb.append("""
+                    q.title LIKE CONCAT(:keyword, '%') OR
+                    q.content LIKE CONCAT(:keyword, '%') OR
+                    u.nickname LIKE CONCAT(:keyword, '%') OR
+                    EXISTS (
+                        SELECT 1 FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber
+                        AND r.content LIKE CONCAT(:keyword, '%')
+                    )
+                """);
+                case TITLE -> sb.append("q.title LIKE CONCAT(:keyword, '%')");
+                case CONTENT -> sb.append("q.content LIKE CONCAT(:keyword, '%')");
+                case USERNAME -> sb.append("u.nickname LIKE CONCAT(:keyword, '%')");
+                case REPLYS -> sb.append("""
+                    EXISTS (
+                        SELECT 1 FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber
+                        AND r.content LIKE CONCAT(:keyword, '%')
+                    )
+                """);
+                case TITLE_CONTENT -> sb.append("""
+                    q.title LIKE CONCAT(:keyword, '%') OR
+                    q.content LIKE CONCAT(:keyword, '%')
+                """);
+                default -> sb.append("1=1");
             }
+            sb.append(")");
         }
-        jpql.append("ORDER BY q.uploadnumber DESC ");
 
-        TypedQuery<QuestionsListDto> query = entityManager.createQuery(jpql.toString(), QuestionsListDto.class);
+        sb.append(" ORDER BY q.uploadnumber DESC");
+
+        TypedQuery<QuestionsListDto> query = em.createQuery(sb.toString(), QuestionsListDto.class)
+                .setParameter("category", category.name()) // enum을 String으로 변환
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
 
         if (keyword != null && !keyword.isBlank()) {
             query.setParameter("keyword", keyword);
         }
-        if (category != null && category != Category.ALL) {
-            query.setParameter("category", category.getValue());
+
+        List<QuestionsListDto> resultList = query.getResultList();
+
+        // count 쿼리
+        String countJpql = "SELECT COUNT(q) FROM Questions q JOIN q.users u WHERE 1 = 1 ";
+
+        if (!"ALL".equals(category)) {
+            countJpql += " AND q.category = :category";
         }
-
-        query.setFirstResult((int) pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
-        List<QuestionsListDto> content = query.getResultList();
-
-        // Count 쿼리
-        StringBuilder countJpql = new StringBuilder();
-        countJpql.append("SELECT COUNT(DISTINCT q) FROM Questions q ");
-
-        if (searchType == SearchType.REPLYS || searchType == SearchType.ALL) {
-            countJpql.append("LEFT JOIN q.replysList r ");
-        }
-
-        countJpql.append("JOIN q.users u "); // users 닉네임 검색 대비
-
-        countJpql.append("WHERE 1=1 ");
-
-        if (category != null && category != Category.ALL) {
-            countJpql.append("AND q.category = :category ");
-        }
-
         if (keyword != null && !keyword.isBlank()) {
-            switch (searchType) {
-                case TITLE:
-                    countJpql.append("AND q.title LIKE :keyword ");
-                    break;
-                case CONTENT:
-                    countJpql.append("AND q.content LIKE :keyword ");
-                    break;
-                case TITLE_CONTENT:
-                    countJpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword) ");
-                    break;
-                case USERNAME:
-                    countJpql.append("AND u.nickname LIKE :keyword ");
-                    break;
-                case REPLYS:
-                    countJpql.append("AND r.content LIKE :keyword ");
-                    break;
-                case ALL:
-                    countJpql.append("AND (q.title LIKE :keyword OR q.content LIKE :keyword " +
-                            "OR u.nickname LIKE :keyword OR r.content LIKE :keyword) ");
-                    break;
-            }
+            countJpql += " AND (" + sb.toString().split("WHERE")[1].split("ORDER")[0] + ")";
         }
 
-        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql.toString(), Long.class);
+        TypedQuery<Long> countQuery = em.createQuery(countJpql, Long.class)
+                .setParameter("category", category.name());
+
         if (keyword != null && !keyword.isBlank()) {
             countQuery.setParameter("keyword", keyword);
-        }
-        if (category != null && category != Category.ALL) {
-            countQuery.setParameter("category", category.getValue());
         }
 
         long total = countQuery.getSingleResult();
 
-        return new PageImpl<>(content, pageable, total);
+        return new PageImpl<>(resultList, pageable, total);
     }
 
+    @Override
+    public Page<QuestionsListDto> findAllWithoutKeyword(Category category, Pageable pageable) {
+        StringBuilder jpql = new StringBuilder("""
+        SELECT new com.board.question.dto.QuestionsListDtoImpl(
+            q.uploadnumber, q.title, q.content, q.nowtime, q.category, q.view,
+            (SELECT COUNT(r) FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber),
+            u.nickname
+        )
+        FROM Questions q
+        JOIN q.users u
+    """);
+
+        boolean hasWhere = false;
+
+        if (!"ALL".equals(category.name())) {
+            jpql.append(" WHERE q.category = :category");
+            hasWhere = true;
+        }
+
+        jpql.append(" ORDER BY q.uploadnumber DESC");
+
+        TypedQuery<QuestionsListDto> query = em.createQuery(jpql.toString(), QuestionsListDto.class)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
+
+        if (!"ALL".equals(category.name())) {
+            query.setParameter("category", category.name());
+        }
+
+        List<QuestionsListDto> resultList = query.getResultList();
+
+        // count 쿼리도 동일하게 처리
+        StringBuilder countJpql = new StringBuilder("SELECT COUNT(q) FROM Questions q JOIN q.users u");
+
+        if (!"ALL".equals(category.name())) {
+            countJpql.append(" WHERE q.category = :category");
+        }
+
+        TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
+        if (!"ALL".equals(category.name())) {
+            countQuery.setParameter("category", category.name());
+        }
+
+        long total = countQuery.getSingleResult();
+
+        return new PageImpl<>(resultList, pageable, total);
+    }
 }
 
