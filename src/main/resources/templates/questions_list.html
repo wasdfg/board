@@ -29,8 +29,8 @@
             <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
             <td class="text-start">
                 <span th:text="${questions.title}"></span>
-                <span class="text-danger small ms-2" th:if="${questions.replysSize > 0}"
-                      th:text="${questions.replysSize}"></span>
+                <span class="text-danger small ms-2" th:if="${questions.replysCount > 0}"
+                      th:text="${questions.replysCount}"></span>
             </td>
             <td><span th:if="${questions.nickname != null}" th:text="${questions.nickname}"></span></td>
             <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
