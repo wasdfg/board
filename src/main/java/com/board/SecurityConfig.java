@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,19 +45,30 @@ public class SecurityConfig{
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
                 .formLogin((formLogin) -> formLogin
                         .loginPage("/user/login")
-                        .successHandler(new SavedRequestAwareAuthenticationSuccessHandler(){
-                        })
+                        .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
                 )
                         //.defaultSuccessUrl("/"))
                 .logout((logout) -> logout
+                        .logoutUrl("/user/logout") // 기본 POST 방식 사용
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .addLogoutHandler((request, response, authentication) -> {
+                            if (authentication != null) {
+                                sessionRegistry().removeSessionInformation(request.getSession().getId());
+                            }
+                        })
+                )
+                /*.logout((logout) -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
                         .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)) //로그아웃하면 세션을 자동으로 파기해줌
+                        .invalidateHttpSession(true)) //로그아웃하면 세션을 자동으로 파기해줌*/
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션이 필요한 경우에만 생성 주로 로그인을 할 경우에만 생성됨
                         .maximumSessions(1)  // 세션 최대 수 설정
                         .maxSessionsPreventsLogin(true)  // 최대 세션 수 초과 시 로그인 차단
                         .expiredSessionStrategy(new SimpleRedirectSessionInformationExpiredStrategy("/user/login?sessionExpired=true"))  // 세션 만료 시 리다이렉트
+                        .sessionRegistry(sessionRegistry())
                 );
         // authorizeHttpRequests() : security 처리에 HttpServletRequest를 이용한다는 것을 의미
         // requestMatchers : 특정 리소스에 대해서 권한을 설정
@@ -74,5 +86,17 @@ public class SecurityConfig{
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public SavedRequestAwareAuthenticationSuccessHandler savedRequestAwareAuthenticationSuccessHandler() {
+        SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
+        handler.setDefaultTargetUrl("/"); // 기본 URL
+        return handler;
     }
 }
