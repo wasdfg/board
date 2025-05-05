@@ -14,8 +14,11 @@
                         aria-expanded="false">
                     메뉴 열기
                 </button>
+                <form th:action="@{/user/logout}" method="post" id="logoutForm" style="display:none;"></form>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" th:href="@{/user/logout}">로그아웃</a></li>
+                    <li> <a class="dropdown-item" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
+                        로그아웃
+                    </a></li>
                     <li><a class="dropdown-item" th:href="@{/user/chkinfo}">비밀번호 변경</a></li>
                     <li><a class="dropdown-item" th:href="@{/user/showQNA}">내가 쓴 글 확인</a></li>
                 </ul>
