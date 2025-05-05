@@ -91,20 +91,20 @@ public class QuestionsService { //service에서 처리
         questions.getVoter().add(users);
         this.questionsRepository.save(questions);
     }
-    public Page<QuestionsBasicDto> getList(int page, Users users) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        Sort multiSort = Sort.by(
-                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
-        );
-        Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.questionsRepository.findByUser(users.getUsername(),pageable);
+    public Page<QuestionsBasicDto> getMyWriteList(int page, Long id) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return this.questionsRepository.findByUser(id,pageable);
     }
 
     public Page<QuestionsListDto> getList(int page,Category category,String keyword,SearchType searchType) {
         Pageable pageable = PageRequest.of(page, 10);
+        System.out.println("Category : "+category);
+        System.out.println("keyword : "+keyword);
         if (keyword == null || keyword.trim().isEmpty()) {
+            System.out.println("no keyword so use findAllWithoutKeyword");
             return questionsRepository.findAllWithoutKeyword(category, pageable);
         } else {
+            System.out.println("yes keyword so use searchPage "+keyword);
             return this.questionsRepository.searchPage(category,keyword,searchType,pageable);
         }
 

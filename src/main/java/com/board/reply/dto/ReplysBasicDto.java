@@ -1,26 +1,14 @@
 package com.board.reply.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class ReplysBasicDto {
+public interface ReplysBasicDto {
 
-    private String content;
+    String getContent();
 
-    private LocalDateTime nowtime;
+    LocalDateTime getNowtime();
 
-    private Integer uploadnumber;
+    Integer getQuestionsUploadnumber();
 
-    public ReplysBasicDto(String content, Integer uploadnumber, LocalDateTime nowtime){
-        this.content = content;
-        this.uploadnumber = uploadnumber;
-        this.nowtime = nowtime;
-
-    }
 }

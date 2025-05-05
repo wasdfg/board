@@ -30,7 +30,14 @@ public interface ReplysRepository extends JpaRepository<Replys,Integer>{
             , nativeQuery = true) //속도향상을 위해 네이티브 쿼리를 사용해봄
     List<Replys> findReplysByQuestionsUploadnumber(@Param("uploadnumber") Integer uploadnumber);
 
-    @Query("select new com.board.reply.dto.ReplysBasicDto(r.content,r.questions.uploadnumber as uploadnumber,r.nowtime) from Replys r where r.author.username = :username")
-    Page<ReplysBasicDto> findByUser(@Param("username") String username, Pageable pageable);
+    @Query("""
+    select r.content as content, 
+           r.nowtime as nowtime, 
+           r.questions.uploadnumber as questionsUploadnumber 
+    from Replys r 
+    where r.author.id = :id
+    order by questionsUploadnumber desc
+    """)
+    Page<ReplysBasicDto> findByUser(@Param("id") Long id, Pageable pageable);
 }
 //CRUD 작업을 처리하는 메서드를 내장하고 있다

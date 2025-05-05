@@ -13,7 +13,7 @@
                 </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div class="mb-2">
-                        <span th:if="${questions.author != null}" th:text="${questions.author.username}"></span>
+                        <span th:if="${questions.users != null}" th:text="${questions.users.nickname}"></span>
                     </div>
                     <div th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
@@ -26,11 +26,11 @@
                 </a>
                 <a th:href="@{|/questions/modify/${questions.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
-                   th:if="${questions.author != null and #authentication.getPrincipal().getUsername() == questions.author.username}"
+                   th:if="${questions.users != null and #authentication.getPrincipal().getUsername() == questions.users.nickname}"
                    th:text="수정"></a>
                 <a href="javascript:void(0);" th:data-uri="@{|/questions/delete/${questions.uploadnumber}|}"
                    class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-                   th:if="${questions.author != null and #authentication.getPrincipal().getUsername() == questions.author.username}"
+                   th:if="${questions.users != null and #authentication.getPrincipal().getUsername() == questions.users.nickname}"
                    th:text="삭제"></a> <!--href를 url로 사용하지 않는 이유는 사용하게 되면 바로 삭제되기 때문에 물어보고 삭제하기 위해서-->
             </div>
         </div>

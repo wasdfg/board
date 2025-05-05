@@ -15,8 +15,8 @@ import org.springframework.stereotype.Repository;
 @EnableJpaRepositories
 public interface QuestionsRepository extends JpaRepository<Questions,Integer>, QuestionsRepositoryCustom {
 
-    @Query("select new com.board.question.dto.QuestionsBasicDto(q.title,q.uploadnumber,q.nowtime) from Questions q where q.users.username = :username")
-    Page<QuestionsBasicDto> findByUser(@Param("username")String username, Pageable pageable);
+    @Query("SELECT q FROM Questions q WHERE q.users.id = :id ORDER BY q.uploadnumber desc")
+    Page<QuestionsBasicDto> findByUser(@Param("id")Long id, Pageable pageable);
 
     @Query(value = "SELECT DISTINCT q.uploadnumber, " +
             "q.view, " +
@@ -53,7 +53,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer>, Q
             nativeQuery = true)
     Page<Questions> findAllList(@Param("keyword")String keyword,@Param("category") String category,Pageable pageable);
 
-
+/*
     @Query(value = """
     SELECT 
         q.uploadnumber,
@@ -79,7 +79,7 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer>, Q
         WHERE q.category = :category
     """,
             nativeQuery = true)
-    Page<QuestionsListDto> findAllWithoutKeyword(@Param("category") Category category,Pageable pageable);
+    Page<QuestionsListDto> findAllWithoutKeyword(@Param("category") Category category,Pageable pageable);*/
 
     @Query(value = "SELECT COUNT(DISTINCT q.uploadnumber) FROM questions q "
             + "LEFT JOIN users u ON q.user_id = u.id "

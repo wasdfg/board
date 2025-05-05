@@ -71,14 +71,9 @@ public class ReplysService {
         this.replysRepository.save(replys);
     }
 
-    public Page<ReplysBasicDto> getList(int page, Users users){
-        List<Sort.Order> sorts = new ArrayList<>();
-        Sort multiSort = Sort.by(
-                Sort.Order.desc("nowtime"), //날짜 기준으로 내림차순으로 정렬
-                Sort.Order.desc("uploadnumber") //날짜가 같다면 번호내림차순으로 정렬
-        );
-        Pageable pageable = PageRequest.of(page, 10,multiSort);
-        return this.replysRepository.findByUser(users.getUsername(),pageable);
+    public Page<ReplysBasicDto> getMyReplysList(int page, Long id){
+        Pageable pageable = PageRequest.of(page, 10);
+        return this.replysRepository.findByUser(id,pageable);
     }
 
 }
