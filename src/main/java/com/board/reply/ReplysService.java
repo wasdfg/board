@@ -1,79 +1,73 @@
 package com.board.reply;
 
-
 import com.board.question.Questions;
-import com.board.question.QuestionsRepository;
 import com.board.reply.dto.ReplysBasicDto;
 import com.board.user.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional // 클래스 전체에 트랜잭션 적용 (쓰기 기본)
 public class ReplysService {
+
     private final ReplysRepository replysRepository;
 
-    private final QuestionsRepository questionsRepository;
-    public Replys create(Questions questions, String content, Users author, Replys prereplys){
+    public Replys create(Questions questions, String content, Users users, Replys prereplys) {
         Replys replys = new Replys();
         replys.setContent(content);
         replys.setNowtime(LocalDateTime.now());
         replys.setQuestions(questions);
-        replys.setAuthor(author);
-        if(prereplys != null) {
+        replys.setUsers(users);
+
+        if (prereplys != null) {
             replys.setParent_id(prereplys.getUploadnumber());
-            if(prereplys.getDepth() < 15) { //깊이를 15로 지정
-                replys.setDepth(prereplys.getDepth() + 1);
-            }
-            else{
-                replys.setDepth(15);
-            }
-        }
-        else{
+            replys.setDepth(Math.min(prereplys.getDepth() + 1, 15)); // 깊이 제한
+        } else {
             replys.setParent_id(null);
             replys.setDepth(0);
         }
-        this.replysRepository.save(replys); //위에 있는 content nowtime questions를 replys에 저장
+
+        replysRepository.save(replys);
         return replys;
     }
 
-    public Replys getReplys(Integer uploadnumber){
-        Optional<Replys> replys = this.replysRepository.findById(uploadnumber);
-        if(replys.isPresent()){
-            return replys.get();
-        }
-        else{
-            throw new RuntimeException("replys not found");
-        }
+    @Transactional(readOnly = true)
+    public Replys getReplys(Integer uploadnumber) {
+        return replysRepository.findById(uploadnumber)
+                .orElseThrow(() -> new RuntimeException("replys not found"));
     }
 
-    public void modify(Replys replys,String content){
+    public void modify(Replys replys, String content) {
         replys.setContent(content);
         replys.setModifyDate(LocalDateTime.now());
-        this.replysRepository.save(replys);
+        replysRepository.save(replys);
     }
 
-    public void delete(Replys replys) {
-        this.replysRepository.delete(replys);
+    public void delete(Integer id) {
+        Replys reply = replysRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
+        reply.setDeleted(true);
+        reply.setContent("삭제된 댓글입니다.");
+        reply.setUsers(null); // 작성자도 지움
+        replysRepository.save(reply);
     }
 
-    public void vote(Replys replys,Users users){
+    public void vote(Replys replys, Users users) {
         replys.getVoter().add(users);
-        this.replysRepository.save(replys);
+        replysRepository.save(replys);
     }
 
-    public Page<ReplysBasicDto> getMyReplysList(int page, Long id){
+    @Transactional(readOnly = true)
+    public Page<ReplysBasicDto> getMyReplysList(int page, Long id) {
         Pageable pageable = PageRequest.of(page, 10);
-        return this.replysRepository.findByUser(id,pageable);
+        return replysRepository.findByUser(id, pageable);
     }
-
 }

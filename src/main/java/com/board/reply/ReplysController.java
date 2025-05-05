@@ -50,7 +50,7 @@ public class ReplysController {
     @GetMapping("/modify/{uploadnumber}")
     public String replysModify(ReplysForm replysForm, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
         Replys replys = this.replysService.getReplys(uploadnumber);
-        if (!replys.getAuthor().getUsername().equals(principal.getName())) {
+        if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         replysForm.setContent(replys.getContent());
@@ -65,7 +65,7 @@ public class ReplysController {
             return "replys_form";
         }
         Replys replys = this.replysService.getReplys(uploadnumber);
-        if (!replys.getAuthor().getUsername().equals(principal.getName())) {
+        if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         this.replysService.modify(replys, replysForm.getContent());
@@ -76,10 +76,10 @@ public class ReplysController {
     @GetMapping("/delete/{uploadnumber}")
     public String replysDelete(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
         Replys replys = this.replysService.getReplys(uploadnumber);
-        if (!replys.getAuthor().getUsername().equals(principal.getName())) {
+        if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
-        this.replysService.delete(replys);
+        this.replysService.delete(replys.getUploadnumber());
         return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
     }
 

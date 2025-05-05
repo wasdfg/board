@@ -30,8 +30,8 @@ public class Replys {
     private Questions questions; //Questions 엔티티를 참조하기 위해 선언
 
     @ManyToOne(fetch = FetchType.LAZY) //글쓴이 1명당 여러 답변을 할 수 있어 다대1로 설정
-    @JoinColumn(name="author_id",referencedColumnName = "id")
-    private Users author;
+    @JoinColumn(name="user_id",referencedColumnName = "id")
+    private Users users;
 
     @ManyToMany(fetch = FetchType.LAZY)
     Set<Users> voter;
@@ -42,12 +42,16 @@ public class Replys {
 
     private int depth;
 
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean deleted = false;
+
     public void setModifyDate(LocalDateTime modifyDate) {
         this.modifyDate = modifyDate;
     }
 
-    public void setAuthor(Users author) {
-        this.author = author;
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
     public void setVoter(Set<Users> voter) {
@@ -74,11 +78,15 @@ public class Replys {
         this.questions = questions;
     }
 
-    public static Replys create(String content, Users author, Questions questions, Integer parentId, int depth) {
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public static Replys create(String content, Users users, Questions questions, Integer parentId, int depth) {
         Replys reply = new Replys();
         reply.content = content;
         reply.nowtime = LocalDateTime.now();
-        reply.author = author;
+        reply.users = users;
         reply.questions = questions;
         reply.parent_id = parentId;
         reply.depth = depth;

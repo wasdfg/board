@@ -50,7 +50,7 @@
                 </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div class="mb-2">
-                        <span th:if="${replys.author != null}" th:text="${replys.author.nickname}"></span>
+                        <span th:if="${replys.users != null}" th:text="${replys.users.nickname}"></span>
                     </div>
                     <div th:text="${#temporals.format(replys.nowtime,'yyyy-MM-dd HH:mm:ss')}"></div>
                 </div>
@@ -63,11 +63,11 @@
                 </a>
                 <a th:href="@{|/replys/modify/${replys.uploadnumber}|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
-                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                   th:if="${replys.users != null and #authentication.getPrincipal().getUsername() == replys.users.username}"
                    th:text="수정"></a>
                 <a href="javascript:void(0);" th:data-uri="@{|/replys/delete/${replys.uploadnumber}|}"
                    class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-                   th:if="${replys.author != null and #authentication.getPrincipal().getUsername() == replys.author.username}"
+                   th:if="${replys.users != null and #authentication.getPrincipal().getUsername() == replys.users.username}"
                    th:text="삭제"></a>
                 <a href="javascript:void(0);" class="btn btn-sm btn-outline-secondary reply-button"
                    sec:authorize="isAuthenticated()" th:data-id="${replys.uploadnumber}">댓글쓰기</a>
