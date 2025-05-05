@@ -1,76 +1,114 @@
 <html layout:decorate="~{layout}">
-<div layout:fragment="content" class="container my-3">
-        <div class="makeflex">
-            <button class="showmypost" data-type="question">내가 작성한 글</button>
-            <button class="showmypost" data-type="replys">내가 작성한 댓글</button>
-        </div>
-        <table class="table">
-            <thead class="table-dark">
-            <tr class="text-center">
-                <th>번호</th>
-                <th style="width:50%">글 목록</th>
-                <th>작성일시</th>
-            </tr>
-            </thead>
-            <tbody>
+<div layout:fragment="content" class="container my-4">
+    <!-- 상단 버튼 영역 -->
+    <div class="d-flex justify-content-center gap-2 mb-3">
+        <button class="btn btn-outline-primary showmypost" data-type="question"
+                th:classappend="${type == 'question'} ? 'active btn-primary text-white' : ''">
+            내가 작성한 글
+        </button>
+        <button class="btn btn-outline-secondary showmypost" data-type="replys"
+                th:classappend="${type == 'replys'} ? 'active btn-secondary text-white' : ''">
+            내가 작성한 댓글
+        </button>
+    </div>
 
-            <!-- Questions -->
-            <tr class="text-center" th:if="${type == 'question'}" th:each="questions, loop : ${Qpaging}">
-                <td th:text="${Qpaging.getTotalElements() - (Qpaging.number * Qpaging.size) - loop.index}"></td>
-                <td class="text-start">
-                    <a th:href="@{|/questions/detail/${questions.uploadnumber}|}" th:text="${questions.title}"></a>
-                </td>
-                <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-            </tr>
-            <!-- Replies -->
-            <tr class="text-center" th:if="${type == 'replys'}" th:each="replys, loop : ${Rpaging}">
-                <td th:text="${Rpaging.getTotalElements() - (Rpaging.number * Rpaging.size) - loop.index}"></td>
-                <td class="text-start">
-                    <a th:href="@{|/questions/detail/${replys.uploadnumber}|}" th:text="${replys.content}"></a>
-                </td>
-                <td th:text="${#temporals.format(replys.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-            </tr>
-            </tbody>
-        </table>
+    <!-- 테이블 영역 -->
+    <table class="table table-hover align-middle text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>번호</th>
+            <th class="text-start" style="width:50%">글 목록</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Questions -->
+        <tr th:if="${type == 'question'}" th:each="questions, loop : ${Qpaging}">
+            <td th:text="${Qpaging.getTotalElements() - (Qpaging.number * Qpaging.size) - loop.index}"></td>
+            <td class="text-start text-truncate">
+                <a th:href="@{|/questions/detail/${questions.uploadnumber}|}"
+                   th:text="${questions.title}" th:title="${questions.title}"></a>
+            </td>
+            <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+
+        <!-- Replies -->
+        <tr th:if="${type == 'replys'}" th:each="replys, loop : ${Rpaging}">
+            <td th:text="${Rpaging.getTotalElements() - (Rpaging.number * Rpaging.size) - loop.index}"></td>
+            <td class="text-start text-truncate">
+                <a th:href="@{|/questions/detail/${replys.questionsUploadnumber}|}"
+                   th:text="${replys.content}" th:title="${replys.content}"></a>
+            </td>
+            <td th:text="${#temporals.format(replys.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+
+        <!-- No data -->
+        <tr th:if="${(type == 'question' and Qpaging.isEmpty()) or (type == 'replys' and Rpaging.isEmpty())}">
+            <td colspan="3" class="text-center text-muted py-4">작성된 항목이 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 페이징 -->
     <div th:if="${(type == 'question' and !Qpaging.isEmpty()) or (type == 'replys' and !Rpaging.isEmpty())}">
-        <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${(type == 'question' and (!Qpaging.hasPrevious() or Qpaging.number <= 9)) or (type == 'replys' and (!Rpaging.hasPrevious() or Rpaging.number <= 9))} ? 'disabled'">
-                <a class="page-link" href="javascript:void(0)" th:data-page="${(type == 'question' ? (Qpaging.number/10-1)*10 : (Rpaging.number/10-1)*10)}" th:data-type="${type}">
-                    <span>이전</span>
-                </a>
+        <ul class="pagination justify-content-center mt-4">
+            <!-- 이전 -->
+            <li class="page-item"
+                th:classappend="${(type == 'question' and (!Qpaging.hasPrevious() or Qpaging.number <= 9))
+                                 or (type == 'replys' and (!Rpaging.hasPrevious() or Rpaging.number <= 9))} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${(type == 'question' ? (Qpaging.number/10-1)*10 : (Rpaging.number/10-1)*10)}"
+                   th:data-type="${type}">이전</a>
             </li>
-            <li th:each="page: ${#numbers.sequence(1, type == 'question' ? Qpaging.totalPages : Rpaging.totalPages)}" th:if="${page > (type == 'question' ? Qpaging.number/10*10 : Rpaging.number/10*10) and page <= (type == 'question' ? Qpaging.number/10*10+10 : Rpaging.number/10*10+10)}"
-                th:classappend="${page == (type == 'question' ? Qpaging.number+1 : Rpaging.number+1)} ? 'active'" class="page-item">
-                <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page-1}" th:data-type="${type}"></a>
+
+            <!-- 페이지 번호 -->
+            <li class="page-item"
+                th:each="page: ${#numbers.sequence(1, type == 'question' ? Qpaging.totalPages : Rpaging.totalPages)}"
+                th:if="${page > (type == 'question' ? Qpaging.number/10*10 : Rpaging.number/10*10)
+                       and page <= (type == 'question' ? Qpaging.number/10*10+10 : Rpaging.number/10*10+10)}"
+                th:classappend="${page == (type == 'question' ? Qpaging.number+1 : Rpaging.number+1)} ? 'active'">
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${page-1}" th:data-type="${type}" th:text="${page}"></a>
             </li>
-            <li class="page-item" th:classappend="${((type == 'question' ? ((Qpaging.totalPages-1)/10 - Qpaging.number/10 == 0) : ((Rpaging.totalPages-1)/10 - Rpaging.number/10 == 0)) or (type == 'question' ? !Qpaging.hasNext() : !Rpaging.hasNext()))} ? 'disabled'">
-                <a class="page-link" href="javascript:void(0)" th:data-page="${(type == 'question' ? (Qpaging.number/10+1)*10 : (Rpaging.number/10+1)*10)}" th:data-type="${type}">
-                    <span>다음</span>
-                </a>
+
+            <!-- 다음 -->
+            <li class="page-item"
+                th:classappend="${((type == 'question' ? ((Qpaging.totalPages-1)/10 - Qpaging.number/10 == 0)
+                                 : ((Rpaging.totalPages-1)/10 - Rpaging.number/10 == 0))
+                                 or (type == 'question' ? !Qpaging.hasNext() : !Rpaging.hasNext()))} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${(type == 'question' ? (Qpaging.number/10+1)*10 : (Rpaging.number/10+1)*10)}"
+                   th:data-type="${type}">다음</a>
             </li>
         </ul>
     </div>
+
+    <!-- 검색용 form -->
     <form th:action="@{/user/showQNA}" method="get" id="searchForm">
         <input type="hidden" id="type" name="type" value="${type}">
-        <input type="hidden" id="page" name="page" th:value="${type == 'question'} ? ${Qpaging.number} : ${Rpaging.number}">
+        <input type="hidden" id="page" name="page"
+               th:value="${type == 'question'} ? ${Qpaging.number} : ${Rpaging.number}">
     </form>
 </div>
-<script layout:fragment="script" type='text/javascript'>
-const page_elements = document.getElementsByClassName("page-link");
-Array.from(page_elements).forEach(function(element) {
-    element.addEventListener('click', function() {
-        document.getElementById('type').value = this.dataset.type;
-        document.getElementById('page').value = this.dataset.page;
-        document.getElementById('searchForm').submit();
-    });
-});
 
-const showmypost_elements = document.getElementsByClassName("showmypost");
-Array.from(showmypost_elements).forEach(function(element) {
-    element.addEventListener('click', function() {
-        document.getElementById('type').value = this.dataset.type;
-        document.getElementById('searchForm').submit();
+<!-- 스크립트 영역 -->
+<script layout:fragment="script" type="text/javascript">
+    // 페이지네이션 클릭 이벤트
+    document.querySelectorAll(".page-link").forEach(el => {
+        el.addEventListener('click', () => {
+            document.getElementById('type').value = el.dataset.type;
+            document.getElementById('page').value = el.dataset.page;
+            document.getElementById('searchForm').submit();
+        });
     });
-});
+
+    // 버튼 클릭 이벤트
+    document.querySelectorAll(".showmypost").forEach(el => {
+        el.addEventListener('click', () => {
+            document.getElementById('type').value = el.dataset.type;
+            document.getElementById('page').value = 0; // 페이지 초기화
+            document.getElementById('searchForm').submit();
+        });
+    });
 </script>
 </html>
