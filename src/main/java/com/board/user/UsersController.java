@@ -137,8 +137,8 @@ public class UsersController {
     @GetMapping("/showQNA")
     public String showQNA(Principal principal,Model model,@RequestParam(value="page", defaultValue="0") int page,@RequestParam(value="type", defaultValue="question") String type){
         Users users = this.usersService.getUsers(principal.getName());
-        Page<QuestionsBasicDto> Qpaging = this.questionsService.getList(page,users);
-        Page<ReplysBasicDto> Rpaging = this.replysService.getList(page,users);
+        Page<QuestionsBasicDto> Qpaging = this.questionsService.getMyWriteList(page,users.getId());
+        Page<ReplysBasicDto> Rpaging = this.replysService.getMyReplysList(page,users.getId());
         model.addAttribute("type", type);
         if(type.equals("question")) {
             model.addAttribute("Qpaging", Qpaging);
