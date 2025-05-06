@@ -9,14 +9,14 @@ import lombok.Setter;
 @Entity
 public class UsersDetail {
     @Id
-    private Long id; // Foreign Key referencing Users.id
+    private Long id; // fk reference from users.id
 
     private String password;
 
     @Column(unique = true)
     private String email;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "id")
     private Users users;
