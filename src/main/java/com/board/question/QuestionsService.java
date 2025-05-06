@@ -53,7 +53,7 @@ public class QuestionsService { //service에서 처리
         return count;
     }
 
-    public List<Replys> getSortByDate(Integer uploadnumber) { //투표수 기준으로 정렬
+    public List<Replys> getReplysList(Integer uploadnumber) { //투표수 기준으로 정렬
         Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
         if(questions.isPresent()){
             if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면

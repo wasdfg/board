@@ -97,8 +97,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @GetMapping(value = "/detail/{uploadnumber}")
     public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm, HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
-        List<Replys> sortDate = this.questionsService.getSortByDate(uploadnumber);
-        model.addAttribute("sortDate",sortDate);
+        List<Replys> replysList = this.questionsService.getReplysList(uploadnumber);
+        model.addAttribute("replysList",replysList);
         model.addAttribute("questions",questions);
         if(principal != null){ //로그인 된 상태라면 세션으로 사용
             String username = principal.getName();
