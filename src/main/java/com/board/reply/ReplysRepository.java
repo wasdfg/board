@@ -15,24 +15,24 @@ import java.util.List;
 public interface ReplysRepository extends JpaRepository<Replys,Integer>{
 
     @Query(value = "WITH RECURSIVE replys_tree AS (" +
-            "select uploadnumber,content,questions_uploadnumber,user_id,nowtime,modify_Date,parent_id,depth, CAST(LPAD(uploadnumber, 10, '0') AS CHAR(255)) AS path"+
+            "select uploadnumber,content,questions_uploadnumber,user_id,nowtime,modify_Date,parent_id,depth,deleted, CAST(LPAD(uploadnumber, 10, '0') AS CHAR(255)) AS path"+
             " from replys"+
             " where parent_id is null"+
             " and questions_uploadnumber = :uploadnumber"+
             " UNION ALL" +
-            " select rp.uploadnumber,rp.content,rp.questions_uploadnumber,rp.user_id,rp.nowtime,rp.modify_Date,rp.parent_id,rp.depth,CAST(CONCAT(replys_tree.path, '.', LPAD(rp.uploadnumber, 10, '0')) AS CHAR(255)) AS path"+
+            " select rp.uploadnumber,rp.content,rp.questions_uploadnumber,rp.user_id,rp.nowtime,rp.modify_Date,rp.parent_id,rp.depth,rp.deleted,CAST(CONCAT(replys_tree.path, '.', LPAD(rp.uploadnumber, 10, '0')) AS CHAR(255)) AS path"+
             " from replys as rp"+
             " inner join replys_tree on rp.parent_id = replys_tree.uploadnumber"+
             ")"+
-            " select uploadnumber,content,questions_uploadnumber,user_id,nowtime,modify_Date,parent_id,depth,path" +
+            " select uploadnumber,content,questions_uploadnumber,user_id,nowtime,modify_Date,parent_id,depth,deleted,path" +
             " from replys_tree"+
             " order by path"
-            , nativeQuery = true) //속도향상을 위해 네이티브 쿼리를 사용해봄
+            , nativeQuery = true)
     List<Replys> findReplysByQuestionsUploadnumber(@Param("uploadnumber") Integer uploadnumber);
 
     @Query("""
-    select r.content as content, 
-           r.nowtime as nowtime, 
+    select r.content as content,
+           r.nowtime as nowtime,
            r.questions.uploadnumber as questionsUploadnumber 
     from Replys r 
     where r.users.id = :id
