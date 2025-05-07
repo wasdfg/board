@@ -5,8 +5,8 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
         <div>
-            <select th:field="*{category}" class="form-select">
-                <div>글 종류</div>
+            <label for="category" class="form-label">글 종류</label>
+            <select th:field="*{category}" id="category" class="form-select">
                 <option value="">==글 종류 선택==</option>
                 <option th:each="category : ${categories}" th:value="${category.value}"
                         th:text="${category.label}">FAST</option>

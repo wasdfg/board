@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequestMapping("/questions") // /questions로 시작하는 url의 앞부분을 prefix해준다.
 @RequiredArgsConstructor //final을 선언할때 사용
@@ -147,7 +148,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
     @PreAuthorize("isAuthenticated()") //로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
     @GetMapping("/create")
     public String questionsCreate(QuestionsForm questionsForm,Model model){
-        model.addAttribute("categories", Category.values());
+        model.addAttribute("categories", Arrays.stream(Category.values())
+                .filter(c -> c != Category.ALL)
+                .collect(Collectors.toList()));
         return "questions_form";
     }
 
