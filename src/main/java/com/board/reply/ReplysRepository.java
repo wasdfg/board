@@ -40,4 +40,3 @@ public interface ReplysRepository extends JpaRepository<Replys,Integer>{
     """)
     Page<ReplysBasicDto> findByUser(@Param("id") Long id, Pageable pageable);
 }
-//CRUD 작업을 처리하는 메서드를 내장하고 있다

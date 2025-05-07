@@ -43,9 +43,9 @@ public class UsersService {
     }
 
     public UsersDetail getUsersDetail(String username) {
-        Optional<Users> users = this.usersRepository.findByUsername(username);
-        if(users.isPresent()) {
-            UsersDetail usersDetail = this.usersDetailRepository.findByUsers(users);
+        Users users = this.usersRepository.findByUsername(username);
+        if(users != null) {
+            UsersDetail usersDetail = this.usersDetailRepository.findByUsers(username);
             if (usersDetail != null) {
                 return usersDetail;
             } else {
@@ -56,9 +56,9 @@ public class UsersService {
     }
 
     public Users getUsers(String username){
-        Optional<Users> users = this.usersRepository.findByUsername(username);
-        if (users.isPresent()) {
-            return users.get();
+        Users users = this.usersRepository.findByUsername(username);
+        if (users != null) {
+            return users;
         } else {
             throw new DataNotFoundException("SignUpUser not found");
         }
