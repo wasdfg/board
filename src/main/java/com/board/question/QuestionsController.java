@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,16 +70,21 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 readQuestions = new HashSet<>();
             }
         }
-        else {// 비로그인 상태라면 쿠키를 가져온다
+        else { // 비로그인 상태라면 쿠키를 가져온다
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if (cookie.getName().startsWith("readQuestions_")) {
+                    if (cookie.getName().equals("readQuestions")) {
                         try {
-                            Integer id = Integer.parseInt(cookie.getName().split("_")[1]);
-                            readQuestions.add(id);
-                        } catch (NumberFormatException e) {
-                            // 쿠키 이름이 올바르지 않으면 무시
+                            String decodedValue = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                            String[] ids = decodedValue.split(",");
+                            for (String idStr : ids) {
+                                try {
+                                    readQuestions.add(Integer.parseInt(idStr));
+                                } catch (NumberFormatException ignore) {}
+                            }
+                        } catch (IllegalArgumentException e) {
+                            // 잘못된 쿠키 값이면 무시하거나 삭제 처리 고려
                         }
                     }
                 }
@@ -116,7 +124,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
                 session.setAttribute("readQuestions", readQuestions);
             }
         }
-        else{ //비로그인 상태라면 쿠키를 사용
+        else { // 비로그인 상태라면 쿠키를 사용
             Cookie[] cookies = request.getCookies();
             Cookie readQuestionsCookie = null;
 
@@ -128,19 +136,33 @@ public class QuestionsController { //controller에서 요청을 받아와서
                     }
                 }
             }
+
+            String newValue;
             if (readQuestionsCookie == null) {
-                readQuestionsCookie = new Cookie("readQuestions", String.valueOf(uploadnumber));
-            }
-            else {
-                String value = readQuestionsCookie.getValue();
-                if (!value.contains(String.valueOf(uploadnumber))) {
-                    readQuestionsCookie.setValue(value + "," + uploadnumber);
+                newValue = String.valueOf(uploadnumber);
+            } else {
+                try {
+                    String decodedValue = URLDecoder.decode(readQuestionsCookie.getValue(), StandardCharsets.UTF_8);
+                    if (!decodedValue.contains(String.valueOf(uploadnumber))) {
+                        decodedValue += "," + uploadnumber;
+                    }
+                    newValue = decodedValue;
+                } catch (IllegalArgumentException e) {
+                    // 기존 쿠키 값이 잘못된 경우 초기화
+                    newValue = String.valueOf(uploadnumber);
                 }
             }
-                // 쿠키에 읽은 댓글 ID 추가
-            readQuestionsCookie.setPath("/"); // 쿠키가 모든 경로에서 유효하게 설정
-            readQuestionsCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
-            response.addCookie(readQuestionsCookie);
+
+            try {
+                String encodedValue = URLEncoder.encode(newValue, StandardCharsets.UTF_8);
+                Cookie newCookie = new Cookie("readQuestions", encodedValue);
+                newCookie.setPath("/");
+                newCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
+                response.addCookie(newCookie);
+            } catch (Exception e) {
+                // 예외가 발생하면 쿠키 저장 생략 또는 로그 남기기
+                e.printStackTrace();
+            }
         }
         return "questions_detail";
     }
