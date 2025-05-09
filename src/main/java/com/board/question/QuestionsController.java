@@ -1,5 +1,6 @@
 package com.board.question;
 
+import com.board.ReadTrackingManager;
 import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
@@ -44,6 +45,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     private final UsersService usersService;
 
+    private final ReadTrackingManager readTrackingManager;
+
     @GetMapping("/list") //   localhost:8080/가 기본 위치이다.
     public String list(Model model,@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String keyword,
@@ -62,34 +65,8 @@ public class QuestionsController { //controller에서 요청을 받아와서
         int current_Page_Group_Start = (current_Page / 10) * 10 + 1; //현재페이지의 시작번호 10개기준이므로 mod10 = 1인거
         int current_Page_Group_End = Math.min(current_Page_Group_Start + 9, all_content_count); //뒷자리가 10의배수인거 또는 마지막번호 중 작은거
 
-        Set<Integer> readQuestions = new HashSet<>(); //세션이나 쿠키를 가져와서 저장할 공간
-        principal = request.getUserPrincipal();
-        if(principal != null) {// 로그인 상태일 때 세션을 가져온다
-            readQuestions = (Set<Integer>) session.getAttribute("readQuestions");
-            if (readQuestions == null) {
-                readQuestions = new HashSet<>();
-            }
-        }
-        else { // 비로그인 상태라면 쿠키를 가져온다
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("readQuestions")) {
-                        try {
-                            String decodedValue = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
-                            String[] ids = decodedValue.split(",");
-                            for (String idStr : ids) {
-                                try {
-                                    readQuestions.add(Integer.parseInt(idStr));
-                                } catch (NumberFormatException ignore) {}
-                            }
-                        } catch (IllegalArgumentException e) {
-                            // 잘못된 쿠키 값이면 무시하거나 삭제 처리 고려
-                        }
-                    }
-                }
-            }
-        }
+        Set<Integer> readQuestions = readTrackingManager.getReadQuestions(request, session, principal);
+
         model.addAttribute("readQuestions", readQuestions); //읽은 글을 확인
         model.addAttribute("searchTypeList",SearchType.values());
         model.addAttribute("searchType", searchType);
@@ -107,63 +84,13 @@ public class QuestionsController { //controller에서 요청을 받아와서
     public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm, HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
         Questions questions = this.questionsService.getQuestions(uploadnumber);
         List<Replys> replysList = this.questionsService.getReplysList(uploadnumber);
+
+        readTrackingManager.saveReadQuestion(request, response, session, principal, uploadnumber);
+
         model.addAttribute("replysList",replysList);
         model.addAttribute("questions",questions);
-        if(principal != null){ //로그인 된 상태라면 세션으로 사용
-            String username = principal.getName();
 
-            // 세션에서 읽은 댓글 목록 가져오기
-            Set<Integer> readQuestions = (Set<Integer>) session.getAttribute("readQuestions");
-            if (readQuestions == null) {
-                readQuestions = new HashSet<>();
-            }
 
-            if (!readQuestions.contains(uploadnumber)) {
-                // 세션에 읽은 댓글 ID 추가
-                readQuestions.add(uploadnumber);
-                session.setAttribute("readQuestions", readQuestions);
-            }
-        }
-        else { // 비로그인 상태라면 쿠키를 사용
-            Cookie[] cookies = request.getCookies();
-            Cookie readQuestionsCookie = null;
-
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("readQuestions")) {
-                        readQuestionsCookie = cookie;
-                        break;
-                    }
-                }
-            }
-
-            String newValue;
-            if (readQuestionsCookie == null) {
-                newValue = String.valueOf(uploadnumber);
-            } else {
-                try {
-                    String decodedValue = URLDecoder.decode(readQuestionsCookie.getValue(), StandardCharsets.UTF_8);
-                    if (!decodedValue.contains(String.valueOf(uploadnumber))) {
-                        decodedValue += "," + uploadnumber;
-                    }
-                    newValue = decodedValue;
-                } catch (IllegalArgumentException e) {
-                    // 기존 쿠키 값이 잘못된 경우 초기화
-                    newValue = String.valueOf(uploadnumber);
-                }
-            }
-
-            try {
-                String encodedValue = URLEncoder.encode(newValue, StandardCharsets.UTF_8);
-                Cookie newCookie = new Cookie("readQuestions", encodedValue);
-                newCookie.setPath("/");
-                newCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
-                response.addCookie(newCookie);
-            } catch (Exception e) {
-                // 예외가 발생하면 쿠키 저장 생략 또는 로그 남기기
-                e.printStackTrace();
-            }
-        }
         return "questions_detail";
     }
 
