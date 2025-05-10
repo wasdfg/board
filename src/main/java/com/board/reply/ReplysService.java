@@ -1,16 +1,21 @@
 package com.board.reply;
 
+import com.board.DataNotFoundException;
 import com.board.question.Questions;
+import com.board.question.QuestionsRepository;
 import com.board.reply.dto.ReplysBasicDto;
 import com.board.user.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ import java.util.Optional;
 public class ReplysService {
 
     private final ReplysRepository replysRepository;
+    private final QuestionsRepository questionsRepository;
 
     public Replys create(Questions questions, String content, Users users, Replys prereplys) {
         Replys replys = new Replys();
@@ -69,5 +75,12 @@ public class ReplysService {
     public Page<ReplysBasicDto> getMyReplysList(int page, Long id) {
         Pageable pageable = PageRequest.of(page, 10);
         return replysRepository.findByUser(id, pageable);
+    }
+
+    public List<Replys> getReplysList(Integer uploadnumber,Pageable pageable) { //투표수 기준으로 정렬
+        if (!questionsRepository.existsById(uploadnumber)) {
+            throw new DataNotFoundException("questions not found");
+        }
+        return this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber,pageable);
     }
 }

@@ -53,21 +53,6 @@ public class QuestionsService { //service에서 처리
         return count;
     }
 
-    public List<Replys> getReplysList(Integer uploadnumber) { //투표수 기준으로 정렬
-        Optional<Questions> questions = this.questionsRepository.findById(uploadnumber);
-        if(questions.isPresent()){
-            if(!questions.get().getReplysList().isEmpty()){ //답변이 있으면
-                List<Replys> sortedReplys = this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber);
-                return sortedReplys;
-            }
-            else{
-                return new ArrayList<>(); //답변이 없으면 빈 배열을 전달
-            }
-        }
-        else{
-            throw new DataNotFoundException("questions not found"); //없으면 DataNotFoundException클래스를 동작시킨다.
-        }
-    }
 
     @Transactional
     public void createQuestions(String title, String content, Users users,Category category){
@@ -117,46 +102,5 @@ public class QuestionsService { //service에서 처리
             return this.questionsRepository.searchPage(category,keyword,searchType,pageable);
         }
 
-    }
-
-    public Page<QuestionsListDto> searchCheck(int page, Category category) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("uploadnumber"))); //10개씩 페이징예정
-        if(category.equals("all")) {
-            category = null;
-        }
-        System.out.println(category);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start("쿼리 실행");
-        System.out.println("111111");
-        Page<QuestionsListDto> results = questionsRepository.findAllWithoutKeyword(category,pageable);
-        //Page<QuestionsListDto> results = questionsRepository.findAllWithoutKeyword(category,pageable).map(QuestionsListDto::from);
-        System.out.println("list의 사이즈는 "+results.getTotalElements());
-        long totalCount = questionsRepository.countWithoutKeyword(category);
-        stopWatch.stop();
-        System.out.println("쿼리 실행 시간: " + stopWatch.getTotalTimeMillis() + "ms");
-
-        return results;
-    }
-
-    public Page<Questions> searchByKeyword(int page,String keyword,String selectIndex,String category){
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("uploadnumber"))); //10개씩 페이징예정
-        if (selectIndex != null && !selectIndex.trim().isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
-            switch (selectIndex) {
-                case "title":
-                    return questionsRepository.searchByTitle(keyword, category, pageable);
-                case "content":
-                    return questionsRepository.searchByContent(keyword, category, pageable);
-                case "titleContent":
-                    return questionsRepository.searchByTitleContent(keyword, category, pageable);
-                case "replys":
-                    return questionsRepository.searchByReplys(keyword, category, pageable);
-                case "username":
-                    return questionsRepository.searchByUsername(keyword, category, pageable);
-                default:
-                    return questionsRepository.findAllList(keyword,category,pageable); // 전체 결과 반환
-            }
-        } else {
-            return questionsRepository.findAllList(keyword,category,pageable); // 전체 결과 반환
-        }
     }
 }
