@@ -96,6 +96,15 @@ public class QuestionsService { //service에서 처리
         return this.questionsRepository.findByUser(id,pageable);
     }
 
+    @Transactional
+    public void increaseViewCount(Integer uploadnumber) {
+        Questions questions = questionsRepository.findById(uploadnumber)
+                .orElseThrow(() -> new DataNotFoundException("게시글을 찾을 수 없습니다."));
+
+        questions.increaseView();
+        questionsRepository.save(questions);
+    }
+
     public Page<QuestionsListDto> getList(int page,Category category,String keyword,SearchType searchType) {
         Pageable pageable = PageRequest.of(page, 10);
         System.out.println("Category : "+category);

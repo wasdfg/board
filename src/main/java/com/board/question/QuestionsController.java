@@ -82,7 +82,16 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
     @GetMapping(value = "/detail/{uploadnumber}")
     public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm, HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
+
+        Set<Integer> readQuestions = readTrackingManager.getReadQuestions(request, session, principal);
+        boolean isFirstRead = !readQuestions.contains(uploadnumber);
+
         Questions questions = this.questionsService.getQuestions(uploadnumber);
+
+        if (isFirstRead) {
+            this.questionsService.increaseViewCount(uploadnumber);
+        }
+
         List<Replys> replysList = this.questionsService.getReplysList(uploadnumber);
 
         readTrackingManager.saveReadQuestion(request, response, session, principal, uploadnumber);
