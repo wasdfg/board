@@ -9,14 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -77,10 +74,10 @@ public class ReplysService {
         return replysRepository.findByUser(id, pageable);
     }
 
-    public List<Replys> getReplysList(Integer uploadnumber,Pageable pageable) { //투표수 기준으로 정렬
+    public List<Replys> getReplysList(Integer uploadnumber) {
         if (!questionsRepository.existsById(uploadnumber)) {
             throw new DataNotFoundException("questions not found");
         }
-        return this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber,pageable);
+        return this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber);
     }
 }

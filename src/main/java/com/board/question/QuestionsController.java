@@ -4,9 +4,9 @@ import com.board.ReadTrackingManager;
 import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
 import com.board.reply.ReplysForm;
+import com.board.reply.ReplysService;
 import com.board.user.Users;
 import com.board.user.UsersService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -26,13 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,9 +37,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor //final을 선언할때 사용
 @Controller
 public class QuestionsController { //controller에서 요청을 받아와서
-    private final QuestionsService questionsService; //service라는 dto를 생성해서 가져온다
+    private final QuestionsService questionsService;
 
     private final UsersService usersService;
+
+    private final ReplysService replysService;
 
     private final ReadTrackingManager readTrackingManager;
 
@@ -81,7 +79,10 @@ public class QuestionsController { //controller에서 요청을 받아와서
     }
 
     @GetMapping(value = "/detail/{uploadnumber}")
-    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber, ReplysForm replysForm, HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
+    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber
+                                    , @RequestParam(value = "page", defaultValue = "0") int page
+                                    , ReplysForm replysForm
+                                    , HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
 
         Set<Integer> readQuestions = readTrackingManager.getReadQuestions(request, session, principal);
         boolean isFirstRead = !readQuestions.contains(uploadnumber);
@@ -92,13 +93,12 @@ public class QuestionsController { //controller에서 요청을 받아와서
             this.questionsService.increaseViewCount(uploadnumber);
         }
 
-        List<Replys> replysList = this.questionsService.getReplysList(uploadnumber);
+        List<Replys> replysList = replysService.getReplysList(uploadnumber);
 
         readTrackingManager.saveReadQuestion(request, response, session, principal, uploadnumber);
 
         model.addAttribute("replysList",replysList);
         model.addAttribute("questions",questions);
-
 
         return "questions_detail";
     }
