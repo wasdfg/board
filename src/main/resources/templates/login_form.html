@@ -18,4 +18,31 @@
     <a th:href="@{/user/findAccount}" class="btn btn-secondary">아이디 또는 비밀번호 찾기</a>
   </form>
 </div>
+
+<script layout:fragment="script" type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('loginForm');
+    let isSubmitting = false;
+
+    form.addEventListener('submit', (e) => {
+        if (isSubmitting) {
+            e.preventDefault();
+            return;
+        }
+        isSubmitting = true;
+    });
+
+    // Enter 키를 눌렀을 때 중복 제출 방지
+    form.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            // 기본 제출 동작 방지하고 한 번만 제출
+            e.preventDefault();
+            if (!isSubmitting) {
+                isSubmitting = true;
+                form.submit();
+            }
+        }
+    });
+});
+</script>
 </html>
