@@ -1,6 +1,8 @@
 package com.board.reply;
 
 import com.board.DataNotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
+import com.board.Notice.ReplyCreatedEvent;
 import com.board.question.Questions;
 import com.board.question.QuestionsRepository;
 import com.board.reply.dto.ReplysBasicDto;
@@ -22,6 +24,7 @@ public class ReplysService {
 
     private final ReplysRepository replysRepository;
     private final QuestionsRepository questionsRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Replys create(Questions questions, String content, Users users, Replys prereplys) {
         Replys replys = new Replys();
@@ -39,6 +42,15 @@ public class ReplysService {
         }
 
         replysRepository.save(replys);
+
+        eventPublisher.publishEvent(new ReplyCreatedEvent(
+                replys.getUploadnumber().longValue(),
+                prereplys != null ? prereplys.getUsers().getId() : null,
+                questions.getUsers().getId(),
+                users.getId(),
+                content
+        ));
+
         return replys;
     }
 
