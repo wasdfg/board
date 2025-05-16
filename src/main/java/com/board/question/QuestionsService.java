@@ -2,6 +2,7 @@ package com.board.question;
 
 import com.board.DataNotFoundException;
 
+import com.board.ElasticSearch.ElasticSearchService;
 import com.board.question.dto.QuestionsBasicDto;
 import com.board.question.dto.QuestionsListDto;
 import com.board.reply.Replys;
@@ -31,6 +32,8 @@ public class QuestionsService { //service에서 처리
 
     @Autowired
     private final QuestionsRepository questionsRepository;
+
+    private final ElasticSearchService elasticSearchService;
     
     /*영속성 컨택스트를 위한 코드*/
     @PersistenceContext
@@ -99,7 +102,7 @@ public class QuestionsService { //service에서 처리
             return questionsRepository.findAllWithoutKeyword(category, pageable);
         } else {
             System.out.println("yes keyword so use searchPage "+keyword);
-            return this.questionsRepository.searchPage(category,keyword,searchType,pageable);
+            return this.elasticSearchService.searchByKeyword(keyword,category,searchType,pageable);
         }
 
     }
