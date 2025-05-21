@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +38,29 @@ public class ElasticSearchService {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
-                .must(QueryBuilders.matchQuery("category", category.name()))
-                .must(QueryBuilders.multiMatchQuery(keyword, "title", "content"));
+                .must(QueryBuilders.matchQuery("category", category.name()));
+
+        switch (searchType) {
+            case TITLE:
+                boolQuery.must(QueryBuilders.matchQuery("title", keyword));
+                break;
+            case CONTENT:
+                boolQuery.must(QueryBuilders.matchQuery("content", keyword));
+                break;
+            case TITLE_CONTENT:
+                boolQuery.must(QueryBuilders.multiMatchQuery(keyword, "title", "content"));
+                break;
+            case USERNAME:
+                boolQuery.must(QueryBuilders.matchQuery("nickname", keyword));
+                break;
+            case REPLYS:
+                boolQuery.must(QueryBuilders.matchQuery("replysContent", keyword));
+                break;
+            case ALL:
+            default:
+                boolQuery.must(QueryBuilders.multiMatchQuery(keyword, "title", "content", "nickname", "replysContent"));
+                break;
+        }
 
         sourceBuilder.query(boolQuery);
         sourceBuilder.from((int) pageable.getOffset());
@@ -49,15 +71,16 @@ public class ElasticSearchService {
         try {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
             List<QuestionsListDto> results = new ArrayList<>();
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 
             for (SearchHit hit : response.getHits().getHits()) {
                 Map<String, Object> source = hit.getSourceAsMap();
 
                 QuestionsListDto dto = new QuestionsListDtoImpl(
-                        (Integer) source.get("uploadnumber"),
+                        source.get("uploadnumber") != null ? ((Number) source.get("uploadnumber")).intValue() : 0,
                         (String) source.get("title"),
                         (String) source.get("content"),
-                        source.get("nowtime") != null ? LocalDateTime.parse((String) source.get("nowtime")) : null,
+                        source.get("nowtime") != null ? LocalDateTime.parse((String) source.get("nowtime"), formatter) : null,
                         (String) source.get("category"),
                         source.get("view") != null ? ((Number) source.get("view")).intValue() : 0,
                         source.get("replysCount") != null ? ((Number) source.get("replysCount")).intValue() : 0,
@@ -68,6 +91,7 @@ public class ElasticSearchService {
             }
 
             return new PageImpl<>(results, pageable, response.getHits().getTotalHits().value);
+
         } catch (IOException e) {
             throw new RuntimeException("Elasticsearch 검색 실패", e);
         }
