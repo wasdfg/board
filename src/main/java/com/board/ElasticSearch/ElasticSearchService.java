@@ -12,6 +12,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +38,11 @@ public class ElasticSearchService {
         SearchRequest request = new SearchRequest("questions");
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
-                .must(QueryBuilders.matchQuery("category", category.name()));
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+
+        if (!category.equals(Category.ALL)) {
+            boolQuery.must(QueryBuilders.matchQuery("category", category.name()));
+        }
 
         switch (searchType) {
             case TITLE:
@@ -65,6 +69,9 @@ public class ElasticSearchService {
         sourceBuilder.query(boolQuery);
         sourceBuilder.from((int) pageable.getOffset());
         sourceBuilder.size(pageable.getPageSize());
+        sourceBuilder.sort("uploadnumber", SortOrder.DESC); // 정렬 추가
+
+        System.out.println("💡 ES Query:\n" + sourceBuilder.toString());
 
         request.source(sourceBuilder);
 
