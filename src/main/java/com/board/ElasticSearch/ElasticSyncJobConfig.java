@@ -1,20 +1,23 @@
 package com.board.ElasticSearch;
 
+import com.board.question.dto.QuestionsListDtoImpl;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
-import com.board.question.dto.QuestionsListDtoImpl;
-
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,24 +25,25 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 @EnableBatchProcessing
-public class ElasticSyncJobConfig{
+public class ElasticSyncJobConfig {
 
-    private final JobBuilderFactory jobBuilderFactory;
-    private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
-    private final ElasticsearchRestTemplate elasticsearchRestTemplate;
+    private final RestHighLevelClient restHighLevelClient;
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager transactionManager;
+
 
     @Bean
     public Job elasticSyncJob() {
-        return jobBuilderFactory.get("elasticSyncJob")
+        return new JobBuilder("elasticSyncJob", jobRepository)
                 .start(elasticSyncStep())
                 .build();
     }
 
     @Bean
     public Step elasticSyncStep() {
-        return stepBuilderFactory.get("elasticSyncStep")
-                .<QuestionsListDtoImpl, QuestionsListDtoImpl>chunk(100)
+        return new StepBuilder("elasticSyncStep", jobRepository)
+                .<QuestionsListDtoImpl, QuestionsListDtoImpl>chunk(100, transactionManager)
                 .reader(jpaReader())
                 .writer(elasticWriter())
                 .build();
@@ -79,12 +83,11 @@ public class ElasticSyncJobConfig{
                 jsonMap.put("replysCount", item.getReplysCount());
                 jsonMap.put("nickname", item.getNickname());
 
-                IndexQuery indexQuery = new IndexQueryBuilder()
-                        .withId(String.valueOf(item.getUploadnumber()))
-                        .withObject(jsonMap)
-                        .build();
+                IndexRequest request = new IndexRequest("questions")
+                        .id(String.valueOf(item.getUploadnumber()))
+                        .source(jsonMap);
 
-                elasticsearchRestTemplate.index(indexQuery, IndexCoordinates.of("questions"));
+                restHighLevelClient.index(request, RequestOptions.DEFAULT);
             }
         };
     }
