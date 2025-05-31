@@ -1,9 +1,9 @@
 package com.board.ElasticSearch;
 
-import co.elastic.clients.elasticsearch.core.BulkRequest;
 import com.board.question.dto.QuestionsListDtoImpl;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
