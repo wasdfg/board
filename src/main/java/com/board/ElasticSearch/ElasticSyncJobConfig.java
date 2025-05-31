@@ -1,8 +1,10 @@
 package com.board.ElasticSearch;
 
+import co.elastic.clients.elasticsearch.core.BulkRequest;
 import com.board.question.dto.QuestionsListDtoImpl;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -31,7 +33,6 @@ public class ElasticSyncJobConfig {
     private final RestHighLevelClient restHighLevelClient;
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
-
 
     @Bean
     public Job elasticSyncJob() {
@@ -72,6 +73,8 @@ public class ElasticSyncJobConfig {
     @Bean
     public ItemWriter<QuestionsListDtoImpl> elasticWriter() {
         return items -> {
+            BulkRequest bulkRequest = new BulkRequest();
+
             for (QuestionsListDtoImpl item : items) {
                 Map<String, Object> jsonMap = new HashMap<>();
                 jsonMap.put("uploadnumber", item.getUploadnumber());
@@ -83,11 +86,22 @@ public class ElasticSyncJobConfig {
                 jsonMap.put("replysCount", item.getReplysCount());
                 jsonMap.put("nickname", item.getNickname());
 
-                IndexRequest request = new IndexRequest("questions")
+                IndexRequest indexRequest = new IndexRequest("questions")
                         .id(String.valueOf(item.getUploadnumber()))
                         .source(jsonMap);
 
-                restHighLevelClient.index(request, RequestOptions.DEFAULT);
+                bulkRequest.add(indexRequest);
+            }
+
+            if (bulkRequest.numberOfActions() > 0) {
+                BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+
+                if (bulkResponse.hasFailures()) {
+                    System.err.println("Bulk indexing had failures: " + bulkResponse.buildFailureMessage());
+                    // 필요 시 실패 아이템 재처리 로직 추가 가능
+                } else {
+                    System.out.println("Successfully indexed batch of size: " + items.size());
+                }
             }
         };
     }
