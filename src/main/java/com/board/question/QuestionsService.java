@@ -5,25 +5,19 @@ import com.board.DataNotFoundException;
 import com.board.ElasticSearch.ElasticSearchService;
 import com.board.question.dto.QuestionsBasicDto;
 import com.board.question.dto.QuestionsListDto;
-import com.board.reply.Replys;
 import com.board.reply.ReplysRepository;
 import com.board.user.Users;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.StopWatch;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -34,6 +28,8 @@ public class QuestionsService { //service에서 처리
     private final QuestionsRepository questionsRepository;
 
     private final ElasticSearchService elasticSearchService;
+
+    private final ApplicationEventPublisher eventPublisher;
     
     /*영속성 컨택스트를 위한 코드*/
     @PersistenceContext
@@ -61,17 +57,19 @@ public class QuestionsService { //service에서 처리
     public void createQuestions(String title, String content, Users users,Category category){
         Questions questions = Questions.create(title,content,users,category);
         em.persist(questions);
-
+        eventPublisher.publishEvent(new QuestionsCreatedEvent(questions));
     }
 
     @Transactional
     public void modify(Questions questions,String title,String content){ //수정할 내용 저장
         questions.modify(title, content);
+        eventPublisher.publishEvent(new QuestionsModifiedEvent(questions));
     }
 
     @Transactional
     public void delete(Questions questions){
         this.questionsRepository.delete(questions);
+        eventPublisher.publishEvent(new QuestionsDeletedEvent(questions.getUploadnumber()));
     }
 
     @Transactional

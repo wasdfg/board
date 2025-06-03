@@ -2,7 +2,12 @@ package com.board.question.dto;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+
+@Document(indexName = "questions")
 public class QuestionsListDtoImpl implements QuestionsListDto {
+    @Id
     private final Integer uploadnumber;
     private final String title;
     private final String content;

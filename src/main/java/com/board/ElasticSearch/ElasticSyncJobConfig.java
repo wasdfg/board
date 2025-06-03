@@ -1,13 +1,11 @@
 package com.board.ElasticSearch;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
 import com.board.question.dto.QuestionsListDtoImpl;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -30,8 +28,8 @@ import java.util.Map;
 public class ElasticSyncJobConfig {
 
     private final EntityManagerFactory entityManagerFactory;
-    private final RestHighLevelClient restHighLevelClient;
     private final JobRepository jobRepository;
+    private final ElasticsearchClient elasticsearchClient;
     private final PlatformTransactionManager transactionManager;
 
     @Bean
@@ -73,35 +71,37 @@ public class ElasticSyncJobConfig {
     @Bean
     public ItemWriter<QuestionsListDtoImpl> elasticWriter() {
         return items -> {
-            BulkRequest bulkRequest = new BulkRequest();
+            if (items.isEmpty()) return;
+
+            BulkRequest.Builder bulkBuilder = new BulkRequest.Builder();
 
             for (QuestionsListDtoImpl item : items) {
                 Map<String, Object> jsonMap = new HashMap<>();
                 jsonMap.put("uploadnumber", item.getUploadnumber());
                 jsonMap.put("title", item.getTitle());
                 jsonMap.put("content", item.getContent());
-                jsonMap.put("nowtime", item.getNowtime());
+                jsonMap.put("nowtime", item.getNowtime().toString()); // 문자열로 변환 필요
                 jsonMap.put("category", item.getCategory());
                 jsonMap.put("view", item.getView());
                 jsonMap.put("replysCount", item.getReplysCount());
                 jsonMap.put("nickname", item.getNickname());
 
-                IndexRequest indexRequest = new IndexRequest("questions")
-                        .id(String.valueOf(item.getUploadnumber()))
-                        .source(jsonMap);
-
-                bulkRequest.add(indexRequest);
+                bulkBuilder.operations(op -> op
+                        .index(idx -> idx
+                                .index("questions")
+                                .id(String.valueOf(item.getUploadnumber()))
+                                .document(jsonMap)
+                        )
+                );
             }
 
-            if (bulkRequest.numberOfActions() > 0) {
-                BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+            BulkResponse bulkResponse = elasticsearchClient.bulk(bulkBuilder.build());
 
-                if (bulkResponse.hasFailures()) {
-                    System.err.println("Bulk indexing had failures: " + bulkResponse.buildFailureMessage());
-                    // 필요 시 실패 아이템 재처리 로직 추가 가능
-                } else {
-                    System.out.println("Successfully indexed batch of size: " + items.size());
-                }
+            if (bulkResponse.errors()) {
+                System.err.println("Bulk indexing had failures");
+                // 실패 처리 로직 추가 가능
+            } else {
+                System.out.println("Successfully indexed batch of size: " + items.size());
             }
         };
     }
