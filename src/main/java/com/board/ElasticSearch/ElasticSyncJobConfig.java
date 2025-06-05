@@ -99,7 +99,7 @@ public class ElasticSyncJobConfig {
 
             if (bulkResponse.errors()) {
                 System.err.println("Bulk indexing had failures");
-                // 실패 처리 로직 추가 가능
+
             } else {
                 System.out.println("Successfully indexed batch of size: " + items.size());
             }
