@@ -46,7 +46,7 @@ public class QuestionsSearchService {
                 questions.getNowtime(),
                 questions.getCategory(),
                 questions.getView(),
-                questions.getReplysList().size(),
+                (long) questions.getReplysList().size(),
                 questions.getUsers().getNickname()
         );
     }

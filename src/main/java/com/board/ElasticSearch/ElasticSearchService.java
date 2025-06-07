@@ -82,7 +82,7 @@ public class ElasticSearchService {
                     source.get("nowtime") != null ? LocalDateTime.parse((String) source.get("nowtime"), formatter) : null,
                     (String) source.get("category"),
                     source.get("view") != null ? ((Number) source.get("view")).intValue() : 0,
-                    source.get("replysCount") != null ? ((Number) source.get("replysCount")).intValue() : 0,
+                    (source.get("replysCount") != null ? ((Number) source.get("replysCount")).longValue() : 0L),
                     (String) source.get("nickname")
             );
             results.add(dto);

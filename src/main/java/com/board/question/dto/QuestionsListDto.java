@@ -10,7 +10,7 @@ public interface QuestionsListDto {
     LocalDateTime getNowtime();
     String getCategory();
     int getView();
-    int getReplysCount();
+    Long getReplysCount();
     String getNickname();
 
 }
