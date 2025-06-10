@@ -1,6 +1,5 @@
 package com.board.Question;
 
-import com.board.Image.QuestionsImage;
 import com.board.Reply.Replys;
 import com.board.User.Users;
 import jakarta.persistence.CascadeType;

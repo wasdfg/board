@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +21,6 @@ public class QuestionsForm {
 
     @NotNull(message = "카테고리를 입력해 주세요.")
     private Category category;
+
+    private List<MultipartFile> images;
 }

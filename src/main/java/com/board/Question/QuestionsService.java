@@ -5,6 +5,8 @@ import com.board.DataNotFoundException;
 import com.board.ElasticSearch.ElasticSearchService;
 import com.board.Question.Dto.QuestionsBasicDto;
 import com.board.Question.Dto.QuestionsListDto;
+import com.board.Question.Repository.QuestionsImageRepository;
+import com.board.Question.Repository.QuestionsRepository;
 import com.board.Reply.ReplysRepository;
 import com.board.User.Users;
 import jakarta.persistence.EntityManager;
@@ -17,7 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -30,7 +35,9 @@ public class QuestionsService { //service에서 처리
     private final ElasticSearchService elasticSearchService;
 
     private final ApplicationEventPublisher eventPublisher;
-    
+
+    private final QuestionsImageRepository questionsImageRepository;
+
     /*영속성 컨택스트를 위한 코드*/
     @PersistenceContext
     private EntityManager em;
@@ -103,5 +110,28 @@ public class QuestionsService { //service에서 처리
             return this.elasticSearchService.searchByKeyword(keyword,category,searchType,pageable);
         }
 
+    }
+
+    @Transactional
+    public void saveImages(Questions questions, List<MultipartFile> files) {
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                try {
+                    byte[] data = file.getBytes();
+                    String originalName = file.getOriginalFilename();
+                    String contentType = file.getContentType();
+
+                    QuestionsImage image = new QuestionsImage();
+                    image.setQuestions(questions);
+                    image.setFileName(originalName);
+                    image.setContentType(contentType);
+                    image.setData(data);
+
+                    questionsImageRepository.save(image);
+                } catch (IOException e) {
+                    throw new RuntimeException("이미지 저장 실패", e);
+                }
+            }
+        }
     }
 }

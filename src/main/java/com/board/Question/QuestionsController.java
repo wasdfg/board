@@ -119,6 +119,10 @@ public class QuestionsController { //controller에서 요청을 받아와서
         }
         Users users = this.usersService.getUsers(principal.getName());
         this.questionsService.createQuestions(questionsForm.getTitle(),questionsForm.getContent(),users,questionsForm.getCategory());
+
+        if (questionsForm.getImages() != null && !questionsForm.getImages().isEmpty()) {
+            this.questionsService.saveImages(questions, questionsForm.getImages());
+        }
         return "redirect:/questions/list";
     }
 
