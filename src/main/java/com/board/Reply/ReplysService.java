@@ -4,7 +4,7 @@ import com.board.DataNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import com.board.Notice.ReplyCreatedEvent;
 import com.board.Question.Questions;
-import com.board.Question.QuestionsRepository;
+import com.board.Question.Repository.QuestionsRepository;
 import com.board.Reply.dto.ReplysBasicDto;
 import com.board.User.Users;
 import lombok.RequiredArgsConstructor;

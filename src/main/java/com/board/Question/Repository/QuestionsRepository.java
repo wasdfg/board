@@ -1,6 +1,7 @@
-package com.board.Question;
+package com.board.Question.Repository;
 
 import com.board.Question.Dto.QuestionsBasicDto;
+import com.board.Question.Questions;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

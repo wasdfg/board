@@ -3,7 +3,7 @@ package com.board.ElasticSearch;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
-import com.board.question.dto.QuestionsListDtoImpl;
+import com.board.Question.Dto.QuestionsListDtoImpl;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -50,6 +50,7 @@ public class ElasticSyncJobConfig {
 
     @Bean
     public JpaPagingItemReader<QuestionsListDtoImpl> jpaReader() {
+        System.out.println("JpaPagingItemReader 실행!");
         return new JpaPagingItemReaderBuilder<QuestionsListDtoImpl>()
                 .name("questionsReader")
                 .entityManagerFactory(entityManagerFactory)
@@ -93,6 +94,8 @@ public class ElasticSyncJobConfig {
                                 .document(jsonMap)
                         )
                 );
+
+                System.out.println("색인 데이터: " + item);
             }
 
             BulkResponse bulkResponse = elasticsearchClient.bulk(bulkBuilder.build());

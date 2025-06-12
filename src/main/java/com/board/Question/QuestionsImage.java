@@ -1,6 +1,5 @@
-package com.board.Image;
+package com.board.Question;
 
-import com.board.Question.Questions;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

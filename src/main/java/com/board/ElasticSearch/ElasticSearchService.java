@@ -1,9 +1,9 @@
 package com.board.ElasticSearch;
 
-import com.board.question.Category;
-import com.board.question.SearchType;
-import com.board.question.dto.QuestionsListDto;
-import com.board.question.dto.QuestionsListDtoImpl;
+import com.board.Question.Category;
+import com.board.Question.SearchType;
+import com.board.Question.Dto.QuestionsListDto;
+import com.board.Question.Dto.QuestionsListDtoImpl;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;

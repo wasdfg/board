@@ -1,6 +1,9 @@
-package com.board.Question;
+package com.board.Question.Repository;
 
+import com.board.Question.Category;
 import com.board.Question.Dto.QuestionsListDto;
+import com.board.Question.Repository.QuestionsRepositoryCustom;
+import com.board.Question.SearchType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
