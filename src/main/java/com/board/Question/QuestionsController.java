@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -118,10 +119,13 @@ public class QuestionsController { //controller에서 요청을 받아와서
             return "questions_form";
         }
         Users users = this.usersService.getUsers(principal.getName());
-        this.questionsService.createQuestions(questionsForm.getTitle(),questionsForm.getContent(),users,questionsForm.getCategory());
+        try {
 
-        if (questionsForm.getImages() != null && !questionsForm.getImages().isEmpty()) {
-            this.questionsService.saveImages(questions, questionsForm.getImages());
+            questionsService.createQuestionsWithImages(questionsForm, users);
+        } catch (IOException e) {
+
+            bindingResult.reject("imageUploadError", "이미지 업로드 중 오류가 발생했습니다.");
+            return "questions_form";
         }
         return "redirect:/questions/list";
     }

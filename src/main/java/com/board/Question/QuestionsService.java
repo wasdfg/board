@@ -21,9 +21,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -61,10 +65,11 @@ public class QuestionsService { //service에서 처리
 
 
     @Transactional
-    public void createQuestions(String title, String content, Users users,Category category){
+    public Questions createQuestions(String title, String content, Users users,Category category){
         Questions questions = Questions.create(title,content,users,category);
         em.persist(questions);
         eventPublisher.publishEvent(new QuestionsCreatedEvent(questions));
+        return questions;
     }
 
     @Transactional
@@ -113,23 +118,21 @@ public class QuestionsService { //service에서 처리
     }
 
     @Transactional
-    public void saveImages(Questions questions, List<MultipartFile> files) {
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                try {
-                    byte[] data = file.getBytes();
-                    String originalName = file.getOriginalFilename();
-                    String contentType = file.getContentType();
+    public void createQuestionsWithImages(QuestionsForm form, Users users) throws IOException {
+        Questions questions = createQuestions(form.getTitle(),form.getContent(),users, form.getCategory());
 
-                    QuestionsImage image = new QuestionsImage();
-                    image.setQuestions(questions);
-                    image.setFileName(originalName);
-                    image.setContentType(contentType);
-                    image.setData(data);
-
-                    questionsImageRepository.save(image);
-                } catch (IOException e) {
-                    throw new RuntimeException("이미지 저장 실패", e);
+        List<MultipartFile> images = form.getImages();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    QuestionsImage questionsImage = QuestionsImage.create(
+                            image.getOriginalFilename(),
+                            image.getContentType(),
+                            image.getSize(),
+                            image.getBytes(),
+                            questions
+                    );
+                    em.persist(questionsImage);
                 }
             }
         }
