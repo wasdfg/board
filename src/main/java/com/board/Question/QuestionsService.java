@@ -121,10 +121,15 @@ public class QuestionsService { //service에서 처리
     public void createQuestionsWithImages(QuestionsForm form, Users users) throws IOException {
         Questions questions = createQuestions(form.getTitle(),form.getContent(),users, form.getCategory());
 
+        long maxFileSize = 5 * 1024 * 1024;
+
         List<MultipartFile> images = form.getImages();
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
+                    if (image.getSize() > maxFileSize) {
+                        throw new IllegalArgumentException("이미지 크기가 너무 큽니다. 5MB 이하만 업로드 가능합니다.");
+                    }
                     QuestionsImage questionsImage = QuestionsImage.create(
                             image.getOriginalFilename(),
                             image.getContentType(),
