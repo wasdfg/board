@@ -11,7 +11,7 @@ import com.board.Reply.ReplysRepository;
 import com.board.User.Users;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -136,5 +136,10 @@ public class QuestionsService { //service에서 처리
                 }
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestionsImage> getImagesByUploadNumber(Integer uploadNumber) {
+        return questionsImageRepository.findByQuestionsUploadNumber(uploadNumber);
     }
 }

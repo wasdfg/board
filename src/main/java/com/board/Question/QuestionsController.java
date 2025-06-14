@@ -29,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,10 +96,18 @@ public class QuestionsController { //controller에서 요청을 받아와서
 
         List<Replys> replysList = replysService.getReplysList(uploadnumber);
 
+        List<QuestionsImage> imageEntities = questionsService.getImagesByUploadNumber(uploadnumber);
+
+        List<String> base64Images = imageEntities.stream()
+                .map(img -> "data:" + img.getContentType() + ";base64," +
+                        Base64.getEncoder().encodeToString(img.getData()))
+                .toList();
+
         readTrackingManager.saveReadQuestion(request, response, session, principal, uploadnumber);
 
         model.addAttribute("replysList",replysList);
         model.addAttribute("questions",questions);
+        model.addAttribute("images", base64Images);
 
         return "questions_detail";
     }

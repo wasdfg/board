@@ -1,7 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
     <h5 class="my-3 border-bottom pb-2">질문등록</h5>
-    <form th:object="${questionsForm}" method="post" onsubmit="return validateForm()">
+    <form th:object="${questionsForm}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>  <!--form_errors.html의 파일을 적용시킨다 -->
         <div>
@@ -20,6 +20,12 @@
             <label for="content" class="form-label">내용</label>
             <textarea th:field="*{content}" id="content" class="form-control" rows="10"></textarea>
         </div>
+
+        <div class="mb-3">
+            <label for="images" class="form-label">이미지 업로드</label>
+            <input type="file" th:field="*{images}" id="images" class="form-control" multiple>
+        </div>
+
         <input type="submit" value="저장하기" class="btn btn-primary my-2">
     </form>
 </div>
