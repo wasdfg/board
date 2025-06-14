@@ -36,6 +36,15 @@
             alert('카테고리를 선택해주세요');
             return false;
         }
+
+        const files = document.getElementById('images').files;
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > maxSize) {
+                alert("각 이미지의 크기는 5MB를 넘을 수 없습니다.");
+                return false;
+            }
+        }
         return true;
     }
 </script>
