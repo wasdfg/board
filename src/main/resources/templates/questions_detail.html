@@ -5,6 +5,16 @@
     <div class="card my-3">
         <div class="card-body">
             <div class="card-text" th:utext="${@commonUtil.markdown(questions.content)}"></div>
+
+            <!--이미지 출력-->
+            <div class="my-3" th:if="${images != null}">
+                <div class="row">
+                    <div class="col-md-4 mb-3" th:each="image : ${images}">
+                        <img th:src="'data:image/jpeg;base64,' + ${image}" class="img-fluid rounded shadow-sm" alt="질문 이미지">
+                    </div>
+                </div>
+            </div>
+
             <!--text 대신 utext를 사용하는 이유는 text로 사용하게 되면 html태그가 이스케이프 처리되어 화면에 그대로 표시되기 때문-->
             <div class="d-flex justify-content-end">
                 <div th:if="${questions.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
