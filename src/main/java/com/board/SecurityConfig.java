@@ -35,7 +35,9 @@ import java.io.IOException;
 public class SecurityConfig{
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.authorizeRequests(auth-> auth.requestMatchers("/**","/h2-console/**","/user/findPwd/**","/questions/detail/**", "/user/login").permitAll())
+        http.authorizeRequests(auth-> auth
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/**","/h2-console/**","/user/findPwd/**","/questions/detail/**", "/user/login").permitAll())
                 .csrf((csrf) -> csrf
                         .ignoringRequestMatchers("/h2-console/**","/user/findPwd/**","/questions/detail/**", "/user/login")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))

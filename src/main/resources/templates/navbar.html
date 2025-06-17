@@ -21,6 +21,10 @@
                     </a></li>
                     <li><a class="dropdown-item" th:href="@{/user/chkinfo}">비밀번호 변경</a></li>
                     <li><a class="dropdown-item" th:href="@{/user/showQNA}">내가 쓴 글 확인</a></li>
+
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a class="dropdown-item" th:href="@{/admin/dashboard}">관리자 페이지</a>
+                    </li>
                 </ul>
             </div>
         </div>
