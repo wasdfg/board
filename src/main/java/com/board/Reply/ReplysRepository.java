@@ -28,7 +28,7 @@ public interface ReplysRepository extends JpaRepository<Replys,Integer>{
             " from replys_tree"+
             " order by path"
             , nativeQuery = true)
-    List<Replys> findReplysByQuestionsid(@Param("id") Integer id);
+    List<Replys> findReplysByQuestionsId(@Param("id") Integer id);
 
     @Query("""
     select r.content as content,

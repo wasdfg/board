@@ -34,7 +34,7 @@ public class ReplysService {
         replys.setUsers(users);
 
         if (prereplys != null) {
-            replys.setParent_id(prereplys.getUploadnumber());
+            replys.setParent_id(prereplys.getId());
             replys.setDepth(Math.min(prereplys.getDepth() + 1, 15)); // 깊이 제한
         } else {
             replys.setParent_id(null);
@@ -44,7 +44,7 @@ public class ReplysService {
         replysRepository.save(replys);
 
         eventPublisher.publishEvent(new ReplyCreatedEvent(
-                replys.getUploadnumber().longValue(),
+                replys.getId().longValue(),
                 prereplys != null ? prereplys.getUsers().getId() : null,
                 questions.getUsers().getId(),
                 users.getId(),
@@ -55,8 +55,8 @@ public class ReplysService {
     }
 
     @Transactional(readOnly = true)
-    public Replys getReplys(Integer uploadnumber) {
-        return replysRepository.findById(uploadnumber)
+    public Replys getReplys(Integer id) {
+        return replysRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("replys not found"));
     }
 
@@ -86,10 +86,10 @@ public class ReplysService {
         return replysRepository.findByUser(id, pageable);
     }
 
-    public List<Replys> getReplysList(Integer uploadnumber) {
-        if (!questionsRepository.existsById(uploadnumber)) {
+    public List<Replys> getReplysList(Integer id) {
+        if (!questionsRepository.existsById(id)) {
             throw new DataNotFoundException("questions not found");
         }
-        return this.replysRepository.findReplysByQuestionsUploadnumber(uploadnumber);
+        return this.replysRepository.findReplysByQuestionsId(id);
     }
 }
