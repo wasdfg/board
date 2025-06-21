@@ -46,11 +46,11 @@ public class ReadTrackingManager {
     }
 
     public void saveReadQuestion(HttpServletRequest request, HttpServletResponse response, HttpSession session,
-                                 Principal principal, Integer uploadnumber) {
+                                 Principal principal, Integer id) {
         Set<Integer> readQuestions = getReadQuestions(request, session, principal);
-        if (readQuestions.contains(uploadnumber)) return;
+        if (readQuestions.contains(id)) return;
 
-        readQuestions.add(uploadnumber);
+        readQuestions.add(id);
 
         if (principal != null) {
             session.setAttribute("readQuestions", readQuestions);

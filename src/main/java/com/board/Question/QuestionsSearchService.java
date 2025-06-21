@@ -25,11 +25,11 @@ public class QuestionsSearchService {
         indexDocument(dto);
     }
 
-    public void delete(Integer questionsUploadnumber) {
+    public void delete(Integer questionsId) {
         try {
             DeleteRequest deleteRequest = DeleteRequest.of(d -> d
                     .index("questions")
-                    .id(String.valueOf(questionsUploadnumber))
+                    .id(String.valueOf(questionsId))
             );
             DeleteResponse response = elasticsearchClient.delete(deleteRequest);
 
@@ -40,7 +40,7 @@ public class QuestionsSearchService {
 
     private QuestionsListDtoImpl convertToDto(Questions questions) {
         return new QuestionsListDtoImpl(
-                questions.getUploadnumber(),
+                questions.getId(),
                 questions.getTitle(),
                 questions.getContent(),
                 questions.getNowtime(),
@@ -55,7 +55,7 @@ public class QuestionsSearchService {
         try {
             IndexRequest<QuestionsListDtoImpl> request = IndexRequest.of(i -> i
                     .index("questions")
-                    .id(String.valueOf(dto.getUploadnumber()))
+                    .id(String.valueOf(dto.getId()))
                     .document(dto)
             );
             IndexResponse response = elasticsearchClient.index(request);

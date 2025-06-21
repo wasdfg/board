@@ -27,8 +27,8 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
         StringBuilder sb = new StringBuilder();
         sb.append("""
             SELECT new com.board.question.dto.QuestionsListDtoImpl(
-                q.uploadnumber, q.title, q.content, q.nowtime, q.category, q.view,
-                (SELECT COUNT(r) FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber),
+                q.id, q.title, q.content, q.nowtime, q.category, q.view,
+                (SELECT COUNT(r) FROM Replys r WHERE r.questions.id = q.id),
                 u.nickname
             )
             FROM Questions q
@@ -48,7 +48,7 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
                     q.content LIKE CONCAT('%' ,:keyword, '%') OR
                     u.nickname LIKE CONCAT('%' ,:keyword, '%') OR
                     EXISTS (
-                        SELECT 1 FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber
+                        SELECT 1 FROM Replys r WHERE r.questions.id = q.id
                         AND r.content LIKE CONCAT('%' , :keyword, '%')
                     )
                 """);
@@ -57,7 +57,7 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
                 case USERNAME -> sb.append("u.nickname LIKE CONCAT('%' ,:keyword, '%')");
                 case REPLYS -> sb.append("""
                     EXISTS (
-                        SELECT 1 FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber
+                        SELECT 1 FROM Replys r WHERE r.questions.id = q.id
                         AND r.content LIKE CONCAT('%' ,:keyword, '%')
                     )
                 """);
@@ -70,7 +70,7 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
             sb.append(")");
         }
 
-        sb.append(" ORDER BY q.uploadnumber DESC");
+        sb.append(" ORDER BY q.id DESC");
 
         TypedQuery<QuestionsListDto> query = em.createQuery(sb.toString(), QuestionsListDto.class)
                 .setFirstResult((int) pageable.getOffset())
@@ -102,7 +102,7 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
                 q.content LIKE CONCAT('%' ,:keyword, '%') OR
                 u.nickname LIKE CONCAT('%' ,:keyword, '%') OR
                 EXISTS (
-                    SELECT 1 FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber
+                    SELECT 1 FROM Replys r WHERE r.questions.id = q.id
                     AND r.content LIKE CONCAT('%' , :keyword, '%')
                 )
             """);
@@ -111,7 +111,7 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
                 case USERNAME -> countSb.append("u.nickname LIKE CONCAT('%' , :keyword, '%')");
                 case REPLYS -> countSb.append("""
                 EXISTS (
-                    SELECT 1 FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber
+                    SELECT 1 FROM Replys r WHERE r.questions.id = q.id
                     AND r.content LIKE CONCAT('%' ,:keyword, '%')
                 )
             """);
@@ -140,8 +140,8 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
     public Page<QuestionsListDto> findAllWithoutKeyword(Category category, Pageable pageable) {
         StringBuilder jpql = new StringBuilder("""
         SELECT new com.board.question.dto.QuestionsListDtoImpl(
-            q.uploadnumber, q.title, q.content, q.nowtime, q.category, q.view,
-            (SELECT COUNT(r) FROM Replys r WHERE r.questions.uploadnumber = q.uploadnumber),
+            q.id, q.title, q.content, q.nowtime, q.category, q.view,
+            (SELECT COUNT(r) FROM Replys r WHERE r.questions.id = q.id),
             u.nickname
         )
         FROM Questions q
@@ -155,7 +155,7 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
             hasWhere = true;
         }
 
-        jpql.append(" ORDER BY q.uploadnumber DESC");
+        jpql.append(" ORDER BY q.id DESC");
 
         TypedQuery<QuestionsListDto> query = em.createQuery(jpql.toString(), QuestionsListDto.class)
                 .setFirstResult((int) pageable.getOffset())

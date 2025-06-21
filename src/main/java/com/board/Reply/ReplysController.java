@@ -28,9 +28,9 @@ public class ReplysController {
     private final UsersService usersService;
 
     @PreAuthorize("isAuthenticated()")//로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
-    @PostMapping("/create/{uploadnumber}") //post로 처리 대용량처리에 용이
-    public String replysCreate(Model model, @PathVariable("uploadnumber") Integer uploadnumber, @Valid ReplysForm replysForm, BindingResult bindingResult,Principal principal, @RequestParam(value = "parentId", required = false) Integer parentId){//principal은 현재 로그인한 유저의 정보를 알려준다
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
+    @PostMapping("/create/{id}") //post로 처리 대용량처리에 용이
+    public String replysCreate(Model model, @PathVariable("id") Integer id, @Valid ReplysForm replysForm, BindingResult bindingResult,Principal principal, @RequestParam(value = "parentId", required = false) Integer parentId){//principal은 현재 로그인한 유저의 정보를 알려준다
+        Questions questions = this.questionsService.getQuestions(id);
         Users users = this.usersService.getUsers(principal.getName());
 
         if(bindingResult.hasErrors()){
@@ -43,13 +43,13 @@ public class ReplysController {
             Preplys = this.replysService.getReplys(parentId);
         }
         Replys replys = this.replysService.create(questions,replysForm.getContent(),users,Preplys);
-        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
+        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getId(),replys.getId());
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/modify/{uploadnumber}")
-    public String replysModify(ReplysForm replysForm, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
-        Replys replys = this.replysService.getReplys(uploadnumber);
+    @GetMapping("/modify/{id}")
+    public String replysModify(ReplysForm replysForm, @PathVariable("id") Integer id, Principal principal) {
+        Replys replys = this.replysService.getReplys(id);
         if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
@@ -58,35 +58,35 @@ public class ReplysController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/modify/{uploadnumber}")
+    @PostMapping("/modify/{id}")
     public String replysModify(@Valid ReplysForm replysForm, BindingResult bindingResult,
-                               @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
+                               @PathVariable("id") Integer id, Principal principal) {
         if (bindingResult.hasErrors()) {
             return "replys_form";
         }
-        Replys replys = this.replysService.getReplys(uploadnumber);
+        Replys replys = this.replysService.getReplys(id);
         if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         this.replysService.modify(replys, replysForm.getContent());
-        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
+        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getId());
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/delete/{uploadnumber}")
-    public String replysDelete(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
-        Replys replys = this.replysService.getReplys(uploadnumber);
+    @GetMapping("/delete/{id}")
+    public String replysDelete(Principal principal, @PathVariable("id") Integer id) {
+        Replys replys = this.replysService.getReplys(id);
         if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
-        this.replysService.delete(replys.getUploadnumber());
-        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getUploadnumber());
+        this.replysService.delete(replys.getId());
+        return String.format("redirect:/questions/detail/%s", replys.getQuestions().getId());
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/vote/{uploadnumber}")
-    public String replysVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber,Model model) {
-        Replys replys = this.replysService.getReplys(uploadnumber);
+    @GetMapping("/vote/{id}")
+    public String replysVote(Principal principal, @PathVariable("id") Integer id,Model model) {
+        Replys replys = this.replysService.getReplys(id);
         Users users = this.usersService.getUsers(principal.getName());
         if(replys.getVoter().contains(users) == true){ //이미 투표를 했는지 확인
             model.addAttribute("voted",true);
@@ -94,7 +94,7 @@ public class ReplysController {
         else{
             this.replysService.vote(replys, users);
         }
-        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getUploadnumber(),replys.getUploadnumber());
+        return String.format("redirect:/questions/detail/%s#replys_%s",replys.getQuestions().getId(),replys.getId());
     }
 }
 

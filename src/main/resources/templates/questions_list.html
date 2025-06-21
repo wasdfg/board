@@ -24,8 +24,8 @@
         </thead>
         <tbody>
         <tr class="text-center" th:each="questions, loop : ${paging.content}"
-            th:data-id="${questions.uploadnumber}"
-            th:classappend="${readQuestions.contains(questions.uploadnumber)} ? 'read' : ''">
+            th:data-id="${questions.id}"
+            th:classappend="${readQuestions.contains(questions.id)} ? 'read' : ''">
             <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
             <td class="text-start">
                 <span th:text="${questions.title}"></span>

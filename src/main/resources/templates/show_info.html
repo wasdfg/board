@@ -26,7 +26,7 @@
         <tr th:if="${type == 'question'}" th:each="questions, loop : ${Qpaging}">
             <td th:text="${Qpaging.getTotalElements() - (Qpaging.number * Qpaging.size) - loop.index}"></td>
             <td class="text-start text-truncate">
-                <a th:href="@{|/questions/detail/${questions.uploadnumber}|}"
+                <a th:href="@{|/questions/detail/${questions.id}|}"
                    th:text="${questions.title}" th:title="${questions.title}"></a>
             </td>
             <td th:text="${#temporals.format(questions.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>
@@ -36,7 +36,7 @@
         <tr th:if="${type == 'replys'}" th:each="replys, loop : ${Rpaging}">
             <td th:text="${Rpaging.getTotalElements() - (Rpaging.number * Rpaging.size) - loop.index}"></td>
             <td class="text-start text-truncate">
-                <a th:href="@{|/questions/detail/${replys.questionsUploadnumber}|}"
+                <a th:href="@{|/questions/detail/${replys.questionsid}|}"
                    th:text="${replys.content}" th:title="${replys.content}"></a>
             </td>
             <td th:text="${#temporals.format(replys.nowtime, 'yyyy-MM-dd HH:mm:ss')}"></td>

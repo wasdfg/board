@@ -9,6 +9,6 @@ public interface ReplysBasicDto {
 
     LocalDateTime getNowtime();
 
-    Integer getQuestionsUploadnumber();
+    Integer getQuestionsId();
 
 }

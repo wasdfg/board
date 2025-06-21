@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 @EnableJpaRepositories
 public interface QuestionsRepository extends JpaRepository<Questions,Integer>, QuestionsRepositoryCustom {
 
-    @Query("SELECT q FROM Questions q WHERE q.users.id = :id ORDER BY q.uploadnumber desc")
+    @Query("SELECT q FROM Questions q WHERE q.users.id = :id ORDER BY q.id desc")
     Page<QuestionsBasicDto> findByUser(@Param("id")Long id, Pageable pageable);
 
 }

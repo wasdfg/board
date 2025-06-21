@@ -1,13 +1,13 @@
 package com.board.Question;
 
 public class QuestionsDeletedEvent {
-    private final Integer questionsUploadnumber;
+    private final Integer questionsid;
 
-    public QuestionsDeletedEvent(Integer questionsUploadnumber) {
-        this.questionsUploadnumber = questionsUploadnumber;
+    public QuestionsDeletedEvent(Integer questionsid) {
+        this.questionsid = questionsid;
     }
 
-    public Integer getQuestionsUploadnumber() {
-        return questionsUploadnumber;
+    public Integer getQuestionsid() {
+        return questionsid;
     }
 }

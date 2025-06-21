@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface QuestionsImageRepository extends JpaRepository<QuestionsImage, Long> {
-    List<QuestionsImage> findByQuestionsUploadNumber(Integer uploadNumber);
+    List<QuestionsImage> findByQuestionsId(Integer id);
 }

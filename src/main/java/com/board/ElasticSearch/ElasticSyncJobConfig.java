@@ -56,13 +56,13 @@ public class ElasticSyncJobConfig {
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("""
                     SELECT new com.board.question.dto.QuestionsListDtoImpl(
-                        q.uploadnumber, q.title, q.content, q.nowtime,
+                        q.id, q.title, q.content, q.nowtime,
                         q.category, q.view, COUNT(r), u.nickname
                     )
                     FROM Questions q
                     JOIN q.users u
                     LEFT JOIN q.replysList r
-                    GROUP BY q.uploadnumber, q.title, q.content, q.nowtime,
+                    GROUP BY q.id, q.title, q.content, q.nowtime,
                              q.category, q.view, u.nickname
                     """)
                 .pageSize(100)
@@ -78,7 +78,7 @@ public class ElasticSyncJobConfig {
 
             for (QuestionsListDtoImpl item : items) {
                 Map<String, Object> jsonMap = new HashMap<>();
-                jsonMap.put("uploadnumber", item.getUploadnumber());
+                jsonMap.put("id", item.getid());
                 jsonMap.put("title", item.getTitle());
                 jsonMap.put("content", item.getContent());
                 jsonMap.put("nowtime", item.getNowtime().toString()); // 문자열로 변환 필요
@@ -90,7 +90,7 @@ public class ElasticSyncJobConfig {
                 bulkBuilder.operations(op -> op
                         .index(idx -> idx
                                 .index("questions")
-                                .id(String.valueOf(item.getUploadnumber()))
+                                .id(String.valueOf(item.getid()))
                                 .document(jsonMap)
                         )
                 );

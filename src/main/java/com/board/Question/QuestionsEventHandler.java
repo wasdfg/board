@@ -22,6 +22,6 @@ public class QuestionsEventHandler {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleQuestionsDeleted(QuestionsDeletedEvent event) {
-        questionsSearchService.delete(event.getQuestionsUploadnumber());
+        questionsSearchService.delete(event.getQuestionsid());
     }
 }

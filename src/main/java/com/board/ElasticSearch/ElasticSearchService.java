@@ -76,7 +76,7 @@ public class ElasticSearchService {
             Map<String, Object> source = hit.getContent() != null ? (Map<String, Object>) hit.getContent() : Map.of();
 
             QuestionsListDto dto = new QuestionsListDtoImpl(
-                    source.get("uploadnumber") != null ? ((Number) source.get("uploadnumber")).intValue() : 0,
+                    source.get("id") != null ? ((Number) source.get("id")).intValue() : 0,
                     (String) source.get("title"),
                     (String) source.get("content"),
                     source.get("nowtime") != null ? LocalDateTime.parse((String) source.get("nowtime"), formatter) : null,

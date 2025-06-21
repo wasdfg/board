@@ -15,28 +15,28 @@ import java.util.List;
 public interface ReplysRepository extends JpaRepository<Replys,Integer>{
 
     @Query(value = "WITH RECURSIVE replys_tree AS (" +
-            "select uploadnumber,content,questions_uploadnumber,user_id,nowtime,modify_Date,parent_id,depth,deleted, CAST(LPAD(uploadnumber, 10, '0') AS CHAR(255)) AS path"+
+            "select id,content,questions_id,user_id,nowtime,modify_Date,parent_id,depth,deleted, CAST(LPAD(id, 10, '0') AS CHAR(255)) AS path"+
             " from replys"+
             " where parent_id is null"+
-            " and questions_uploadnumber = :uploadnumber"+
+            " and questions_id = :id"+
             " UNION ALL" +
-            " select rp.uploadnumber,rp.content,rp.questions_uploadnumber,rp.user_id,rp.nowtime,rp.modify_Date,rp.parent_id,rp.depth,rp.deleted,CAST(CONCAT(replys_tree.path, '.', LPAD(rp.uploadnumber, 10, '0')) AS CHAR(255)) AS path"+
+            " select rp.id,rp.content,rp.questions_id,rp.user_id,rp.nowtime,rp.modify_Date,rp.parent_id,rp.depth,rp.deleted,CAST(CONCAT(replys_tree.path, '.', LPAD(rp.id, 10, '0')) AS CHAR(255)) AS path"+
             " from replys as rp"+
-            " inner join replys_tree on rp.parent_id = replys_tree.uploadnumber"+
+            " inner join replys_tree on rp.parent_id = replys_tree.id"+
             ")"+
-            " select uploadnumber,content,questions_uploadnumber,user_id,nowtime,modify_Date,parent_id,depth,deleted,path" +
+            " select id,content,questions_id,user_id,nowtime,modify_Date,parent_id,depth,deleted,path" +
             " from replys_tree"+
             " order by path"
             , nativeQuery = true)
-    List<Replys> findReplysByQuestionsUploadnumber(@Param("uploadnumber") Integer uploadnumber);
+    List<Replys> findReplysByQuestionsid(@Param("id") Integer id);
 
     @Query("""
     select r.content as content,
            r.nowtime as nowtime,
-           r.questions.uploadnumber as questionsUploadnumber 
+           r.questions.id as questionsId 
     from Replys r 
     where r.users.id = :id
-    order by questionsUploadnumber desc
+    order by questionsId desc
     """)
     Page<ReplysBasicDto> findByUser(@Param("id") Long id, Pageable pageable);
 }

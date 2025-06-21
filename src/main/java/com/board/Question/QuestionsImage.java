@@ -33,7 +33,7 @@ public class QuestionsImage {
     private byte[] data;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "questions_uploadnumber")
+    @JoinColumn(name = "questions_id")
     private Questions questions;
 
     private LocalDateTime uploadedAt;

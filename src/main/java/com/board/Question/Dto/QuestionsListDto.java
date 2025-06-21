@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public interface QuestionsListDto {
 
-    Integer getUploadnumber();
+    Integer getId();
     String getTitle();
     String getContent();
     LocalDateTime getNowtime();
