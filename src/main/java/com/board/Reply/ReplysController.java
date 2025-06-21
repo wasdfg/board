@@ -1,5 +1,6 @@
 package com.board.Reply;
 
+import com.board.Admin.report.ReportedReason;
 import com.board.Question.Questions;
 import com.board.Question.QuestionsService;
 import com.board.User.Users;
@@ -76,11 +77,24 @@ public class ReplysController {
     @GetMapping("/delete/{id}")
     public String replysDelete(Principal principal, @PathVariable("id") Integer id) {
         Replys replys = this.replysService.getReplys(id);
+
         if (!replys.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
+
         this.replysService.delete(replys.getId());
+
         return String.format("redirect:/questions/detail/%s", replys.getQuestions().getId());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/report/{id}")
+    public String replysReport(Principal principal, @RequestParam ReportedReason reason, @PathVariable("id") Integer id) {
+        Replys replys = this.replysService.getReplys(id);
+
+        replysService.report(id, replys.getUsers(), reason);
+
+        return "redirect:/questions/detail/" + replys.getQuestions().getId();
     }
 
     @PreAuthorize("isAuthenticated()")

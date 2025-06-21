@@ -96,15 +96,14 @@ public class QuestionsService { //service에서 처리
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 해당 글을 신고하셨습니다.");
         }
 
-        Report report = Report.of(users,questions,reason);
-        reportRepository.save(report);
+        reportRepository.save(Report.questionReport(users,questions,reason));
         questions.reported();
 
     }
 
     @Transactional
     public void delete(Questions questions){
-        questions.isDeleted();
+        questions.requestDeleted();
         eventPublisher.publishEvent(new QuestionsDeletedEvent(questions.getId()));
     }
 

@@ -1,5 +1,8 @@
 package com.board.Reply;
 
+import com.board.Admin.report.Report;
+import com.board.Admin.report.ReportRepository;
+import com.board.Admin.report.ReportedReason;
 import com.board.DataNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import com.board.Notice.ReplyCreatedEvent;
@@ -11,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +28,8 @@ import java.util.List;
 public class ReplysService {
 
     private final ReplysRepository replysRepository;
+
+    private final ReportRepository reportRepository;
     private final QuestionsRepository questionsRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -73,6 +80,21 @@ public class ReplysService {
         reply.setContent("삭제된 댓글입니다.");
         reply.setUsers(null); // 작성자도 지움
         replysRepository.save(reply);
+    }
+
+    public void report(Integer replyId, Users users, ReportedReason reason) {
+
+        Replys reply = this.getReplys(replyId);
+
+        if (reply.getUsers().getId().equals(users.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신의 댓글은 신고할 수 없습니다.");
+        }
+
+        if (reportRepository.existsByReplyAndUser(reply, users)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 신고하셨습니다.");
+        }
+
+        reportRepository.save(Report.replyReport(users, reply, reason));
     }
 
     public void vote(Replys replys, Users users) {

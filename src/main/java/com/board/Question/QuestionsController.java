@@ -167,7 +167,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/report/{id}")
+    @PostMapping("/report/{id}")
     public String questionReport(Principal principal, @RequestParam ReportedReason reason, @PathVariable("id") Integer id) {
         Questions questions = this.questionsService.getQuestions(id);
 
