@@ -1,5 +1,8 @@
 package com.board.Question;
 
+import com.board.Admin.report.Report;
+import com.board.Admin.report.ReportRepository;
+import com.board.Admin.report.ReportedReason;
 import com.board.DataNotFoundException;
 
 import com.board.ElasticSearch.ElasticSearchService;
@@ -11,6 +14,7 @@ import com.board.Reply.ReplysRepository;
 import com.board.User.Users;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,14 +47,16 @@ public class QuestionsService { //service에서 처리
 
     private final QuestionsImageRepository questionsImageRepository;
 
+    private final ReportRepository reportRepository;
+
     /*영속성 컨택스트를 위한 코드*/
     @PersistenceContext
     private EntityManager em;
 
     @Autowired
     private final ReplysRepository replysRepository;
-    public Questions getQuestions(Integer uploadnumber){
-        Optional<Questions> questions = this.questionsRepository.findById(uploadnumber); //uploadnumber로 찾는다.
+    public Questions getQuestions(Integer id){
+        Optional<Questions> questions = this.questionsRepository.findById(id); //id로 찾는다.
         if(questions.isPresent()){ //있으면
             return questions.get(); //자료를 가져온다
         }
@@ -79,9 +86,26 @@ public class QuestionsService { //service에서 처리
     }
 
     @Transactional
+    public void report(Questions questions, Users users, ReportedReason reason){
+
+        if (questions.getUsers().getId().equals(users.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자기 자신의 글은 신고할 수 없습니다.");
+        }
+
+        if (reportRepository.existsByQuestionAndUser(questions, users)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 해당 글을 신고하셨습니다.");
+        }
+
+        Report report = Report.of(users,questions,reason);
+        reportRepository.save(report);
+        questions.reported();
+
+    }
+
+    @Transactional
     public void delete(Questions questions){
-        this.questionsRepository.delete(questions);
-        eventPublisher.publishEvent(new QuestionsDeletedEvent(questions.getUploadnumber()));
+        questions.isDeleted();
+        eventPublisher.publishEvent(new QuestionsDeletedEvent(questions.getId()));
     }
 
     @Transactional
@@ -95,8 +119,8 @@ public class QuestionsService { //service에서 처리
     }
 
     @Transactional
-    public void increaseViewCount(Integer uploadnumber) {
-        Questions questions = questionsRepository.findById(uploadnumber)
+    public void increaseViewCount(Integer id) {
+        Questions questions = questionsRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("게시글을 찾을 수 없습니다."));
 
         questions.increaseView();
@@ -144,7 +168,7 @@ public class QuestionsService { //service에서 처리
     }
 
     @Transactional(readOnly = true)
-    public List<QuestionsImage> getImagesByUploadNumber(Integer uploadNumber) {
-        return questionsImageRepository.findByQuestionsUploadNumber(uploadNumber);
+    public List<QuestionsImage> getImagesByid(Integer id) {
+        return questionsImageRepository.findByQuestionsId(id);
     }
 }

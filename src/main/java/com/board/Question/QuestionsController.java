@@ -1,5 +1,6 @@
 package com.board.Question;
 
+import com.board.Admin.report.ReportedReason;
 import com.board.ReadTrackingManager;
 import com.board.Question.Dto.QuestionsListDto;
 import com.board.Reply.Replys;
@@ -79,31 +80,31 @@ public class QuestionsController { //controller에서 요청을 받아와서
         return "questions_list";
     }
 
-    @GetMapping(value = "/detail/{uploadnumber}")
-    public String detail(Model model, @PathVariable("uploadnumber") Integer uploadnumber
+    @GetMapping(value = "/detail/{id}")
+    public String detail(Model model, @PathVariable("id") Integer id
                                     , @RequestParam(value = "page", defaultValue = "0") int page
                                     , ReplysForm replysForm
                                     , HttpSession session, Principal principal, HttpServletRequest request, HttpServletResponse response){
 
         Set<Integer> readQuestions = readTrackingManager.getReadQuestions(request, session, principal);
-        boolean isFirstRead = !readQuestions.contains(uploadnumber);
+        boolean isFirstRead = !readQuestions.contains(id);
 
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        Questions questions = this.questionsService.getQuestions(id);
 
         if (isFirstRead) {
-            this.questionsService.increaseViewCount(uploadnumber);
+            this.questionsService.increaseViewCount(id);
         }
 
-        List<Replys> replysList = replysService.getReplysList(uploadnumber);
+        List<Replys> replysList = replysService.getReplysList(id);
 
-        List<QuestionsImage> imageEntities = questionsService.getImagesByUploadNumber(uploadnumber);
+        List<QuestionsImage> imageEntities = questionsService.getImagesByid(id);
 
         List<String> base64Images = imageEntities.stream()
                 .map(img -> "data:" + img.getContentType() + ";base64," +
                         Base64.getEncoder().encodeToString(img.getData()))
                 .toList();
 
-        readTrackingManager.saveReadQuestion(request, response, session, principal, uploadnumber);
+        readTrackingManager.saveReadQuestion(request, response, session, principal, id);
 
         model.addAttribute("replysList",replysList);
         model.addAttribute("questions",questions);
@@ -140,9 +141,9 @@ public class QuestionsController { //controller에서 요청을 받아와서
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/modify/{uploadnumber}")
-    public String questionModify(QuestionsForm questionsForm, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) {
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
+    @GetMapping("/modify/{id}")
+    public String questionModify(QuestionsForm questionsForm, @PathVariable("id") Integer id, Principal principal) {
+        Questions questions = this.questionsService.getQuestions(id);
         if(!questions.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
@@ -152,23 +153,38 @@ public class QuestionsController { //controller에서 요청을 받아와서
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/modify/{uploadnumber}")
-    public String questionsModify(@Valid QuestionsForm questionsForm, BindingResult bindingResult, @PathVariable("uploadnumber") Integer uploadnumber, Principal principal) { //글 수정
+    @PostMapping("/modify/{id}")
+    public String questionsModify(@Valid QuestionsForm questionsForm, BindingResult bindingResult, @PathVariable("id") Integer id, Principal principal) { //글 수정
         if (bindingResult.hasErrors()) {
             return "questions_form";
         }
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
+        Questions questions = this.questionsService.getQuestions(id);
         if(!questions.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
         this.questionsService.modify(questions,questionsForm.getTitle(),questionsForm.getContent());
-        return String.format("redirect:/questions/detail/%s", uploadnumber);
+        return String.format("redirect:/questions/detail/%s", id);
     }
 
     @PreAuthorize("isAuthenticated()")
+    @GetMapping("/report/{id}")
+    public String questionReport(Principal principal, @RequestParam ReportedReason reason, @PathVariable("id") Integer id) {
+        Questions questions = this.questionsService.getQuestions(id);
+
+        Users users = usersService.getUsers(principal.getName());
+
+        if (!questions.getUsers().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "신고권한이 없습니다.");
+        }
+        this.questionsService.report(questions,users,reason);
+        return String.format("redirect:/questions/detail/%s", questions.getId());
+    }
+
+
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String questionDelete(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber) {
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
+    public String questionDelete(Principal principal, @PathVariable("id") Integer id) {
+        Questions questions = this.questionsService.getQuestions(id);
         if (!questions.getUsers().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
@@ -176,10 +192,11 @@ public class QuestionsController { //controller에서 요청을 받아와서
         return "redirect:/";
     }
 
+
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/vote/{uploadnumber}")
-    public String questionsVote(Principal principal, @PathVariable("uploadnumber") Integer uploadnumber, Model model) {
-        Questions questions = this.questionsService.getQuestions(uploadnumber);
+    @GetMapping("/vote/{id}")
+    public String questionsVote(Principal principal, @PathVariable("id") Integer id, Model model) {
+        Questions questions = this.questionsService.getQuestions(id);
         Users users = this.usersService.getUsers(principal.getName()); // 현재 로그인한 유저의 정보를 담는다
 
         boolean alreadyVoted = false;
@@ -191,6 +208,6 @@ public class QuestionsController { //controller에서 요청을 받아와서
         }
 
         model.addAttribute("voted", alreadyVoted);
-        return "redirect:/questions/detail/" + uploadnumber + "?voted=" + alreadyVoted;
+        return "redirect:/questions/detail/" + id + "?voted=" + alreadyVoted;
     }
 }

@@ -1,5 +1,6 @@
 package com.board.Question;
 
+import com.board.Admin.report.Report;
 import com.board.Reply.Replys;
 import com.board.User.Users;
 import jakarta.persistence.CascadeType;
@@ -16,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,10 +28,11 @@ import java.util.Set;
 @NoArgsConstructor //기본 생성자 자동추가 public Question{}을 생성해준다
 @Getter
 @Entity //데이터베이스 entity로 사용하기 위해 선언
+@Where(clause = "deleted = false") //기본적으로는 삭제된걸 조회되지 않게 수정
 public class Questions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //generationtype은 값을 자동으로 1씩 증가시켜준다
-    private Integer uploadnumber; //int와 달리 integer는 null값으로 사용이 가능하여 sql용으로 적절하다. 저장공간도 크다
+    private Integer id; //int와 달리 integer는 null값으로 사용이 가능하여 sql용으로 적절하다. 저장공간도 크다
     
     @Column(length = 200,nullable = false) //길이를 200으로 제한
     private String title;
@@ -57,7 +60,7 @@ public class Questions {
     @ManyToMany
     @JoinTable(
             name = "questions_voter", // 중간 테이블 이름
-            joinColumns = @JoinColumn(name = "questions_uploadnumber"),
+            joinColumns = @JoinColumn(name = "questions_id"),
             inverseJoinColumns = @JoinColumn(name = "users_id")
     )
     private Set<Users> voter = new HashSet<>();
@@ -68,6 +71,15 @@ public class Questions {
     @Column(nullable = false)
     private String category;
 
+    @OneToMany(mappedBy = "questions")
+    private List<Report> reports = new ArrayList<>();
+
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    @Column(nullable = false)
+    private boolean reported = false;
+
     public static Questions create(String title, String content, Users users,Category category){
         Questions q = new Questions();
         q.setTitle(title);
@@ -76,6 +88,16 @@ public class Questions {
         q.setUsers(users);
         q.setCategory(category.getValue());
         return q;
+    }
+
+    /*삭제 시 soft삭제*/
+    public void requestDeleted() {
+        this.deleted = true;
+    }
+    
+    /*신고시 report 컬럼 값 변경*/
+    public void reported(){
+        this.reported = true;
     }
 
     public void modify(String title,String content){ //수정할 내용 저장
@@ -118,4 +140,5 @@ public class Questions {
     public void setReplysList(List<Replys> replysList) {
         this.replysList = replysList;
     }
+
 }
