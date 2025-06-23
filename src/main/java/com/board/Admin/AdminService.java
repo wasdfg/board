@@ -1,5 +1,6 @@
 package com.board.Admin;
 
+import com.board.Admin.report.Dto.ReportSummaryDto;
 import com.board.Admin.report.Report;
 import com.board.Admin.report.ReportRepository;
 import com.board.User.Users;
@@ -31,8 +32,8 @@ public class AdminService {
 
     }
 
-    public Page<Report> getReports(int page){
+    public Page<ReportSummaryDto> getReports(int page){
         Pageable pageable = PageRequest.of(page, 20);
-        return null;
+        return reportRepository.findAllSummary(pageable);
     }
 }

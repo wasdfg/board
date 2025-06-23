@@ -1,5 +1,6 @@
 package com.board.Admin;
 
+import com.board.Admin.report.Dto.ReportSummaryDto;
 import com.board.Admin.report.Report;
 import com.board.Question.Dto.QuestionsListDto;
 import com.board.User.Users;
@@ -87,7 +88,7 @@ public class AdminController {
 
     @GetMapping("/reports")
     public String checkReports(@RequestParam(defaultValue = "0") int page, Model model) {
-        Page<Report> reports = adminService.getReports(page);
+        Page<ReportSummaryDto> reports = adminService.getReports(page);
         model.addAttribute("reports", reports);
         return "admin/reports";
     }
