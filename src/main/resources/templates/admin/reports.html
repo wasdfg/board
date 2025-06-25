@@ -1,0 +1,54 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+
+  <h2 class="border-bottom pb-2">신고 내역</h2>
+
+  <div th:if="${#lists.isEmpty(reports.content)}">
+    <p>신고된 항목이 없습니다.</p>
+  </div>
+
+  <div class="list-group" th:each="report : ${reports.content}">
+    <div class="list-group-item mb-3">
+      <div class="d-flex justify-content-between">
+        <div>
+          <strong th:text="${report.reporterNickname}">닉네임</strong> 님이
+          <span th:if="${report.questionId != null}">질문(ID: [[${report.questionId}]])</span>
+          <span th:if="${report.replyQuestionId != null}">댓글(질문 ID: [[${report.replyQuestionId}]])</span>
+          을 신고했습니다.
+        </div>
+        <div>
+          <span class="badge bg-danger" th:text="${report.reason}">신고사유</span>
+          <span class="badge bg-secondary" th:text="${#temporals.format(report.reportedDate, 'yyyy-MM-dd HH:mm')}"></span>
+        </div>
+      </div>
+
+      <form th:action="@{|/admin/reports/${report.questionId != null ? report.questionId : report.replyQuestionId}|}" method="post" class="mt-2">
+        <input type="hidden" name="page" th:value="${reports.number}">
+        <div class="d-flex gap-2">
+          <button type="submit" name="action" value="accept" class="btn btn-sm btn-success">처리 완료</button>
+          <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-secondary">무시</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 페이징 -->
+  <div class="my-3">
+    <nav th:if="${reports.totalPages > 1}">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${reports.first} ? 'disabled'">
+          <a class="page-link" th:href="@{/admin/reports(page=${reports.number - 1})}">이전</a>
+        </li>
+        <li class="page-item" th:each="i : ${#numbers.sequence(0, reports.totalPages - 1)}"
+            th:classappend="${reports.number == i} ? 'active'">
+          <a class="page-link" th:href="@{/admin/reports(page=${i})}" th:text="${i + 1}"></a>
+        </li>
+        <li class="page-item" th:classappend="${reports.last} ? 'disabled'">
+          <a class="page-link" th:href="@{/admin/reports(page=${reports.number + 1})}">다음</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+</div>
+</html>
