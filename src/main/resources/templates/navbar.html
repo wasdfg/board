@@ -47,4 +47,24 @@
                 });
             });
         });
+
+        const reportModalEl = document.getElementById('reportModal');
+        const reportModal    = new bootstrap.Modal(reportModalEl);
+
+        const reportBtns = document.querySelectorAll('.report');
+        reportBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+            const id   = btn.dataset.id;      // 대상 PK
+            const type = btn.dataset.type;    // question | reply
+
+
+            const frm  = document.getElementById('reportForm');
+            if (type === 'question') {
+                frm.action = `/questions/${id}/reports`;
+            } else {
+                frm.action = `/replys/${id}/reports`;
+            }
+            reportModal.show();
+    });
+});
 </script>

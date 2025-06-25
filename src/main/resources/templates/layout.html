@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <!-- <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
     <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,">
     <title>Welcome!</title>
     <!-- Custom CSS -->
@@ -16,9 +15,18 @@
             justify-content: center; /* 버튼들을 중앙 정렬 */
             gap: 10px; /* 버튼 사이에 간격 추가 (선택 사항) */
         }
-        /* 호버 효과 적용 */
+        tbody tr {
+            color: black;
+            cursor: pointer; /* 포인터 커서로 변경 */
+        }
+
+        /* 호버 시 텍스트 색상이 변경되지 않도록 */
         tbody tr:hover {
-            background-color: #f1f1f1 !important; /* 호버 시 배경색 변경 */
+            background-color: #f1f1f1; /* 호버 시 배경색만 변경 */
+        }
+
+        .read td {
+            color: #6c757d; /*회색*/
         }
 
         /* 테이블과 셀 스타일 */
@@ -33,22 +41,14 @@
             text-align: center; /* 텍스트 정렬 */
         }
 
-            /* 테이블 헤더 스타일 */
-        thead th {
-            background-color: #343a40; /* 헤더 배경색 */
-            color: white; /* 헤더 텍스트 색상 */
-        }
+        /* 테이블 헤더 스타일 */
+
         .small {
             font-size: 0.875em; /* 작은 글꼴 크기 */
         }
 
         .ms-2 {
             margin-left: 0.5rem; /* 왼쪽 여백 */
-        }
-
-        /* 기본 행 스타일 */
-        tr {
-            cursor: pointer;
         }
     </style>
 </head>
@@ -61,10 +61,6 @@
     <th:block layout:fragment="content"></th:block>
 </div>
 <!-- 기본 템플릿 안에 삽입될 내용 End -->
-<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
 <!-- 자바스크립트 Start -->
