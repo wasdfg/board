@@ -19,6 +19,21 @@ public class Users {
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private UsersDetail usersDetail;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UsersRole role;
+
+    @Column(nullable = false)
+    private boolean suspended = false;
+
+    public void suspend() {
+        this.suspended = true;
+    }
+
+    public void unsuspend() {
+        this.suspended = false;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -29,5 +44,9 @@ public class Users {
 
     public void setUsersDetail(UsersDetail usersDetail) {
         this.usersDetail = usersDetail;
+    }
+
+    public void setRole(UsersRole role) {
+        this.role = role;
     }
 }

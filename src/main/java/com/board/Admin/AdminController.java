@@ -43,48 +43,25 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}")
-    public String changeUsersRole(@PathVariable Long id,
-                                   @RequestParam String action,
-                                   @RequestParam(required = false) UsersRole role,
-                                   @RequestParam(defaultValue = "0") int page,
-                                   RedirectAttributes ra) {
+    public String changeUsers(
+            @PathVariable Long id,
+            @RequestParam String action,
+            @RequestParam(required = false) UsersRole role,
+            @RequestParam(defaultValue = "0") int page,
+            RedirectAttributes ra
+    ) {
         if ("changeRole".equals(action) && role != null) {
             adminService.changeUsersRole(id, role);
             ra.addFlashAttribute("successMessage", "권한이 변경되었습니다.");
+        } else if ("suspend".equals(action)) {
+            adminService.changeUserSuspension(id);  // 정지 <-> 해제
+            ra.addFlashAttribute("successMessage", "사용자 상태가 변경되었습니다.");
         } else {
             ra.addFlashAttribute("errorMessage", "올바르지 않은 요청입니다.");
         }
         ra.addAttribute("page", page);
         return "redirect:/admin/users";
     }
-
-
-    @GetMapping("/posts")
-    public String posts(@RequestParam(defaultValue = "0") int page, Model model) {
-        //Page<QuestionsListDto> posts = adminService.getQuestionsList(page);
-        //model.addAttribute("posts", posts);
-        return "admin/posts";
-    }
-
-    @PostMapping("/posts/{id}")
-    public String deletePosts(@PathVariable Integer id,
-                                   @RequestParam String action,
-                                   @RequestParam(defaultValue = "0") int page,
-                                   RedirectAttributes ra) {
-        if ("delete".equals(action)) {
-            try {
-                //adminService.deleteQuestionByAdmin(id);
-                ra.addFlashAttribute("successMessage", "게시글이 삭제되었습니다.");
-            } catch (EntityNotFoundException e) {
-                ra.addFlashAttribute("errorMessage", "게시글을 찾을 수 없습니다.");
-            } catch (Exception e) {
-                ra.addFlashAttribute("errorMessage", "게시글 삭제 중 오류가 발생했습니다.");
-            }
-        }
-        ra.addAttribute("page", page);
-        return "redirect:/admin/posts";
-    }
-
 
     @GetMapping("/reports")
     public String checkReports(@RequestParam(defaultValue = "0") int page, Model model) {

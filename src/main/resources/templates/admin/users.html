@@ -1,0 +1,50 @@
+<html layout:decorate="~{layout}">
+<section layout:fragment="content">
+  <h1>사용자 관리</h1>
+
+  <table>
+    <thead>
+    <tr>
+      <th>아이디</th>
+      <th>닉네임</th>
+      <th>권한</th>
+      <th>정지 여부</th>
+      <th>액션</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users.content}">
+      <td th:text="${user.username}"></td>
+      <td th:text="${user.nickname}"></td>
+      <td>
+        <form th:action="@{'/admin/users/' + ${user.id}}" method="post">
+          <input type="hidden" name="action" value="changeRole"/>
+          <input type="hidden" name="page" th:value="${users.number}"/>
+          <select name="role">
+            <option value="USER" th:selected="${user.role == 'USER'}">USER</option>
+            <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">ADMIN</option>
+          </select>
+          <button type="submit">변경</button>
+        </form>
+      </td>
+      <td th:text="${user.suspended ? '정지됨' : '활성'}"></td>
+      <td>
+        <form th:action="@{'/admin/users/' + ${user.id}}" method="post">
+          <input type="hidden" name="action" value="suspend"/>
+          <input type="hidden" name="page" th:value="${users.number}"/>
+          <button type="submit" th:if="${!user.suspended}">정지</button>
+          <button type="submit" th:if="${user.suspended}">정지 해제</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- 페이징 -->
+  <div>
+    <a th:if="${users.hasPrevious()}" th:href="@{/admin/users(page=${users.number - 1})}">이전</a>
+    <span th:text="${users.number + 1}">1</span>
+    <a th:if="${users.hasNext()}" th:href="@{/admin/users(page=${users.number + 1})}">다음</a>
+  </div>
+</section>
+</html>
