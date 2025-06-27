@@ -1,14 +1,11 @@
 package com.board.Admin;
 
 import com.board.Admin.report.Dto.ReportSummaryDto;
-import com.board.Admin.report.Report;
-import com.board.Question.Dto.QuestionsListDto;
 import com.board.User.Users;
 import com.board.User.UsersRole;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,8 +26,8 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        //AdminDashboardStatsDto stats = adminService.getDashboardStats();
-        //model.addAttribute("stats", stats);
+        DashboardStatsDto stats = adminService.getDashboardStats();
+        model.addAttribute("stats", stats);
         return "admin/dashboard";
     }
 

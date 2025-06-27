@@ -1,8 +1,9 @@
 package com.board.Admin;
 
 import com.board.Admin.report.Dto.ReportSummaryDto;
-import com.board.Admin.report.Report;
 import com.board.Admin.report.ReportRepository;
+import com.board.Question.Repository.QuestionsRepository;
+import com.board.Reply.ReplysRepository;
 import com.board.User.Users;
 import com.board.User.UsersRepository;
 import com.board.User.UsersRole;
@@ -14,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class AdminService {
@@ -23,6 +27,9 @@ public class AdminService {
 
     private final ReportRepository reportRepository;
 
+    private final QuestionsRepository questionsRepository;
+
+    private final ReplysRepository replysRepository;
 
     public Page<Users> getAllUsers(int page){
         Pageable pageable = PageRequest.of(page, 20);
@@ -50,5 +57,33 @@ public class AdminService {
     public Page<ReportSummaryDto> getReports(int page){
         Pageable pageable = PageRequest.of(page, 20);
         return reportRepository.findAllSummary(pageable);
+    }
+
+    public DashboardStatsDto getDashboardStats() {
+        long totalUsers = usersRepository.count();
+        long todaySignups = usersRepository.countByCreatedDateAfter(LocalDate.now().atStartOfDay());
+        long totalQuestions = questionsRepository.count();
+        long totalReplies = replysRepository.count();
+        long deletedQuestions = questionsRepository.countByDeletedTrue();
+        long suspendedUsers = usersRepository.countBySuspendedTrue();
+        long recentReports = reportRepository.countByCreatedDateAfter(LocalDate.now().minusDays(7).atStartOfDay());
+
+        long totalReports = reportRepository.count();
+        long resolvedReports = reportRepository.countByResolvedTrue();
+        double resolvedRate = totalReports == 0 ? 0.0 : ((double) resolvedReports / totalReports) * 100;
+
+        List<String> recentActiveUsers = usersRepository.findTop5ActiveUserNicknames();
+
+        return new DashboardStatsDto(
+                totalUsers,
+                todaySignups,
+                totalQuestions,
+                totalReplies,
+                deletedQuestions,
+                suspendedUsers,
+                recentReports,
+                resolvedRate,
+                recentActiveUsers
+        );
     }
 }

@@ -16,6 +16,9 @@ public interface QuestionsRepository extends JpaRepository<Questions,Integer>, Q
     @Query("SELECT q FROM Questions q WHERE q.users.id = :id ORDER BY q.id desc")
     Page<QuestionsBasicDto> findByUser(@Param("id")Long id, Pageable pageable);
 
+    @Query("SELECT COUNT(q) FROM Questions q WHERE q.deleted = true")
+    long countByDeletedTrue();
+
 }
 // CRUD 작업을 처리하는 메서드를 내장하고 있다
 
