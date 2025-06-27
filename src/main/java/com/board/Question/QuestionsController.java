@@ -77,7 +77,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
         model.addAttribute("currentPageGroupStart", current_Page_Group_Start);
         model.addAttribute("currentPageGroupEnd", current_Page_Group_End);
 
-        return "questions_list";
+        return "questions/questions_list";
     }
 
     @GetMapping(value = "/detail/{id}")
@@ -110,7 +110,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
         model.addAttribute("questions",questions);
         model.addAttribute("images", base64Images);
 
-        return "questions_detail";
+        return "questions/questions_detail";
     }
 
     @PreAuthorize("isAuthenticated()") //로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
@@ -119,14 +119,14 @@ public class QuestionsController { //controller에서 요청을 받아와서
         model.addAttribute("categories", Arrays.stream(Category.values())
                 .filter(c -> c != Category.ALL)
                 .collect(Collectors.toList()));
-        return "questions_form";
+        return "questions/questions_form";
     }
 
     @PreAuthorize("isAuthenticated()") //로그인 된 경우에만 실행됨, 로그인 된 상태에서 로그아웃하는 경우 강제로 로그인페이지로 이동함
     @PostMapping("/create") //url처리
     public String questionsCreate(@Valid QuestionsForm questionsForm, BindingResult bindingResult, Principal principal){//질문 폼에 조건 추가
         if(bindingResult.hasErrors()){ //에러가 있는지 검사
-            return "questions_form";
+            return "questions/questions_form";
         }
         Users users = this.usersService.getUsers(principal.getName());
         try {
@@ -149,7 +149,7 @@ public class QuestionsController { //controller에서 요청을 받아와서
         }
         questionsForm.setTitle(questions.getTitle());
         questionsForm.setContent(questions.getContent());
-        return "questions_form";
+        return "questions/questions_form";
     }
 
     @PreAuthorize("isAuthenticated()")

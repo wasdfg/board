@@ -36,7 +36,7 @@ public class ReplysController {
 
         if(bindingResult.hasErrors()){
             model.addAttribute("questions", questions);
-            return "questions_detail";
+            return "questions/questions_detail";
         }
 
         Replys Preplys = null;

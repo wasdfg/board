@@ -41,11 +41,11 @@ public class UsersController {
     @PostMapping("/signup")
     public String signup(@Valid UsersCreateForm usersCreateForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) { 
-            return "signup_form";
+            return "account/signup_form";
         }
         if (!usersCreateForm.getPassword1().equals(usersCreateForm.getPassword2())) { //비밀번호 검증이 실패했을 경우
             bindingResult.rejectValue("password2", "passwordInCorrect", "2개의 패스워드가 일치하지 않습니다.");
-            return "signup_form";
+            return "account/signup_form";
         }
 
         try {
@@ -53,11 +53,11 @@ public class UsersController {
         }catch(DataIntegrityViolationException e) {
             e.printStackTrace();
             bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-            return "signup_form";
+            return "account/signup_form";
         }catch(Exception e) {
             e.printStackTrace();
             bindingResult.reject("signupFailed", e.getMessage());
-            return "signup_form";
+            return "account/signup_form";
         }
 
         return "redirect:/";
@@ -65,13 +65,13 @@ public class UsersController {
 
     @GetMapping("/login")
     public String login(){
-        return "login_form";
+        return "account/login_form";
     }
 
     @GetMapping("/chginfo")
     @PreAuthorize("isAuthenticated()")
     public String changePw(){
-        return "change_pwd";
+        return "account/change_pwd";
     }
 
     @PostMapping("/chginfo")
@@ -84,14 +84,14 @@ public class UsersController {
         }
         else{
             model.addAttribute("error",true);
-            return "change_pwd";
+            return "account/change_pwd";
         }
     }
 
     @GetMapping("/chkinfo")
     @PreAuthorize("isAuthenticated()")
     public String checkPw(){
-        return "check_pwd";
+        return "account/check_pwd";
     }
 
     @PostMapping("/chkinfo")
@@ -103,23 +103,23 @@ public class UsersController {
         }
         else{
             model.addAttribute("error", true);
-            return "check_pwd";
+            return "account/check_pwd";
         }
     }
 
     @GetMapping("/findAccount")
     public String findAccount(){
-        return "find_account";
+        return "account/find_account";
     }
 
     @GetMapping("/chkEmail")
     public String checkEmail(){
-        return "send_Email";
+        return "account/send_Email";
     }
 
     @GetMapping("/findId")
     public String findId(){
-        return "find_id";
+        return "account/find_id";
     }
 
     @PostMapping("/findId")
@@ -146,12 +146,12 @@ public class UsersController {
         else if (type.equals("replys")) {
             model.addAttribute("Rpaging",Rpaging);
         }
-        return "show_info";
+        return "account/show_info";
     }
 
     @GetMapping("/findPwd")
     public String findPassword(){
-        return "find_password";
+        return "account/find_password";
     }
 
     @PostMapping("/findPwd")
