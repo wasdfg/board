@@ -1,17 +1,20 @@
 package com.board.Question.Repository;
 
+import com.board.Admin.PostListDto;
 import com.board.Question.Category;
 import com.board.Question.Dto.QuestionsListDto;
-import com.board.Question.Repository.QuestionsRepositoryCustom;
 import com.board.Question.SearchType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -182,6 +185,54 @@ public class QuestionsRepositoryImpl implements QuestionsRepositoryCustom {
         long total = countQuery.getSingleResult();
 
         return new PageImpl<>(resultList, pageable, total);
+    }
+
+
+    @Override
+    public Page<PostListDto> searchAdminPosts(String keyword, Category category, Boolean reported, Boolean deleted, Pageable pageable) {
+        StringBuilder jpql = new StringBuilder("SELECT q.id AS id, q.title AS title, u.nickname AS writerNickname, q.createdDate AS createdDate, q.deleted AS deleted, ");
+        jpql.append("(SELECT COUNT(r) > 0 FROM Report r WHERE r.question.id = q.id) AS reported ");
+        jpql.append("FROM Questions q JOIN q.writer u WHERE 1=1 ");
+
+        if (keyword != null && !keyword.isBlank()) {
+            jpql.append("AND q.title LIKE :keyword ");
+        }
+        if (category != null) {
+            jpql.append("AND q.category = :category ");
+        }
+        if (reported != null) {
+            jpql.append("AND (SELECT COUNT(r) FROM Report r WHERE r.question.id = q.id) ");
+            jpql.append(reported ? "> 0 " : "= 0 ");
+        }
+        if (deleted != null) {
+            jpql.append("AND q.deleted = :deleted ");
+        }
+
+        String countJpql = jpql.toString().replaceFirst("SELECT .* FROM", "SELECT COUNT(q) FROM");
+        Query countQuery = em.createQuery(countJpql);
+        Query dataQuery = em.createQuery(jpql.toString(), Tuple.class);
+
+        if (keyword != null && !keyword.isBlank()) {
+            countQuery.setParameter("keyword", "%" + keyword + "%");
+            dataQuery.setParameter("keyword", "%" + keyword + "%");
+        }
+        if (category != null) {
+            countQuery.setParameter("category", category);
+            dataQuery.setParameter("category", category);
+        }
+        if (deleted != null) {
+            countQuery.setParameter("deleted", deleted);
+            dataQuery.setParameter("deleted", deleted);
+        }
+
+        long total = (long) countQuery.getSingleResult();
+        dataQuery.setFirstResult((int) pageable.getOffset());
+        dataQuery.setMaxResults(pageable.getPageSize());
+
+        @SuppressWarnings("unchecked")
+        List<PostListDto> result = dataQuery.getResultList();
+
+        return new PageImpl<>(result, pageable, total);
     }
 }
 

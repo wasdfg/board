@@ -1,0 +1,39 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+    <h2>게시글 관리</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+            <th>삭제됨</th>
+            <th>신고됨</th>
+            <th>조치</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="post : ${posts.content}">
+            <td th:text="${post.id}"></td>
+            <td th:text="${post.title}"></td>
+            <td th:text="${post.writerNickname}"></td>
+            <td th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${post.deleted}"></td>
+            <td th:text="${post.reported}"></td>
+            <td>
+                <form th:action="@{'/admin/posts/' + ${post.id}}" method="post">
+                    <select name="action">
+                        <option value="delete">삭제</option>
+                        <option value="restore">복구</option>
+                        <option value="hide">숨김</option>
+                        <option value="show">공개</option>
+                    </select>
+                    <button type="submit">실행</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</html>

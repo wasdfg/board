@@ -80,6 +80,9 @@ public class Questions {
     @Column(nullable = false)
     private boolean reported = false;
 
+    @Column(nullable = false)
+    private boolean hidden;
+
     public static Questions create(String title, String content, Users users,Category category){
         Questions q = new Questions();
         q.setTitle(title);

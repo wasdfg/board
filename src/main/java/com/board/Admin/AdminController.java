@@ -1,6 +1,7 @@
 package com.board.Admin;
 
 import com.board.Admin.report.Dto.ReportSummaryDto;
+import com.board.Question.Category;
 import com.board.User.Users;
 import com.board.User.UsersRole;
 import jakarta.persistence.EntityNotFoundException;
@@ -82,5 +83,36 @@ public class AdminController {
         }
         ra.addAttribute("page", page);
         return "redirect:/admin/reports";
+    }
+
+    @GetMapping("/posts")
+    public String posts(@RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) Category category,
+                        @RequestParam(required = false) Boolean reported,
+                        @RequestParam(required = false) Boolean deleted,
+                        @RequestParam(defaultValue = "0") int page,
+                        Model model) {
+        Page<PostListDto> posts = adminService.searchAdminPosts(keyword, category, reported, deleted, page);
+        model.addAttribute("posts", posts);
+        return "admin/posts";
+    }
+
+    @PostMapping("/posts/{id}")
+    public String postAction(@PathVariable Long id,
+                             @RequestParam String action,
+                             RedirectAttributes ra) {
+        try {
+            switch (action) {
+                //case "delete" -> adminService.softDeletePost(id);
+                //case "restore" -> adminService.restorePost(id);
+                //case "hide" -> adminService.hidePost(id);
+                //case "show" -> adminService.showPost(id);
+                default -> throw new IllegalArgumentException("Invalid action");
+            }
+            //ra.addFlashAttribute("successMessage", "처리가 완료되었습니다.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("errorMessage", "처리 중 오류 발생");
+        }
+        return "redirect:/admin/posts";
     }
 }

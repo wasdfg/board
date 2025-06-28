@@ -2,6 +2,7 @@ package com.board.Admin;
 
 import com.board.Admin.report.Dto.ReportSummaryDto;
 import com.board.Admin.report.ReportRepository;
+import com.board.Question.Category;
 import com.board.Question.Repository.QuestionsRepository;
 import com.board.Reply.ReplysRepository;
 import com.board.User.Users;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,5 +87,10 @@ public class AdminService {
                 resolvedRate,
                 recentActiveUsers
         );
+    }
+
+    public Page<PostListDto> searchAdminPosts(String keyword, Category category, Boolean reported, Boolean deleted, int page) {
+        Pageable pageable = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdDate"));
+        return questionsRepository.searchAdminPosts(keyword, category, reported, deleted, pageable);
     }
 }
