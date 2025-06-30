@@ -103,7 +103,7 @@ public class QuestionsService { //service에서 처리
 
     @Transactional
     public void delete(Questions questions){
-        questions.requestDeleted();
+        questions.delete();
         eventPublisher.publishEvent(new QuestionsDeletedEvent(questions.getId()));
     }
 

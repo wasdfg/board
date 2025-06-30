@@ -98,15 +98,15 @@ public class AdminController {
     }
 
     @PostMapping("/posts/{id}")
-    public String postAction(@PathVariable Long id,
+    public String postAction(@PathVariable Integer id,
                              @RequestParam String action,
                              RedirectAttributes ra) {
         try {
             switch (action) {
-                //case "delete" -> adminService.softDeletePost(id);
-                //case "restore" -> adminService.restorePost(id);
-                //case "hide" -> adminService.hidePost(id);
-                //case "show" -> adminService.showPost(id);
+                case "delete" -> adminService.softDeletePost(id);
+                case "restore" -> adminService.restorePost(id);
+                case "hide" -> adminService.hidePost(id);
+                case "show" -> adminService.showPost(id);
                 default -> throw new IllegalArgumentException("Invalid action");
             }
             //ra.addFlashAttribute("successMessage", "처리가 완료되었습니다.");

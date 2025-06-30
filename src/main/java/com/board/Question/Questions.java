@@ -94,13 +94,25 @@ public class Questions {
     }
 
     /*삭제 시 soft삭제*/
-    public void requestDeleted() {
+    public void delete() {
         this.deleted = true;
     }
     
     /*신고시 report 컬럼 값 변경*/
     public void reported(){
         this.reported = true;
+    }
+
+    public void restore() {
+        this.deleted = false;
+    }
+
+    public void hide() {
+        this.hidden = true;
+    }
+
+    public void show() {
+        this.hidden = false;
     }
 
     public void modify(String title,String content){ //수정할 내용 저장
