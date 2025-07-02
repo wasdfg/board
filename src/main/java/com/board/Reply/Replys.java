@@ -46,6 +46,13 @@ public class Replys {
     @ColumnDefault("false")
     private boolean deleted = false;
 
+    @Column(nullable = false)
+    private boolean reported = true;
+
+    public void setReported(boolean reported) {
+        this.reported = reported;
+    }
+
     public void setModifyDate(LocalDateTime modifyDate) {
         this.modifyDate = modifyDate;
     }

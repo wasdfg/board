@@ -74,7 +74,7 @@ public class AdminController {
                                      @RequestParam(defaultValue = "0") int page,
                                      RedirectAttributes ra) {
         try {
-            //adminService.resolveReport(id, action);
+            adminService.resolveReport(id, action);
             ra.addFlashAttribute("successMessage", "신고가 처리되었습니다.");
         } catch (EntityNotFoundException e) {
             ra.addFlashAttribute("errorMessage", "신고를 찾을 수 없습니다.");

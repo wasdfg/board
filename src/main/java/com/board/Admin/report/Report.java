@@ -51,6 +51,9 @@ public class Report {
     @JoinColumn(name = "questions_id") // FK 컬럼 이름
     private Questions question;
 
+    @Column(nullable = false)
+    private boolean resolved = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="reply_id")
     private Replys reply;
@@ -75,5 +78,9 @@ public class Report {
         report.reply = replys;
         report.reason = reason;
         return report;
+    }
+
+    public void resolved() {
+        this.resolved = true;
     }
 }

@@ -1,10 +1,12 @@
 package com.board.Admin;
 
 import com.board.Admin.report.Dto.ReportSummaryDto;
+import com.board.Admin.report.Report;
 import com.board.Admin.report.ReportRepository;
 import com.board.Question.Category;
 import com.board.Question.Questions;
 import com.board.Question.Repository.QuestionsRepository;
+import com.board.Reply.Replys;
 import com.board.Reply.ReplysRepository;
 import com.board.User.Users;
 import com.board.User.UsersRepository;
@@ -123,5 +125,26 @@ public class AdminService {
     private Questions getQuestions(Integer id) {
         return questionsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
+    }
+
+    @Transactional
+    public void resolveReport(Long id, String action) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("신고를 찾을 수 없습니다."));
+
+        if ("accept".equals(action)) {
+            if (report.getQuestion() != null) {
+                Questions question = report.getQuestion();
+                question.reported();
+                questionsRepository.save(question);
+            } else if (report.getReply() != null) {
+                Replys reply = report.getReply();
+                reply.setReported(false);
+                replysRepository.save(reply);
+            }
+        }
+
+        report.resolved();
+        reportRepository.save(report);
     }
 }
